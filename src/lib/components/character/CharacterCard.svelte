@@ -21,12 +21,10 @@
 <div
     role="button"
     tabindex="0"
-    class="card p-4 border-2 transition-all cursor-pointer hover:shadow-lg"
-    class:border-blue-500={isActive}
-    class:bg-blue-50={isActive}
-    class:border-gray-200={!isActive}
+    class="card p-4 transition-all cursor-pointer hover:shadow-lg"
+    class:preset-tonal-primary={isActive}
     onclick={() => onSelect?.(character.id)}
-    onkeydown={(e) => e.key === 'Enter' && onSelect?.(character.id)}>
+    onkeydown={(e) => e.key === "Enter" && onSelect?.(character.id)}>
     <div class="flex items-start justify-between mb-2">
         <div class="flex-1">
             <h3 class="text-lg font-bold">
@@ -38,31 +36,31 @@
             </p>
         </div>
         {#if isActive}
-            <span class="px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded"> Active </span>
+            <span class="badge preset-filled"> Active </span>
         {/if}
     </div>
 
     <div class="grid grid-cols-3 gap-2 mb-3 text-center text-sm">
-        <div class="bg-gray-100 p-2 rounded">
-            <div class="font-semibold text-gray-700">{character.knownSpells.length}</div>
-            <div class="text-xs text-gray-500">Spells</div>
+        <div class="card preset-tonal-surface p-2">
+            <div class="font-semibold">{character.knownSpells.length}</div>
+            <div class="text-xs opacity-75">Spells</div>
         </div>
-        <div class="bg-green-100 p-2 rounded">
-            <div class="font-semibold text-green-700">{availableSlots}</div>
-            <div class="text-xs text-green-600">Available</div>
+        <div class="card preset-tonal-success p-2">
+            <div class="font-semibold">{availableSlots}</div>
+            <div class="text-xs opacity-75">Available</div>
         </div>
-        <div class="bg-red-100 p-2 rounded">
-            <div class="font-semibold text-red-700">{usedSlots}</div>
-            <div class="text-xs text-red-600">Used</div>
+        <div class="card preset-tonal-error p-2">
+            <div class="font-semibold">{usedSlots}</div>
+            <div class="text-xs opacity-75">Used</div>
         </div>
     </div>
 
     {#if Object.keys(character.spellSlots).length > 0}
         <div class="mb-3">
-            <div class="text-xs text-gray-600 mb-1">Spell Slots:</div>
+            <div class="text-xs opacity-75 mb-1">Spell Slots:</div>
             <div class="flex flex-wrap gap-1">
                 {#each Object.entries(character.spellSlots) as [level, slot]}
-                    <span class="text-xs px-2 py-1 bg-gray-200 rounded">
+                    <span class="chip preset-tonal text-xs">
                         {formatSpellLevel(Number(level))}: {slot.total - slot.used}/{slot.total}
                     </span>
                 {/each}
@@ -71,14 +69,14 @@
     {/if}
 
     {#if onEdit || onDelete}
-        <div class="flex gap-2 pt-2 border-t">
+        <div class="flex gap-2 pt-2">
             {#if onEdit}
                 <button
                     onclick={(e) => {
                         e.stopPropagation();
                         onEdit(character.id);
                     }}
-                    class="flex-1 px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                    class="btn preset-filled-primary-500 flex-1 text-sm">
                     Edit
                 </button>
             {/if}
@@ -88,7 +86,7 @@
                         e.stopPropagation();
                         onDelete(character.id);
                     }}
-                    class="flex-1 px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
+                    class="btn preset-filled-error-500 flex-1 text-sm">
                     Delete
                 </button>
             {/if}

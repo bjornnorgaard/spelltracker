@@ -90,7 +90,7 @@
 
     <!-- Actions -->
     {#if onEdit || onDelete}
-        <div class="flex flex-col sm:flex-row gap-2 pt-3 border-t border-surface-400-500-token">
+        <div class="flex flex-col sm:flex-row gap-2 pt-3">
             {#if onEdit}
                 <button
                     onclick={(e) => {

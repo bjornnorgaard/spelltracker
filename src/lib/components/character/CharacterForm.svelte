@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type { Character } from "$lib/types/character";
-    import { DND_CLASSES, getSpellSlotsForLevel } from "$lib/utils/constants";
+    import type {Character} from "$lib/types/character";
+    import {DND_CLASSES, getSpellSlotsForLevel} from "$lib/utils/constants";
 
     interface Props {
         character?: Character;
@@ -8,7 +8,7 @@
         onCancel: () => void;
     }
 
-    let { character, onSubmit, onCancel }: Props = $props();
+    let {character, onSubmit, onCancel}: Props = $props();
 
     let name = $state("");
     let selectedClass = $state("");
@@ -48,7 +48,8 @@
         <label for="character-name" class="label">
             Character Name <span class="text-red-500">*</span>
         </label>
-        <input id="character-name" type="text" bind:value={name} placeholder="Enter character name" required class="input" />
+        <input id="character-name" type="text" autocomplete="off" bind:value={name} placeholder="Enter character name" required
+               class="input"/>
     </div>
 
     <div>
@@ -67,7 +68,7 @@
         <label for="character-level" class="label">
             Level <span class="text-red-500">*</span>
         </label>
-        <input id="character-level" type="number" bind:value={level} min="1" max="20" required class="input" />
+        <input id="character-level" type="number" bind:value={level} min="1" max="20" required class="input"/>
         <p class="text-xs opacity-75 mt-1">Level 1-20</p>
     </div>
 
@@ -75,6 +76,6 @@
         <button type="submit" class="btn preset-filled-primary-500 flex-1">
             {character ? "Update" : "Create"} Character
         </button>
-        <button type="button" onclick={onCancel} class="btn preset-tonal flex-1"> Cancel </button>
+        <button type="button" onclick={onCancel} class="btn preset-tonal flex-1"> Cancel</button>
     </div>
 </form>

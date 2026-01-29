@@ -76,7 +76,7 @@
 	</nav>
 
 	<!-- Main Content -->
-	<main class="flex-1">
+	<main class="flex-1 px-4 mx-auto max-w-3xl">
 		{@render children()}
 	</main>
 

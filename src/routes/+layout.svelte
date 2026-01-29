@@ -39,15 +39,15 @@
 				<!-- Desktop Navigation -->
 				<div class="hidden md:flex items-center gap-2">
 					{#each navItems as item}
-					<a href={item.href} class="btn text-sm">
-						<span class="mr-1">{item.icon}</span>
-						{item.label}
-					</a>
-				{/each}
-			</div>
+						<a href={item.href} class="btn text-sm">
+							<span class="mr-1">{item.icon}</span>
+							{item.label}
+						</a>
+					{/each}
+				</div>
 
-			<!-- Mobile Menu Button -->
-			<button onclick={toggleMobileMenu} class="btn md:hidden" aria-label="Toggle menu">
+				<!-- Mobile Menu Button -->
+				<button onclick={toggleMobileMenu} class="btn md:hidden" aria-label="Toggle menu">
 					{#if mobileMenuOpen}
 						<span class="text-xl">✕</span>
 					{:else}
@@ -60,10 +60,7 @@
 			{#if mobileMenuOpen}
 				<div class="md:hidden py-4 flex flex-col gap-4">
 					{#each navItems as item}
-						<a
-							href={item.href}
-							onclick={closeMobileMenu}
-							class="btn w-full text-left">
+						<a href={item.href} onclick={closeMobileMenu} class="btn w-full text-left">
 							<span class="mr-2">{item.icon}</span>
 							{item.label}
 						</a>

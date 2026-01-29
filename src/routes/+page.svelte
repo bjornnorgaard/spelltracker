@@ -74,13 +74,7 @@
 
 <!-- Delete Confirmation Modal -->
 {#if deleteConfirmId}
-    <div
-        class="fixed inset-0 flex items-center justify-center p-4 z-50"
-        onclick={cancelDelete}
-        onkeydown={(e) => e.key === "Escape" && cancelDelete()}
-        role="dialog"
-        aria-modal="true"
-        tabindex="-1">
+    <div class="fixed inset-0 flex items-center justify-center p-4 z-50" onclick={cancelDelete} onkeydown={(e) => e.key === "Escape" && cancelDelete()} role="dialog" aria-modal="true" tabindex="-1">
         <div class="card p-4 max-w-sm w-full" role="document">
             <div class="flex flex-col gap-4">
                 <h3 class="h3">Delete Character?</h3>

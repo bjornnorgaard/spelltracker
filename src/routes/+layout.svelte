@@ -1,7 +1,7 @@
 <script lang="ts">
 	import "./layout.css";
 	import favicon from "$lib/assets/favicon.svg";
-	import { page } from "$app/stores";
+	import { page } from "$app/state";
 
 	let { children } = $props();
 
@@ -39,12 +39,12 @@
 				<!-- Desktop Navigation -->
 				<div class="hidden md:flex items-center gap-2">
 					{#each navItems as item}
-						<a href={item.href} class="btn text-sm" class:preset-filled-primary-500={$page.url.pathname === item.href} class:preset-tonal={$page.url.pathname !== item.href}>
-							<span class="mr-1">{item.icon}</span>
-							{item.label}
-						</a>
-					{/each}
-				</div>
+					<a href={item.href} class="btn text-sm" class:preset-filled-primary-500={page.url.pathname === item.href} class:preset-tonal={page.url.pathname !== item.href}>
+						<span class="mr-1">{item.icon}</span>
+						{item.label}
+					</a>
+				{/each}
+			</div>
 
 				<!-- Mobile Menu Button -->
 				<button onclick={toggleMobileMenu} class="btn preset-tonal md:hidden" aria-label="Toggle menu">
@@ -64,8 +64,8 @@
 							href={item.href}
 							onclick={closeMobileMenu}
 							class="btn w-full text-left"
-							class:preset-filled-primary-500={$page.url.pathname === item.href}
-							class:preset-tonal={$page.url.pathname !== item.href}>
+						class:preset-filled-primary-500={page.url.pathname === item.href}
+						class:preset-tonal={page.url.pathname !== item.href}>
 							<span class="mr-2">{item.icon}</span>
 							{item.label}
 						</a>

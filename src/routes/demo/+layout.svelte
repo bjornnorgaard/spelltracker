@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { page } from "$app/stores";
+    import { page } from "$app/state";
 
     const navItems = [
         { href: "/demo", label: "Overview" },
@@ -22,8 +22,8 @@
                             <a
                                 href={item.href}
                                 class="px-4 py-2 rounded-lg transition-colors"
-                                class:preset-filled-primary-500={$page.url.pathname === item.href}
-                                class:preset-tonal={$page.url.pathname !== item.href}>
+                                class:preset-filled-primary-500={page.url.pathname === item.href}
+                                class:preset-tonal={page.url.pathname !== item.href}>
                                 {item.label}
                             </a>
                         {/each}

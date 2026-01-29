@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { page } from "$app/stores";
+    import { page } from "$app/state";
     import CharacterForm from "$lib/components/character/CharacterForm.svelte";
     import { characterStore } from "$lib/stores/characters.svelte";
     import { goto } from "$app/navigation";
     import type { Character } from "$lib/types/character";
 
-    let characterId = $derived($page.params.id ?? "");
+    let characterId = $derived(page.params.id ?? "");
     let character = $derived(characterStore.getCharacter(characterId));
 
     function handleSubmit(data: Omit<Character, "id">) {

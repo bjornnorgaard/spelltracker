@@ -197,6 +197,11 @@ src/
 ```
 
 ### Storage Strategy
+- **localStorage with reactive Svelte 5 wrapper:**
+  - `LocalStorage<T>` class provides reactive state management
+  - Automatically syncs to localStorage on changes
+  - Cross-tab synchronization support
+  - Type-safe with generics
 - **localStorage keys:**
   - `spelltracker:characters` - Array of Character objects
   - `spelltracker:spells` - Array of Spell objects
@@ -228,7 +233,7 @@ function parseSpellLevel(levelStr: string): number {
 
 #### Tasks:
 - [x] 1.1 Define TypeScript interfaces and types
-- [ ] 1.2 Create localStorage utilities (get, set, clear)
+- [x] 1.2 Create localStorage utilities (reactive LocalStorage class)
 - [ ] 1.3 Implement CSV parser with validation
 - [ ] 1.4 Create Svelte stores for state management
   - [ ] Character store (CRUD + active selection)

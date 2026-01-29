@@ -25,51 +25,72 @@
     class:preset-tonal-primary={isActive}
     onclick={() => onSelect?.(character.id)}
     onkeydown={(e) => e.key === "Enter" && onSelect?.(character.id)}>
-    <div class="flex items-start justify-between mb-2">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-2 mb-4">
         <div class="flex-1">
             <h3 class="text-lg font-bold">
                 {character.name}
             </h3>
-            <p class="text-sm text-gray-600">
-                Level {character.level}
-                {character.class}
+            <p class="text-sm opacity-75">
+                Level {character.level} {character.class}
             </p>
         </div>
         {#if isActive}
-            <span class="badge preset-filled"> Active </span>
+            <span class="badge preset-filled text-xs"> Active </span>
         {/if}
     </div>
 
-    <div class="grid grid-cols-3 gap-2 mb-3 text-center text-sm">
-        <div class="card preset-tonal-surface p-2">
+    <!-- Stats -->
+    <div class="grid grid-cols-3 gap-2 mb-4 text-center text-sm">
+        <div class="card preset-tonal p-2">
             <div class="font-semibold">{character.knownSpells.length}</div>
             <div class="text-xs opacity-75">Spells</div>
         </div>
-        <div class="card preset-tonal-success p-2">
+        <div class="card preset-tonal p-2">
             <div class="font-semibold">{availableSlots}</div>
             <div class="text-xs opacity-75">Available</div>
         </div>
-        <div class="card preset-tonal-error p-2">
+        <div class="card preset-tonal p-2">
             <div class="font-semibold">{usedSlots}</div>
             <div class="text-xs opacity-75">Used</div>
         </div>
     </div>
 
+    <!-- Spell Slots Visualization -->
     {#if Object.keys(character.spellSlots).length > 0}
-        <div class="mb-3">
-            <div class="text-xs opacity-75 mb-1">Spell Slots:</div>
-            <div class="flex flex-wrap gap-1">
-                {#each Object.entries(character.spellSlots) as [level, slot]}
-                    <span class="chip preset-tonal text-xs">
-                        {formatSpellLevel(Number(level))}: {slot.total - slot.used}/{slot.total}
-                    </span>
-                {/each}
-            </div>
+        <div class="space-y-2 mb-4">
+            <div class="text-xs font-semibold opacity-75 mb-2">Spell Slots</div>
+            {#each Object.entries(character.spellSlots) as [level, slot]}
+                <div class="flex items-center gap-2">
+                    <div class="text-xs font-medium opacity-75 w-8 shrink-0">
+                        {formatSpellLevel(Number(level))}
+                    </div>
+                    <div class="flex-1 flex items-center gap-1">
+                        {#each Array(slot.total) as _, i}
+                            {#if i >= slot.used}
+                                <!-- Available slot: filled -->
+                                <div class="text-center flex-1 rounded-full preset-filled-primary-500 transition-all">
+                                    {level}
+                                </div>
+                            {:else}
+                                <!-- Used slot: outlined -->
+                                <div class="text-center flex-1 rounded-full preset-outlined opacity-50 transition-all">
+                                    {level}
+                                </div>
+                            {/if}
+                        {/each}
+                    </div>
+                    <div class="text-xs opacity-50 w-10 text-right shrink-0">
+                        {slot.total - slot.used}/{slot.total}
+                    </div>
+                </div>
+            {/each}
         </div>
     {/if}
 
+    <!-- Actions -->
     {#if onEdit || onDelete}
-        <div class="flex gap-2 pt-2">
+        <div class="flex flex-col sm:flex-row gap-2 pt-3 border-t border-surface-400-500-token">
             {#if onEdit}
                 <button
                     onclick={(e) => {
@@ -86,7 +107,7 @@
                         e.stopPropagation();
                         onDelete(character.id);
                     }}
-                    class="btn preset-filled-error-500 flex-1 text-sm">
+                    class="btn preset-tonal flex-1 text-sm">
                     Delete
                 </button>
             {/if}

@@ -39,15 +39,15 @@
 				<!-- Desktop Navigation -->
 				<div class="hidden md:flex items-center gap-2">
 					{#each navItems as item}
-						<a href={item.href} class="btn text-sm" class:preset-filled-primary-500={page.url.pathname === item.href} class:preset-tonal={page.url.pathname !== item.href}>
-							<span class="mr-1">{item.icon}</span>
-							{item.label}
-						</a>
-					{/each}
-				</div>
+					<a href={item.href} class="btn text-sm">
+						<span class="mr-1">{item.icon}</span>
+						{item.label}
+					</a>
+				{/each}
+			</div>
 
-				<!-- Mobile Menu Button -->
-				<button onclick={toggleMobileMenu} class="btn preset-tonal md:hidden" aria-label="Toggle menu">
+			<!-- Mobile Menu Button -->
+			<button onclick={toggleMobileMenu} class="btn md:hidden" aria-label="Toggle menu">
 					{#if mobileMenuOpen}
 						<span class="text-xl">✕</span>
 					{:else}
@@ -58,14 +58,12 @@
 
 			<!-- Mobile Navigation -->
 			{#if mobileMenuOpen}
-				<div class="md:hidden py-4 space-y-2">
+				<div class="md:hidden py-4 flex flex-col gap-4">
 					{#each navItems as item}
 						<a
 							href={item.href}
 							onclick={closeMobileMenu}
-							class="btn w-full text-left"
-							class:preset-filled-primary-500={page.url.pathname === item.href}
-							class:preset-tonal={page.url.pathname !== item.href}>
+							class="btn w-full text-left">
 							<span class="mr-2">{item.icon}</span>
 							{item.label}
 						</a>
@@ -76,13 +74,13 @@
 	</nav>
 
 	<!-- Main Content -->
-	<main class="flex-1 px-4 mx-auto max-w-3xl">
+	<main class="flex-1 px-4 py-4 mx-auto max-w-3xl">
 		{@render children()}
 	</main>
 
 	<!-- Footer -->
 	<footer class="py-4 mt-auto">
-		<div class="container mx-auto px-4 text-center text-sm opacity-75">
+		<div class="container mx-auto px-4 text-center text-sm">
 			<p>D&D Spelltracker - Manage your spells and characters</p>
 		</div>
 	</footer>

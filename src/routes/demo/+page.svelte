@@ -80,7 +80,7 @@
         <h2 class="h2 mb-6">Quick Preview</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             {#each sampleCharacters.slice(0, 2) as character}
-                <CharacterCard {character} isActive={character.id === sampleCharacters[0].id} />
+                <CharacterCard {character} />
             {/each}
         </div>
     </section>

@@ -24,24 +24,28 @@
     <title>Edit Character - D&D Spelltracker</title>
 </svelte:head>
 
-<div class="container mx-auto px-4 py-8 max-w-2xl">
+<div class="flex flex-col gap-4">
     {#if !character}
-        <div class="card p-12 text-center">
-            <div class="text-6xl mb-4">❌</div>
-            <h2 class="h2 mb-2">Character Not Found</h2>
-            <p class="opacity-75 mb-6">The character you're looking for doesn't exist</p>
-            <a href="/" class="btn preset-filled-primary-500">Back to Characters</a>
+        <div class="card p-4 text-center">
+            <div class="flex flex-col gap-4 items-center">
+                <div class="text-6xl">❌</div>
+                <h2 class="h2">Character Not Found</h2>
+                <p>The character you're looking for doesn't exist</p>
+                <a href="/" class="btn">Back to Characters</a>
+            </div>
         </div>
     {:else}
-        <div class="mb-8">
-            <a href="/characters/{characterId}" class="anchor text-sm mb-4 inline-block">
+        <div class="flex flex-col gap-4">
+            <a href="/characters/{characterId}" class="text-sm">
                 ← Back to {character.name}
             </a>
-            <h1 class="h1 mb-2">Edit Character</h1>
-            <p class="opacity-75">Update {character.name}'s details</p>
+            <div>
+                <h1 class="h1">Edit Character</h1>
+                <p>Update {character.name}'s details</p>
+            </div>
         </div>
 
-        <div class="card">
+        <div class="card p-4">
             <CharacterForm {character} onSubmit={handleSubmit} onCancel={handleCancel} />
         </div>
     {/if}

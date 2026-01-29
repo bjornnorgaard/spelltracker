@@ -13,7 +13,6 @@ export interface SpellFilters {
  */
 export interface AppState {
     characters: Character[];
-    activeCharacterId: string | null;
     spells: Spell[];
     filters: SpellFilters;
     searchQuery: string;

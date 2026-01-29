@@ -113,15 +113,15 @@
 
     <!-- Active vs Inactive -->
     <section class="mb-12">
-        <h2 class="h2 mb-4">Active vs Inactive State</h2>
+        <h2 class="h2 mb-4">Character Card States</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <h3 class="text-sm font-semibold uppercase mb-2 opacity-75">Active Card</h3>
-                <CharacterCard character={characters.highLevel} isActive={true} onSelect={handleSelect} onEdit={handleEdit} onDelete={handleDelete} />
+                <h3 class="text-sm font-semibold uppercase mb-2 opacity-75">With Actions</h3>
+                <CharacterCard character={characters.highLevel} onSelect={handleSelect} onEdit={handleEdit} onDelete={handleDelete} />
             </div>
             <div>
-                <h3 class="text-sm font-semibold uppercase mb-2 opacity-75">Inactive Card</h3>
-                <CharacterCard character={characters.highLevel} isActive={false} onSelect={handleSelect} onEdit={handleEdit} onDelete={handleDelete} />
+                <h3 class="text-sm font-semibold uppercase mb-2 opacity-75">Without Actions</h3>
+                <CharacterCard character={characters.highLevel} />
             </div>
         </div>
     </section>

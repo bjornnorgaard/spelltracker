@@ -79,75 +79,79 @@
 </svelte:head>
 
 {#if !character}
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
-        <div class="card p-8 text-center">
-            <h2 class="h2 mb-2">Character Not Found</h2>
-            <p class="opacity-75 mb-4">The character you're looking for doesn't exist.</p>
-            <button onclick={() => goto("/characters")} class="btn preset-filled-primary-500"> Back to Characters </button>
+    <div class="flex flex-col gap-4">
+        <div class="card p-4 text-center">
+            <div class="flex flex-col gap-4 items-center">
+                <h2 class="h2">Character Not Found</h2>
+                <p>The character you're looking for doesn't exist.</p>
+                <button onclick={() => goto("/characters")} class="btn"> Back to Characters </button>
+            </div>
         </div>
     </div>
 {:else}
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="flex flex-col gap-4">
         <!-- Breadcrumb -->
-        <nav class="mb-6 text-sm">
-            <ol class="flex items-center gap-2 opacity-75">
-                <li><a href="/characters" class="hover:opacity-100">Characters</a></li>
+        <nav class="text-sm">
+            <ol class="flex items-center gap-4">
+                <li><a href="/characters">Characters</a></li>
                 <li>/</li>
                 <li>
-                    <a href="/characters/{characterId}" class="hover:opacity-100">{character.name}</a>
+                    <a href="/characters/{characterId}">{character.name}</a>
                 </li>
                 <li>/</li>
-                <li class="opacity-100">Import Spells</li>
+                <li>Import Spells</li>
             </ol>
         </nav>
 
         <!-- Header -->
-        <div class="mb-6">
+        <div>
             <h1 class="h1">Import Spells</h1>
-            <p class="opacity-75 mt-2">
+            <p>
                 Import spells for <strong>{character.name}</strong> by pasting CSV data
             </p>
         </div>
 
         <!-- Instructions Card -->
-        <div class="card preset-tonal p-4 mb-4">
-            <h2 class="h3 mb-3">Instructions</h2>
-            <ol class="list-decimal list-inside space-y-2 opacity-75">
-                <li>Copy spell data in CSV format from your source</li>
-                <li>Paste the data into the text area below</li>
-                <li>Click "Import Spells" to add them to {character.name}'s spell list</li>
-            </ol>
-            <div class="mt-4">
-                <button onclick={loadDemoData} class="btn preset-filled-primary-500 text-sm"> Load Demo Data </button>
+        <div class="card p-4">
+            <div class="flex flex-col gap-4">
+                <h2 class="h3">Instructions</h2>
+                <ol class="list-decimal list-inside flex flex-col gap-4">
+                    <li>Copy spell data in CSV format from your source</li>
+                    <li>Paste the data into the text area below</li>
+                    <li>Click "Import Spells" to add them to {character.name}'s spell list</li>
+                </ol>
+                <button onclick={loadDemoData} class="btn text-sm"> Load Demo Data </button>
             </div>
         </div>
 
         <!-- CSV Input -->
-        <div class="card preset-tonal p-4 mb-4">
-            <label for="csv-input" class="label mb-2">
-                <span>CSV Spell Data</span>
-            </label>
-            <textarea id="csv-input" bind:value={csvInput} placeholder="Paste CSV data here..." class="textarea" rows="15" disabled={isProcessing}></textarea>
+        <div class="card p-4">
+            <div class="flex flex-col gap-4">
+                <label for="csv-input" class="label">
+                    <span>CSV Spell Data</span>
+                </label>
+                <textarea id="csv-input" bind:value={csvInput} placeholder="Paste CSV data here..." class="textarea" rows="15" disabled={isProcessing}></textarea>
 
-            {#if errorMessage}
-                <div class="card preset-filled-error-500 mt-4 p-4" role="alert">
-                    <span>⚠️ {errorMessage}</span>
-                </div>
-            {/if}
+                {#if errorMessage}
+                    <div class="card p-4" role="alert">
+                        <span>⚠️ {errorMessage}</span>
+                    </div>
+                {/if}
 
-            {#if successMessage}
-                <div class="card preset-filled-success-500 mt-4 p-4" role="alert">
-                    <span>✓ {successMessage}</span>
-                </div>
-            {/if}
+                {#if successMessage}
+                    <div class="card p-4" role="alert">
+                        <span>✓ {successMessage}</span>
+                    </div>
+                {/if}
+            </div>
         </div>
 
         <!-- Actions -->
-        <div class="flex gap-3">
-            <button onclick={handleImport} disabled={isProcessing || !csvInput.trim()} class="btn preset-filled-primary-500">
+        <div class="flex gap-4">
+            <button onclick={handleImport} disabled={isProcessing || !csvInput.trim()} class="btn">
                 {isProcessing ? "Importing..." : "Import Spells"}
             </button>
-            <button onclick={handleCancel} disabled={isProcessing} class="btn preset-tonal"> Cancel </button>
+            <button onclick={handleCancel} disabled={isProcessing} class="btn"> Cancel </button>
         </div>
     </div>
 {/if}

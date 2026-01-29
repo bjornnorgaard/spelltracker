@@ -201,7 +201,6 @@ src/
   - `spelltracker:characters` - Array of Character objects
   - `spelltracker:spells` - Array of Spell objects
   - `spelltracker:activeCharacterId` - Currently selected character ID
-  - `spelltracker:version` - Data version for migrations
 
 ### Utility Functions
 ```typescript

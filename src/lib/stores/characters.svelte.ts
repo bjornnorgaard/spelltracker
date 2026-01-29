@@ -28,13 +28,19 @@ class CharacterStore {
     /**
      * Add a new character
      */
-    addCharacter(character: Character): void {
+    addCharacter(characterData: Omit<Character, 'id'>): Character {
+        const character: Character = {
+            ...characterData,
+            id: crypto.randomUUID()
+        };
         this.#storage.current = [...this.characters, character];
 
         // If this is the first character, make it active
         if (this.characters.length === 1) {
             this.activeCharacterId = character.id;
         }
+
+        return character;
     }
 
     /**

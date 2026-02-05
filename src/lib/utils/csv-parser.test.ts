@@ -123,8 +123,6 @@ describe('parseSpellCSV', () => {
         expect(result.spells[0].classes).toHaveLength(4);
         expect(result.spells[0].classes).toContain('Wizard');
         expect(result.spells[0].classes).toContain('Sorcerer');
-        expect(result.spells[0].optionalClasses).toContain('Artificer');
-        expect(result.spells[0].subclasses).toHaveLength(2);
     });
 
     it('should generate unique IDs for each spell', () => {

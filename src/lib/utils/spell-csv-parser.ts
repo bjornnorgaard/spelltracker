@@ -156,8 +156,6 @@ function parseSpellFromValues(headers: string[], values: string[]): Spell {
         range: getValueByHeader('Range'),
         components: getValueByHeader('Components'),
         classes,
-        optionalClasses,
-        subclasses,
         text: getValueByHeader('Text'),
         atHigherLevels: getValueByHeader('At Higher Levels')
     };

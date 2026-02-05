@@ -13,8 +13,6 @@ export interface Spell {
     range: string;
     components: string;
     classes: string[];
-    optionalClasses: string[];
-    subclasses: string[];
     text: string;
     atHigherLevels: string;
 }

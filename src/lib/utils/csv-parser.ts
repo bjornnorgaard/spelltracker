@@ -59,8 +59,6 @@ function parseSpellRow(row: string[], headers: string[], rowIndex: number): Spel
             range: getField('Range'),
             components: getField('Components'),
             classes: splitCSVValue(getField('Classes')),
-            optionalClasses: splitCSVValue(getField('Optional/Variant Classes')),
-            subclasses: splitCSVValue(getField('Subclasses')),
             text: getField('Text'),
             atHigherLevels: getField('At Higher Levels')
         };

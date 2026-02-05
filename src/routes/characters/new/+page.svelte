@@ -1,13 +1,14 @@
 <script lang="ts">
-    import {DND_CLASSES} from "$lib/utils/constants";
+    import {DND_CLASSES, SPELL_LEVELS} from "$lib/utils/constants";
     import type {Character} from "$lib/types/character";
     import {app} from "$lib/stores/app.svelte";
+    import {goto} from "$app/navigation";
 
     let name: string = "";
     let level: number = 1;
     let className: string = "";
 
-    function submit(e: Event) {
+    async function submit(e: Event) {
         e.preventDefault();
 
         const character: Character = {
@@ -16,10 +17,19 @@
             level: level,
             name: name,
             knownSpells: [],
-            spellSlots: {}
+            spellSlots: []
         };
 
+        for (const l of SPELL_LEVELS) {
+            character.spellSlots[l] = {
+                level: l,
+                used: 0,
+                total: 0
+            };
+        }
+
         app.current.characters.push(character);
+        await goto("/");
     }
 </script>
 

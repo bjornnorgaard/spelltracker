@@ -2,16 +2,12 @@
     import {app} from "$lib/stores/app.svelte";
 </script>
 
-<h2 class="h2">Your Characters</h2>
-
 {#if app.current.characters.length}
-    <ul>
+    <select class="select">
         {#each app.current.characters as c}
-            <li>
-                <a href={`/characters/${c.id}`} class="anchor">{c.name} - {c.class} - level {c.level}</a>
-            </li>
+            <option>{c.name} - {c.class} - level {c.level}</option>
         {/each}
-    </ul>
+    </select>
 {:else}
     <a href="/characters/new">
         <div class="card p-4 preset-filled-warning-500">
@@ -20,5 +16,3 @@
         </div>
     </a>
 {/if}
-
-<a href="/characters/new" class="btn preset-filled-primary-500">Create New Character</a>

@@ -1,84 +1,19 @@
 <script lang="ts">
-	import "./layout.css";
-	import favicon from "$lib/assets/favicon.svg";
-	import { page } from "$app/state";
+    import "./layout.css";
+    import {app} from "$lib/stores/app.svelte";
 
-	let { children } = $props();
-
-	const navItems = [
-		{ href: "/", label: "Characters", icon: "👤" },
-		{ href: "/spells", label: "Spells", icon: "✨" },
-		{ href: "/demo", label: "Demo", icon: "🎨" },
-	];
-
-	let mobileMenuOpen = $state(false);
-
-	function toggleMobileMenu() {
-		mobileMenuOpen = !mobileMenuOpen;
-	}
-
-	function closeMobileMenu() {
-		mobileMenuOpen = false;
-	}
+    let {children} = $props();
 </script>
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<div class="p-4 space-y-4">
 
-<div class="min-h-screen flex flex-col">
-	<!-- Navigation -->
-	<nav class="">
-		<div class="mx-auto px-4">
-			<div class="flex items-center justify-between h-16">
-				<!-- Logo/Brand -->
-				<a href="/" class="flex items-center gap-2 font-bold text-xl">
-					<span>🎲</span>
-					<span class="hidden sm:inline">D&D Spelltracker</span>
-					<span class="sm:hidden">Spelltracker</span>
-				</a>
+    <header class="flex justify-center">
+        <a href="/">
+            <h1 class="h1">Spell Tracker By Bear</h1>
+        </a>
+    </header>
 
-				<!-- Desktop Navigation -->
-				<div class="hidden md:flex items-center gap-2">
-					{#each navItems as item}
-						<a href={item.href} class="btn text-sm">
-							<span class="mr-1">{item.icon}</span>
-							{item.label}
-						</a>
-					{/each}
-				</div>
-
-				<!-- Mobile Menu Button -->
-				<button onclick={toggleMobileMenu} class="btn md:hidden" aria-label="Toggle menu">
-					{#if mobileMenuOpen}
-						<span class="text-xl">✕</span>
-					{:else}
-						<span class="text-xl">☰</span>
-					{/if}
-				</button>
-			</div>
-
-			<!-- Mobile Navigation -->
-			{#if mobileMenuOpen}
-				<div class="md:hidden py-4 flex flex-col gap-4">
-					{#each navItems as item}
-						<a href={item.href} onclick={closeMobileMenu} class="btn w-full text-left">
-							<span class="mr-2">{item.icon}</span>
-							{item.label}
-						</a>
-					{/each}
-				</div>
-			{/if}
-		</div>
-	</nav>
-
-	<!-- Main Content -->
-	<main class="flex-1 px-4 py-4 mx-auto max-w-3xl">
-		{@render children()}
-	</main>
-
-	<!-- Footer -->
-	<footer class="py-4 mt-auto">
-		<div class="container mx-auto px-4 text-center text-sm">
-			<p>D&D Spelltracker - Manage your spells and characters</p>
-		</div>
-	</footer>
+    <main class="mx-auto py-4">
+        {@render children()}
+    </main>
 </div>

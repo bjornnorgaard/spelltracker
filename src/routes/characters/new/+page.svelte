@@ -1,31 +1,49 @@
 <script lang="ts">
-    import CharacterForm from "$lib/components/character/CharacterForm.svelte";
-    import { characterStore } from "$lib/stores/characters.svelte";
-    import { goto } from "$app/navigation";
-    import type { Character } from "$lib/types/character";
+    import {DND_CLASSES} from "$lib/utils/constants";
+    import type {Character} from "$lib/types/character";
+    import {app} from "$lib/stores/app.svelte";
 
-    function handleSubmit(data: Omit<Character, "id">) {
-        const newCharacter = characterStore.addCharacter(data);
-        goto(`/characters/${newCharacter.id}`);
-    }
+    let name: string = "";
+    let level: number = 1;
+    let className: string = "";
 
-    function handleCancel() {
-        goto("/");
+    function submit(e: Event) {
+        e.preventDefault();
+
+        const character: Character = {
+            id: crypto.randomUUID(),
+            class: className,
+            level: level,
+            name: name,
+            knownSpells: [],
+            spellSlots: {}
+        };
+
+        app.current.characters.push(character);
     }
 </script>
 
-<svelte:head>
-    <title>Create Character - D&D Spelltracker</title>
-</svelte:head>
+<form class="space-y-4" onsubmit={submit}>
+    <h2 class="h2">Create Character</h2>
 
-<div class="container mx-auto px-4 py-8 max-w-2xl">
-    <div class="mb-8">
-        <a href="/" class="anchor text-sm mb-4 inline-block">← Back to Characters</a>
-        <h1 class="h1 mb-2">Create New Character</h1>
-        <p class="opacity-75">Fill in the details to create your character</p>
-    </div>
+    <label class="label">
+        <span class="label-text">Name</span>
+        <input type="text" class="input" autocomplete="off" bind:value={name} placeholder="Sir Hack'a'lot" required>
+    </label>
 
-    <div class="card">
-        <CharacterForm onSubmit={handleSubmit} onCancel={handleCancel} />
-    </div>
-</div>
+    <label class="label">
+        <span class="label-text">Level</span>
+        <input type="number" min={1} max={20} class="input" bind:value={level} required>
+    </label>
+
+    <label class="label">
+        <span class="label-text">Class</span>
+        <select class="select" bind:value={className} required>
+            {#each DND_CLASSES as c}
+                <option value={c}>{c}</option>
+            {/each}
+        </select>
+    </label>
+
+    <button type="submit" class="btn preset-filled-primary-500">Create</button>
+</form>

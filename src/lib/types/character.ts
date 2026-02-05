@@ -1,10 +1,4 @@
-/**
- * Spell slot information for a specific spell level
- */
-export interface SpellSlot {
-    total: number;
-    used: number;
-}
+import type {SpellSlot} from "$lib/types/spellSlot";
 
 /**
  * Character with spellcasting abilities
@@ -16,5 +10,6 @@ export interface Character {
     level: number;
     spellSlots: Record<number, SpellSlot>;
     knownSpells: string[]; // spell IDs
-    preparedSpells?: string[]; // for prepared casters (optional)
 }
+
+

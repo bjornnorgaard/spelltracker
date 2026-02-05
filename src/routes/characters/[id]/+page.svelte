@@ -2,6 +2,7 @@
     import {app} from "$lib/stores/app.svelte";
     import {Accordion} from '@skeletonlabs/skeleton-svelte';
     import {formatSpellLevelLong} from "$lib/utils/spell-formatter";
+    import {formatSpellLevel} from "$lib/utils/spell-formatter.ts";
 
     const {data} = $props();
 
@@ -13,6 +14,18 @@
     <div>
         <span class="badge preset-filled">{data.character.class}</span>
         <span class="badge preset-filled">{data.character.level}th level</span>
+    </div>
+
+    <h3 class="h3">Spell Slots</h3>
+    <div class="flex gap-4">
+        {#each data.character.spellSlots as slot}
+            {#if slot.total > 0}
+                <div class="flex flex-col">
+                    <span>{formatSpellLevel(slot.level)}</span>
+                    <span class="rounded-full text-center preset-filled-primary-500">{slot.total - slot.used}</span>
+                </div>
+            {/if}
+        {/each}
     </div>
 
     <h3 class="h3">Spells</h3>

@@ -1,6 +1,5 @@
 <script lang="ts">
     import "./layout.css";
-    import {app} from "$lib/stores/app.svelte";
 
     let {children} = $props();
 </script>
@@ -9,7 +8,7 @@
 
     <header class="flex justify-center">
         <a href="/">
-            <h1 class="h1">Spell Tracker By Bear</h1>
+            <h1 class="h1">Spell Tracker</h1>
         </a>
     </header>
 

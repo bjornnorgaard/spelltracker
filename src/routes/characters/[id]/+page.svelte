@@ -210,8 +210,7 @@
                                                 Cast as {s.castingTime}
                                             </button>
                                             {#if s.school.includes("(ritual)")}
-                                                <span>or</span>
-                                                <span class="btn preset-filled-secondary-500">Cast as Ritual</span>
+                                                <span>or cast as Ritual</span>
                                             {/if}
                                         </div>
                                     {/if}

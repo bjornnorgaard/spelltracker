@@ -3,7 +3,6 @@
     import {Accordion} from '@skeletonlabs/skeleton-svelte';
     import {formatSpellLevel, formatSpellLevelLong} from "$lib/utils/spell-formatter";
     import {slide} from "svelte/transition";
-    import {onMount, tick} from "svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
     import SectionHeader from "$lib/components/SectionHeader.svelte";
     import {SPELL_LEVELS} from "$lib/utils/constants";
@@ -21,10 +20,6 @@
     let spells = app.current.spells?.filter((s: Spell) => data.character.spells?.includes(s.id)).sort((a: Spell, b: Spell) => a.level - b.level);
     let filteredSpells = $state<Spell[]>(spells);
 
-    let spellsListEl: HTMLDivElement | null = null;
-    let spellsListHeight = $state(0);
-    let spellsListMeasured = false;
-
     $effect(() => {
         if (!spells) return [];
         filteredSpells = spells.filter((spell: Spell) => {
@@ -35,13 +30,6 @@
             if (concentrationMode === "no-conc" && spell.duration.includes("Concentration")) return false;
             return true;
         });
-    });
-
-    onMount(async () => {
-        if (!spellsListEl || spellsListMeasured) return;
-        await tick();
-        spellsListHeight = spellsListEl.scrollHeight;
-        spellsListMeasured = true;
     });
 
     function toggleLevel(level: number) {
@@ -219,69 +207,67 @@
     </div>
 
     <SectionHeader title={`Spells (${spells.length})`} subtitle={`These are the spell currently known to ${data.character.name}.`}/>
-    <div bind:this={spellsListEl} style={`height: ${spellsListHeight}px; overflow-y: auto; overflow-anchor: none;`}>
-        <Accordion collapsible>
-            {#each filteredSpells as s (s.name)}
-                <Accordion.Item value={s.id} class="card preset-tonal border-2 border-surface-200-800">
-                    <Accordion.ItemTrigger class="font-bold flex justify-between">
-                        <div class="flex gap-2 items-center">
-                            {formatSpellLevelLong(s.level)}
-                            {#if s.duration.includes("Concentration")}
-                                <span class="badge rounded-full preset-filled-secondary-100-900">C</span>
-                            {/if}
-                            {#if s.school.includes("(ritual)")}
-                                <span class="badge rounded-full preset-filled-primary-100-900">R</span>
-                            {/if}
-                        </div>
-                        <Accordion.ItemIndicator class="group">
-                            {s.name}
-                        </Accordion.ItemIndicator>
-                    </Accordion.ItemTrigger>
-                    <Accordion.ItemContent>
-                        {#snippet element(attributes)}
-                            {#if !attributes.hidden}
-                                {@const slot = data.character.spellSlots.find(slot => slot.level === s.level)}
-                                {@const remaining = (slot.total ?? 0) - (slot.used ?? 0)}
-                                {@const total = slot.total ?? 0}
-                                <div {...attributes} class="space-y-4 card preset-filled-surface-100-900" transition:slide={{ duration: 300 }}>
-                                    {#if s.level !== 0}
-                                        <div class="flex justify-between gap-2">
-                                            <button class="btn w-full transition-all duration-500" onclick={() => castSpell(s)}
-                                                    class:preset-filled-primary-500={remaining > 0}
-                                                    class:preset-filled-surface-500={remaining === 0}
-                                                    class:disabled={remaining === 0}
-                                                    disabled={remaining === 0}>
-                                                Cast as {s.castingTime} at {formatSpellLevel(s.level)} ({remaining}/{total})
-                                            </button>
-                                            <button class="btn" onclick={() => undoCast(s)}
-                                                    class:preset-tonal-primary={remaining !== total}
-                                                    class:preset-tonal-surface={remaining === total}
-                                                    class:disabled={remaining === total}
-                                                    disabled={remaining === total}>
-                                                Undo
-                                            </button>
-                                        </div>
-                                    {/if}
-                                    <div>
-                                        <p><strong>School:</strong> {s.school}</p>
-                                        <p><strong>Casting time:</strong> {s.castingTime}</p>
-                                        <p><strong>Range:</strong> {s.range}</p>
-                                        <p><strong>Duration:</strong> {s.duration}</p>
-                                        <p><strong>Components:</strong> {s.components}</p>
+    <Accordion collapsible>
+        {#each filteredSpells as s (s.name)}
+            <Accordion.Item value={s.id} class="card preset-tonal border-2 border-surface-200-800">
+                <Accordion.ItemTrigger class="font-bold flex justify-between">
+                    <div class="flex gap-2 items-center">
+                        {formatSpellLevelLong(s.level)}
+                        {#if s.duration.includes("Concentration")}
+                            <span class="badge rounded-full preset-filled-secondary-100-900">C</span>
+                        {/if}
+                        {#if s.school.includes("(ritual)")}
+                            <span class="badge rounded-full preset-filled-primary-100-900">R</span>
+                        {/if}
+                    </div>
+                    <Accordion.ItemIndicator class="group">
+                        {s.name}
+                    </Accordion.ItemIndicator>
+                </Accordion.ItemTrigger>
+                <Accordion.ItemContent>
+                    {#snippet element(attributes)}
+                        {#if !attributes.hidden}
+                            {@const slot = data.character.spellSlots.find(slot => slot.level === s.level)}
+                            {@const remaining = (slot.total ?? 0) - (slot.used ?? 0)}
+                            {@const total = slot.total ?? 0}
+                            <div {...attributes} class="space-y-4 card preset-filled-surface-100-900" transition:slide={{ duration: 300 }}>
+                                {#if s.level !== 0}
+                                    <div class="flex justify-between gap-2">
+                                        <button class="btn w-full transition-all duration-500" onclick={() => castSpell(s)}
+                                                class:preset-filled-primary-500={remaining > 0}
+                                                class:preset-filled-surface-500={remaining === 0}
+                                                class:disabled={remaining === 0}
+                                                disabled={remaining === 0}>
+                                            Cast as {s.castingTime} at {formatSpellLevel(s.level)} ({remaining}/{total})
+                                        </button>
+                                        <button class="btn" onclick={() => undoCast(s)}
+                                                class:preset-tonal-primary={remaining !== total}
+                                                class:preset-tonal-surface={remaining === total}
+                                                class:disabled={remaining === total}
+                                                disabled={remaining === total}>
+                                            Undo
+                                        </button>
                                     </div>
-                                    <div>
-                                        <i>{s.text}</i>
-                                    </div>
-                                    {#if s.atHigherLevels}
-                                        <p><strong>At higher levels:</strong> {s.atHigherLevels}</p>
-                                    {/if}
-                                    <p>{s.source} p{s.page}</p>
+                                {/if}
+                                <div>
+                                    <p><strong>School:</strong> {s.school}</p>
+                                    <p><strong>Casting time:</strong> {s.castingTime}</p>
+                                    <p><strong>Range:</strong> {s.range}</p>
+                                    <p><strong>Duration:</strong> {s.duration}</p>
+                                    <p><strong>Components:</strong> {s.components}</p>
                                 </div>
-                            {/if}
-                        {/snippet}
-                    </Accordion.ItemContent>
-                </Accordion.Item>
-            {/each}
-        </Accordion>
-    </div>
+                                <div>
+                                    <i>{s.text}</i>
+                                </div>
+                                {#if s.atHigherLevels}
+                                    <p><strong>At higher levels:</strong> {s.atHigherLevels}</p>
+                                {/if}
+                                <p>{s.source} p{s.page}</p>
+                            </div>
+                        {/if}
+                    {/snippet}
+                </Accordion.ItemContent>
+            </Accordion.Item>
+        {/each}
+    </Accordion>
 </div>

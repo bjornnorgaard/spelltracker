@@ -5,6 +5,8 @@
     import {formatSpellLevelLong} from "$lib/utils/spell-formatter";
     import {parseSpellCSV} from "$lib/utils/csv-parser";
     import type {Character} from "$lib/types/character";
+    import PageHeader from "$lib/components/PageHeader.svelte";
+    import SectionHeader from "$lib/components/SectionHeader.svelte";
 
     const {data} = $props();
 
@@ -79,9 +81,13 @@
     {#if data.character}
         {@const c = data.character}
 
-        <h3 class="h3 border-b-2">Character Info</h3>
-        <p>This is just to help you tell characters apart, we don't use this information for anything.</p>
+        <PageHeader title={`Edit ${c.name}`} subtitle="Update character details, spell slots, and import spells from CSV."/>
+        <div class="flex justify-between gap-2">
+            <a href={`/`} class="btn preset-tonal">⬅ Home</a>
+            <a href={`/characters/${c.id}`} class="btn preset-tonal">View<span class="rotate-180">⬅</span></a>
+        </div>
 
+        <SectionHeader title="Character Info" subtitle="This is just to help you tell characters apart, we don't use this information for anything."/>
         <label class="label">
             <span class="label-text">Name</span>
             <input type="text" class="input" autocomplete="off" bind:value={c.name} required>
@@ -103,9 +109,7 @@
             </label>
         </div>
 
-        <h3 class="h3 border-b-2">Spell Slots</h3>
-        <p>When you're happy with your spells slots, then you might want to import spells below.</p>
-
+        <SectionHeader title="Spell Slots" subtitle="When you're happy with your spell slots, you might want to import spells below."/>
         <table class="table">
             <thead>
             <tr>
@@ -128,9 +132,7 @@
             </tbody>
         </table>
 
-        <h3 class="h3 border-b-2">Spellbook</h3>
-        <p>Paste the CSV data into the box below. If you don't know where to find the data, then maybe ask a friend.</p>
-
+        <SectionHeader title="Spellbook" subtitle="Paste the CSV data into the box below. If you don't know where to find the data, then maybe ask a friend."/>
         <textarea class="input" rows="5" bind:value={importData} placeholder={spellImportPlaceholder}>
             {importData}
         </textarea>
@@ -141,34 +143,7 @@
             <button class="btn preset-filled-primary-500 grow" onclick={() => runImport()}>Import</button>
         </div>
 
-        <table class="table w-full">
-            <thead>
-            <tr>
-                <th>Level</th>
-                <th>Name</th>
-                <th>Casting Time</th>
-                <th>Range</th>
-                <th>Duration</th>
-                <th>Components</th>
-            </tr>
-            </thead>
-            <tbody>
-            {#each app.current.spells?.filter(s => data.character.spells?.includes(s.id)).sort((a, b) => a.level - b.level) as spell}
-                <tr>
-                    <td>{formatSpellLevelLong(spell.level)}</td>
-                    <td>{spell.name}</td>
-                    <td>{spell.castingTime}</td>
-                    <td>{spell.range}</td>
-                    <td>{spell.duration}</td>
-                    <td>{spell.components}</td>
-                </tr>
-            {/each}
-            </tbody>
-        </table>
-
-        <h3 class="h3 border-b-2">Danger Zone</h3>
-        <p>Careful. This will delete all your character data. This action is permanent.</p>
-
+        <SectionHeader title="Danger Zone" subtitle="Careful. This will delete all your character data. This action is permanent."/>
         <button class="btn preset-outlined" onclick={() => deleteCharacter()}>Delete Character</button>
     {/if}
 </div>

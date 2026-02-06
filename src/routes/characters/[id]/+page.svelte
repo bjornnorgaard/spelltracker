@@ -13,7 +13,7 @@
     let spells = app.current.spells?.filter(s => data.character.spells?.includes(s.id)).sort((a, b) => a.level - b.level);
     let filteredSpells = $state(spells);
 
-    function longRest(){
+    function longRest() {
         data.character.spellSlots.forEach(slot => slot.used = 0);
     }
 
@@ -61,13 +61,9 @@
 <div class="space-y-4">
     <PageHeader title={data.character.name} subtitle={`Your ${data.character.level}th level ${data.character.class}. Here you can view ${data.character.name}'s spells and spell slots.`}/>
     <div class="flex justify-between gap-2">
-        <a href={`/`} class="btn preset-tonal">
-            ⬅ Home
-        </a>
+        <a href={`/`} class="btn preset-tonal">⬅ Home</a>
         <button class="btn grow preset-filled-primary-200-800" onclick={longRest}>Long Rest</button>
-        <a href={`/characters/${data.character.id}/edit`} class="btn preset-tonal">
-            Edit<span class="rotate-180">⬅</span>
-        </a>
+        <a href={`/characters/${data.character.id}/edit`} class="btn preset-tonal">Edit<span class="rotate-180">⬅</span></a>
     </div>
 
     <SectionHeader title="Spell Slots" subtitle={`View and use ${data.character.name}'s spell slots. Use the edit link to change totals or add spell slots for higher levels.`}/>
@@ -100,8 +96,7 @@
         {/each}
     </div>
 
-    <SectionHeader title={`Spells (${spells.length})`}
-                   subtitle={`These are the spell currently known to ${data.character.name}. Use the filters to quickly find what you need.`}/>
+    <SectionHeader title={`Spells (${spells.length})`} subtitle={`These are the spell currently known to ${data.character.name}. Use the filters to quickly find what you need.`}/>
     <div class="space-y-1">
         <div class="flex flex-wrap gap-1">
             <button class="btn grow preset-filled-tertiary-200-800" onclick={() => filterSpellLevel(0)}>
@@ -120,8 +115,7 @@
         </div>
         <div class="flex flex-row gap-1">
             <button class="btn basis-1/2 preset-filled-secondary-200-800" onclick={filterRituals}>Ritual</button>
-            <button class="btn basis-1/2 preset-filled-secondary-200-800" onclick={filterConcentration}>Concentration
-            </button>
+            <button class="btn basis-1/2 preset-filled-secondary-200-800" onclick={filterConcentration}>Concentration</button>
         </div>
         <button class="btn w-full preset-filled-surface-200-800" onclick={filterAll}>Reset Filters</button>
     </div>

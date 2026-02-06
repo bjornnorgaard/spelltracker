@@ -4,15 +4,6 @@
     let {children} = $props();
 </script>
 
-<div class="p-4 space-y-4">
-
-    <header class="flex justify-center">
-        <a href="/">
-            <h1 class="h1">Spell Tracker</h1>
-        </a>
-    </header>
-
-    <main class="mx-auto py-4">
-        {@render children()}
-    </main>
-</div>
+<main class="mx-auto p-4">
+    {@render children()}
+</main>

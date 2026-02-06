@@ -2,21 +2,51 @@
     import {app} from "$lib/stores/app.svelte";
     import {Accordion} from '@skeletonlabs/skeleton-svelte';
     import {formatSpellLevel, formatSpellLevelLong} from "$lib/utils/spell-formatter";
-    import {slide} from "svelte/transition";
+    import {fly, slide} from "svelte/transition";
+    import PageHeader from "$lib/components/PageHeader.svelte";
+    import SectionHeader from "$lib/components/SectionHeader.svelte";
+    import {SPELL_LEVELS} from "$lib/utils/constants";
+    import {flip} from "svelte/animate";
 
     const {data} = $props();
 
-    let spells = app.current.spells.filter(s => data.character.spells.includes(s.id)).sort((a, b) => a.level - b.level);
+    let spells = app.current.spells?.filter(s => data.character.spells?.includes(s.id)).sort((a, b) => a.level - b.level);
+    let filteredSpells = $state(spells);
+
+    function filterSpellLevel(level: number) {
+        console.log("filtering spells by level", level, spells?.filter(s => s.level === level))
+        filteredSpells = spells?.filter(s => s.level === level);
+    }
+
+    function filterRituals() {
+        filteredSpells = spells?.filter(s => s.school.includes("(ritual)"));
+    }
+
+    function filterAction() {
+        filteredSpells = spells?.filter(s => !s.castingTime.includes("Action"));
+    }
+
+    function filterBonus() {
+        filteredSpells = spells?.filter(s => s.castingTime.includes("Bonus"));
+    }
+
+    function filterReaction() {
+        filteredSpells = spells?.filter(s => s.castingTime.includes("Reaction"));
+    }
+
+    function filterAll() {
+        filteredSpells = app.current.spells;
+    }
 </script>
 
 <div class="space-y-4">
-    <h3 class="h3">{data.character.name}</h3>
-    <div>
-        <span class="badge preset-filled">{data.character.class}</span>
-        <span class="badge preset-filled">{data.character.level}th level</span>
-    </div>
+    <PageHeader title={data.character.name}
+                subtitle={`Your ${data.character.level}th level ${data.character.class}. Here you can view ${data.character.name}'s spells and spell slots.`}/>
+    <a href={`/characters/${data.character.id}/edit`}
+       class="btn preset-filled-primary-200-800">Edit {data.character.name} →</a>
 
-    <h3 class="h3">Spell Slots</h3>
+    <SectionHeader title="Spell Slots"
+                   subtitle={`View and use ${data.character.name}'s spell slots. Use the edit link to change totals or add spell slots for higher levels.`}/>
     <div class="flex gap-4">
         {#each data.character.spellSlots as slot}
             {#if slot.total > 0}
@@ -28,41 +58,62 @@
         {/each}
     </div>
 
-    <h3 class="h3">Spells</h3>
+    <SectionHeader title={`Spells (${spells.length})`}
+                   subtitle={`These are the spell currently known to ${data.character.name}. Use the filters to quickly find what you need.`}/>
+    <div class="flex gap-1 flex-wrap">
+        <button class="btn grow w-full preset-filled-primary-200-800" onclick={filterAll}>View all spells</button>
+        {#each SPELL_LEVELS as spellLevel}
+            <button class="btn grow  preset-filled-tertiary-200-800"
+                    onclick={() => filterSpellLevel(spellLevel)}>{formatSpellLevel(spellLevel)}</button>
+        {/each}
+        <button class="btn grow preset-filled-primary-200-800" onclick={filterRituals}>Rituals</button>
+        <button class="btn grow preset-filled-primary-200-800" onclick={filterAction}>Action</button>
+        <button class="btn grow preset-filled-primary-200-800" onclick={filterBonus}>Bonus</button>
+        <button class="btn grow preset-filled-primary-200-800" onclick={filterReaction}>Reaction</button>
+    </div>
 
     <Accordion collapsible>
-        {#each spells as s}
-            <Accordion.Item value={s.id} class="card preset-tonal">
-                <Accordion.ItemTrigger class="font-bold flex justify-between gap-2">
-                    <Accordion.ItemIndicator class="group w-full">
-                        <div class="flex justify-between">
-                            <p>{formatSpellLevelLong(s.level)}</p>
-                            <p>{s.name}</p>
-                        </div>
-                    </Accordion.ItemIndicator>
-                </Accordion.ItemTrigger>
-                <Accordion.ItemContent>
-                    {#snippet element(attributes)}
-                        {#if !attributes.hidden}
-                            <div {...attributes} class="space-y-4 card preset-filled-primary-50-950" transition:slide={{ duration: 300 }}>
-                                <div>
-                                    <p><strong>Casting time:</strong> {s.castingTime}</p>
-                                    <p><strong>Range:</strong> {s.range}</p>
-                                    <p><strong>Duration:</strong> {s.duration}</p>
-                                    <p><strong>Components:</strong> {s.components}</p>
-                                </div>
-                                <div>
-                                    <p>{s.text}</p>
-                                </div>
-                                {#if s.atHigherLevels}
-                                    <p><strong>At higher levels:</strong> {s.atHigherLevels}</p>
-                                {/if}
-                                <p>{s.source} p{s.page}</p>
+        {#each filteredSpells as s (s.id)}
+            <div animate:flip={{duration: 300}} in:fly={{x: 1000}} out:fly={{x: -1000}}>
+                <Accordion.Item value={s.id} class="card preset-tonal">
+                    <Accordion.ItemTrigger class="font-bold flex justify-between gap-2">
+                        <Accordion.ItemIndicator class="group w-full">
+                            <div class="flex justify-between">
+                                <p>{formatSpellLevelLong(s.level)}</p>
+                                <p class="flex gap-2">
+                                    {s.name}
+                                    {#if s.school.includes("(ritual)")}
+                                        <span class="chip rounded-full preset-filled-surface-300-700">R</span>
+                                    {/if}
+                                </p>
                             </div>
-                        {/if}
-                    {/snippet}
-                </Accordion.ItemContent>
-            </Accordion.Item>
+                        </Accordion.ItemIndicator>
+                    </Accordion.ItemTrigger>
+                    <Accordion.ItemContent>
+                        {#snippet element(attributes)}
+                            {#if !attributes.hidden}
+                                <div {...attributes} class="space-y-4 card preset-filled-primary-50-950"
+                                     transition:slide={{ duration: 300 }}>
+                                    <div>
+                                        <p><strong>School:</strong> {s.school}</p>
+                                        <p><strong>Casting time:</strong> {s.castingTime}</p>
+                                        <p><strong>Range:</strong> {s.range}</p>
+                                        <p><strong>Duration:</strong> {s.duration}</p>
+                                        <p><strong>Components:</strong> {s.components}</p>
+                                    </div>
+                                    <div>
+                                        <p>{s.text}</p>
+                                    </div>
+                                    {#if s.atHigherLevels}
+                                        <p><strong>At higher levels:</strong> {s.atHigherLevels}</p>
+                                    {/if}
+                                    <p>{s.source} p{s.page}</p>
+                                </div>
+                            {/if}
+                        {/snippet}
+                    </Accordion.ItemContent>
+                </Accordion.Item>
+            </div>
         {/each}
     </Accordion>
 

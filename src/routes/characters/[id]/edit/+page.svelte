@@ -10,7 +10,7 @@
     let importData = $state("");
 
     async function deleteCharacter() {
-        app.current.characters = app.current.characters.filter((c: any) => c.id !== data.character.id);
+        app.current.characters = app.current.characters?.filter((c: any) => c.id !== data.character.id);
         await goto("/");
     }
 
@@ -152,7 +152,7 @@
             </tr>
             </thead>
             <tbody>
-            {#each app.current.spells.filter(s => data.character.spells.includes(s.id)).sort((a, b) => a.level - b.level) as spell}
+            {#each app.current.spells?.filter(s => data.character.spells?.includes(s.id)).sort((a, b) => a.level - b.level) as spell}
                 <tr>
                     <td>{formatSpellLevelLong(spell.level)}</td>
                     <td>{spell.name}</td>

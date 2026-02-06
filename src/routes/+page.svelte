@@ -1,11 +1,20 @@
 <script lang="ts">
     import {app} from "$lib/stores/app.svelte";
+    import PageHeader from "$lib/components/PageHeader.svelte";
+    import SectionHeader from "$lib/components/SectionHeader.svelte";
 </script>
 
 <div class="space-y-4">
-    <h2 class="h2 border-b-2">Your Characters</h2>
-    <p>Here are the characters you have created. Go to their profile to manage their spell slots.</p>
+    <PageHeader title="Spell Tracker" subtitle="Track your spell slots and their spells." />
 
+    <SectionHeader title="Getting Started" subtitle="Follow these steps to get started with Spell Tracker." />
+    <ol class="list-decimal list-inside">
+        <li>Create a character.</li>
+        <li>Add spell slots.</li>
+        <li>Import spells.</li>
+    </ol>
+
+    <SectionHeader title="Your Characters" subtitle="Here are your characters." />
     {#if app.current.characters.length}
         <ul>
             {#each app.current.characters as c}
@@ -23,29 +32,5 @@
         </a>
     {/if}
 
-    <a href="/characters/new" class="btn preset-filled-primary-500">Create New Character</a>
-
-    <h2 class="h2 border-b-2">Spells</h2>
-    <p>Here are all the spells that your have imported. This list is shared between your characters.</p>
-
-    {#if app.current.spells.length}
-        {@const spells = app.current.spells.slice(0, 10)}
-        <ul>
-            {#each spells as s}
-                <li class="list-inside list-disc">
-                    <a href={`/spells/${s.id}`} class="anchor">{s.name}</a>
-                </li>
-            {/each}
-            <li class="list-inside list-disc">
-                <a href="/spells" class="anchor">... and {app.current.spells.length} more</a>
-            </li>
-        </ul>
-    {:else}
-        <div class="card p-4 preset-filled-warning-500">
-            <strong>You have no spells</strong>
-            <p>Spells can be imported during character creation or from the
-                <a class="anchor" href="/spells">spells</a> page.
-            </p>
-        </div>
-    {/if}
+    <a href="/characters/new" class="btn w-full preset-filled-primary-500">Create New Character</a>
 </div>

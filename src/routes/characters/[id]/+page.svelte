@@ -34,6 +34,10 @@
         filteredSpells = spells?.filter(s => s.castingTime.includes("Reaction"));
     }
 
+    function filterConcentration() {
+        filteredSpells = spells?.filter(s => s.duration.includes("Concentration"));
+    }
+
     function filterAll() {
         filteredSpells = app.current.spells;
     }
@@ -60,16 +64,27 @@
 
     <SectionHeader title={`Spells (${spells.length})`}
                    subtitle={`These are the spell currently known to ${data.character.name}. Use the filters to quickly find what you need.`}/>
-    <div class="flex gap-1 flex-wrap">
-        <button class="btn grow w-full preset-filled-primary-200-800" onclick={filterAll}>View all spells</button>
-        {#each SPELL_LEVELS as spellLevel}
-            <button class="btn grow  preset-filled-tertiary-200-800"
-                    onclick={() => filterSpellLevel(spellLevel)}>{formatSpellLevel(spellLevel)}</button>
-        {/each}
-        <button class="btn grow preset-filled-primary-200-800" onclick={filterRituals}>Rituals</button>
-        <button class="btn grow preset-filled-primary-200-800" onclick={filterAction}>Action</button>
-        <button class="btn grow preset-filled-primary-200-800" onclick={filterBonus}>Bonus</button>
-        <button class="btn grow preset-filled-primary-200-800" onclick={filterReaction}>Reaction</button>
+    <div class="space-y-1">
+        <div class="flex flex-wrap gap-1">
+            <button class="btn grow preset-filled-tertiary-200-800" onclick={() => filterSpellLevel(0)}>
+                Cantrips
+            </button>
+            {#each SPELL_LEVELS.filter(level => data.character.spellSlots.filter(slot => slot.total > 0).some(slot => slot.level === level)) as spellLevel}
+                <button class="btn grow preset-filled-tertiary-200-800"
+                        onclick={() => filterSpellLevel(spellLevel)}>{formatSpellLevel(spellLevel)}
+                </button>
+            {/each}
+        </div>
+        <div class="flex flex-row gap-1">
+            <button class="btn basis-1/3 preset-filled-primary-200-800" onclick={filterAction}>Action</button>
+            <button class="btn basis-1/3 preset-filled-primary-200-800" onclick={filterBonus}>Bonus</button>
+            <button class="btn basis-1/3 preset-filled-primary-200-800" onclick={filterReaction}>Reaction</button>
+        </div>
+        <div class="flex flex-row gap-1">
+            <button class="btn basis-1/2 preset-filled-secondary-200-800" onclick={filterRituals}>Ritual</button>
+            <button class="btn basis-1/2 preset-filled-secondary-200-800" onclick={filterConcentration}>Concentration</button>
+        </div>
+        <button class="btn w-full preset-filled-surface-200-800" onclick={filterAll}>View all spells</button>
     </div>
 
     <Accordion collapsible>

@@ -13,6 +13,10 @@
     let spells = app.current.spells?.filter(s => data.character.spells?.includes(s.id)).sort((a, b) => a.level - b.level);
     let filteredSpells = $state(spells);
 
+    function longRest(){
+        data.character.spellSlots.forEach(slot => slot.used = 0);
+    }
+
     function filterSpellLevel(level: number) {
         filteredSpells = spells?.filter(s => s.level === level);
     }
@@ -57,11 +61,11 @@
 <div class="space-y-4">
     <PageHeader title={data.character.name} subtitle={`Your ${data.character.level}th level ${data.character.class}. Here you can view ${data.character.name}'s spells and spell slots.`}/>
     <div class="flex justify-between gap-2">
-        <a href={`/`} class="btn preset-filled-primary-200-800">
+        <a href={`/`} class="btn preset-tonal">
             ⬅ Home
         </a>
-        <button class="btn grow preset-filled-primary-500">Long Rest</button>
-        <a href={`/characters/${data.character.id}/edit`} class="btn preset-filled-primary-200-800">
+        <button class="btn grow preset-filled-primary-200-800" onclick={longRest}>Long Rest</button>
+        <a href={`/characters/${data.character.id}/edit`} class="btn preset-tonal">
             Edit<span class="rotate-180">⬅</span>
         </a>
     </div>
@@ -125,7 +129,7 @@
     <Accordion collapsible>
         {#each filteredSpells as s (s.id)}
             <div animate:flip={{duration: 300}} in:fly={{x: 1000}} out:fly={{x: -1000}}>
-                <Accordion.Item value={s.id} class="card preset-tonal">
+                <Accordion.Item value={s.id} class="card preset-tonal border-2 border-surface-200-800">
                     <Accordion.ItemTrigger class="font-bold flex justify-between gap-2">
                         <Accordion.ItemIndicator class="group w-full">
                             <div class="flex justify-between">

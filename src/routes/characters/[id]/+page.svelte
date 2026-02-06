@@ -124,24 +124,24 @@
         {#each filteredSpells as s (s.id)}
             <div animate:flip={{duration: 300}} in:fly={{x: 1000}} out:fly={{x: -1000}}>
                 <Accordion.Item value={s.id} class="card preset-tonal border-2 border-surface-200-800">
-                    <Accordion.ItemTrigger class="font-bold flex justify-between gap-2">
-                        <Accordion.ItemIndicator class="group w-full">
-                            <div class="flex justify-between">
-                                <p>{formatSpellLevelLong(s.level)}</p>
-                                <p class="flex gap-2">
-                                    {s.name}
-                                    {#if s.school.includes("(ritual)")}
-                                        <span class="chip rounded-full preset-filled-surface-300-700">R</span>
-                                    {/if}
-                                </p>
-                            </div>
+                    <Accordion.ItemTrigger class="font-bold flex justify-between">
+                        <div class="flex gap-2 items-center">
+                            {formatSpellLevelLong(s.level)}
+                            {#if s.school.includes("(ritual)")}
+                                <span class="badge rounded-full preset-filled-surface-300-700">R</span>
+                            {/if}
+                        </div>
+                        <Accordion.ItemIndicator class="group">
+                            {s.name}
                         </Accordion.ItemIndicator>
                     </Accordion.ItemTrigger>
                     <Accordion.ItemContent>
                         {#snippet element(attributes)}
                             {#if !attributes.hidden}
-                                <div {...attributes} class="space-y-4 card preset-filled-primary-50-950"
-                                     transition:slide={{ duration: 300 }}>
+                                <div {...attributes} class="space-y-4 card preset-filled-surface-50-950" transition:slide={{ duration: 300 }}>
+                                    <div>
+                                        <button class="btn preset-filled-primary-500">Cast ({s.castingTime})</button>
+                                    </div>
                                     <div>
                                         <p><strong>School:</strong> {s.school}</p>
                                         <p><strong>Casting time:</strong> {s.castingTime}</p>
@@ -164,5 +164,4 @@
             </div>
         {/each}
     </Accordion>
-
 </div>

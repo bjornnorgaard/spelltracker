@@ -8,6 +8,7 @@
     import {SPELL_LEVELS} from "$lib/utils/constants";
     import {flip} from "svelte/animate";
     import type {Spell} from "$lib/types/spell";
+    import type {SpellSlot} from "$lib/types/spellSlot";
 
     const {data} = $props();
 
@@ -16,13 +17,12 @@
     let requireRitual = $state(false);
     let concentrationMode = $state<"both" | "conc" | "no-conc">("both");
 
-    let spells = app.current.spells?.filter(s => data.character.spells?.includes(s.id)).sort((a, b) => a.level - b.level);
+    let spells = app.current.spells?.filter((s: Spell) => data.character.spells?.includes(s.id)).sort((a: Spell, b: Spell) => a.level - b.level);
     let filteredSpells = $state<Spell[]>(spells);
 
     $effect(() => {
         if (!spells) return [];
 
-        console.log("applying filter");
         filteredSpells = spells.filter((spell: Spell) => {
             if (selectedLevels.length && !selectedLevels.includes(spell.level)) return false;
             if (selectedCastingTimes.length && !selectedCastingTimes.some(time => spell.castingTime.includes(time))) return false;
@@ -34,7 +34,7 @@
     });
 
     function longRest() {
-        data.character.spellSlots.forEach(slot => slot.used = 0);
+        data.character.spellSlots.forEach((slot: SpellSlot) => slot.used = 0);
     }
 
     function toggleLevel(level: number) {
@@ -205,10 +205,14 @@
                             {#if !attributes.hidden}
                                 <div {...attributes} class="space-y-4 card preset-filled-surface-50-950" transition:slide={{ duration: 300 }}>
                                     {#if s.level !== 0}
-                                        <div>
-                                            <button class="btn preset-filled-primary-500 w-full">
-                                                Cast as<span class="font-bold">{s.castingTime}</span>
+                                        <div class="flex justify-between items-center">
+                                            <button class="btn preset-filled-primary-500" onclick={() => useSlot(s.level)}>
+                                                Cast as {s.castingTime}
                                             </button>
+                                            {#if s.school.includes("(ritual)")}
+                                                <span>or</span>
+                                                <span class="btn preset-filled-secondary-500">Cast as Ritual</span>
+                                            {/if}
                                         </div>
                                     {/if}
                                     <div>

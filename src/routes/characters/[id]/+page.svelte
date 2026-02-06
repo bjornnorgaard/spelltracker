@@ -152,7 +152,7 @@
         {/each}
     </div>
 
-    <SectionHeader title={`Quick Filters`} subtitle={`Use the filters to quickly find what you need.`}/>
+    <SectionHeader title="Quick Filters" subtitle={`Use the filters to quickly find what you need.`}/>
     <div class="space-y-1">
         <div class="flex flex-wrap gap-1">
             <button

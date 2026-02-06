@@ -7,42 +7,61 @@
     import SectionHeader from "$lib/components/SectionHeader.svelte";
     import {SPELL_LEVELS} from "$lib/utils/constants";
     import {flip} from "svelte/animate";
+    import type {Spell} from "$lib/types/spell";
 
     const {data} = $props();
 
+    let selectedLevels = $state<number[]>([]);
+    let selectedCastingTimes = $state<string[]>([]);
+    let requireRitual = $state(false);
+    let concentrationMode = $state<"both" | "conc" | "no-conc">("both");
+
     let spells = app.current.spells?.filter(s => data.character.spells?.includes(s.id)).sort((a, b) => a.level - b.level);
-    let filteredSpells = $state(spells);
+    let filteredSpells = $state<Spell[]>(spells);
+
+    $effect(() => {
+        if (!spells) return [];
+
+        console.log("applying filter");
+        filteredSpells = spells.filter((spell: Spell) => {
+            if (selectedLevels.length && !selectedLevels.includes(spell.level)) return false;
+            if (selectedCastingTimes.length && !selectedCastingTimes.some(time => spell.castingTime.includes(time))) return false;
+            if (requireRitual && !spell.school.includes("(ritual)")) return false;
+            if (concentrationMode === "conc" && !spell.duration.includes("Concentration")) return false;
+            if (concentrationMode === "no-conc" && spell.duration.includes("Concentration")) return false;
+            return true;
+        });
+    });
 
     function longRest() {
         data.character.spellSlots.forEach(slot => slot.used = 0);
     }
 
-    function filterSpellLevel(level: number) {
-        filteredSpells = spells?.filter(s => s.level === level);
+    function toggleLevel(level: number) {
+        selectedLevels = selectedLevels.includes(level)
+            ? selectedLevels.filter(value => value !== level)
+            : [...selectedLevels, level];
     }
 
-    function filterRituals() {
-        filteredSpells = spells?.filter(s => s.school.includes("(ritual)"));
+    function toggleCastingTime(time: string) {
+        selectedCastingTimes = selectedCastingTimes.includes(time)
+            ? selectedCastingTimes.filter(value => value !== time)
+            : [...selectedCastingTimes, time];
     }
 
-    function filterAction() {
-        filteredSpells = spells?.filter(s => !s.castingTime.includes("Action"));
+    function toggleRituals() {
+        requireRitual = !requireRitual;
     }
 
-    function filterBonus() {
-        filteredSpells = spells?.filter(s => s.castingTime.includes("Bonus"));
+    function setConcentrationMode(mode: "both" | "conc" | "no-conc") {
+        concentrationMode = mode;
     }
 
-    function filterReaction() {
-        filteredSpells = spells?.filter(s => s.castingTime.includes("Reaction"));
-    }
-
-    function filterConcentration() {
-        filteredSpells = spells?.filter(s => s.duration.includes("Concentration"));
-    }
-
-    function filterAll() {
-        filteredSpells = app.current.spells;
+    function resetFilters() {
+        selectedLevels = [];
+        selectedCastingTimes = [];
+        requireRitual = false;
+        concentrationMode = "both";
     }
 
     function useSlot(level: number) {
@@ -99,25 +118,67 @@
     <SectionHeader title={`Quick Filters`} subtitle={`Use the filters to quickly find what you need.`}/>
     <div class="space-y-1">
         <div class="flex flex-wrap gap-1">
-            <button class="btn grow preset-filled-tertiary-200-800" onclick={() => filterSpellLevel(0)}>
+            <button
+                    class="btn grow"
+                    class:preset-filled-tertiary-200-800={selectedLevels.includes(0)}
+                    class:preset-tonal={!selectedLevels.includes(0)}
+                    onclick={() => toggleLevel(0)}>
                 Cantrips
             </button>
             {#each SPELL_LEVELS.filter(level => data.character.spellSlots.filter(slot => slot.total > 0).some(slot => slot.level === level)) as spellLevel}
-                <button class="btn grow preset-filled-tertiary-200-800"
-                        onclick={() => filterSpellLevel(spellLevel)}>{formatSpellLevel(spellLevel)}
+                <button
+                        class="btn grow"
+                        class:preset-filled-tertiary-200-800={selectedLevels.includes(spellLevel)}
+                        class:preset-tonal={!selectedLevels.includes(spellLevel)}
+                        onclick={() => toggleLevel(spellLevel)}>{formatSpellLevel(spellLevel)}
                 </button>
             {/each}
         </div>
         <div class="flex flex-row gap-1">
-            <button class="btn basis-1/3 preset-filled-primary-200-800" onclick={filterAction}>Action</button>
-            <button class="btn basis-1/3 preset-filled-primary-200-800" onclick={filterBonus}>Bonus</button>
-            <button class="btn basis-1/3 preset-filled-primary-200-800" onclick={filterReaction}>Reaction</button>
+            <button
+                    class="btn basis-1/3"
+                    class:preset-filled-primary-200-800={selectedCastingTimes.includes("Action")}
+                    class:preset-tonal={!selectedCastingTimes.includes("Action")}
+                    onclick={() => toggleCastingTime("Action")}>Action
+            </button>
+            <button
+                    class="btn basis-1/3"
+                    class:preset-filled-primary-200-800={selectedCastingTimes.includes("Bonus")}
+                    class:preset-tonal={!selectedCastingTimes.includes("Bonus")}
+                    onclick={() => toggleCastingTime("Bonus")}>Bonus
+            </button>
+            <button
+                    class="btn basis-1/3"
+                    class:preset-filled-primary-200-800={selectedCastingTimes.includes("Reaction")}
+                    class:preset-tonal={!selectedCastingTimes.includes("Reaction")}
+                    onclick={() => toggleCastingTime("Reaction")}>Reaction
+            </button>
+            <button
+                    class="btn basis-1/3"
+                    class:preset-filled-primary-200-800={requireRitual}
+                    class:preset-tonal={!requireRitual}
+                    onclick={toggleRituals}>Ritual
+            </button>
         </div>
         <div class="flex flex-row gap-1">
-            <button class="btn basis-1/2 preset-filled-secondary-200-800" onclick={filterRituals}>Ritual</button>
-            <button class="btn basis-1/2 preset-filled-secondary-200-800" onclick={filterConcentration}>Concentration</button>
+            <button
+                    class="btn basis-1/3"
+                    class:preset-filled-secondary-200-800={concentrationMode === "conc"}
+                    class:preset-tonal={concentrationMode !== "conc"}
+                    onclick={() => setConcentrationMode("conc")}>Conc.
+            </button>
+            <button
+                    class="btn basis-1/3 preset-tonal"
+                    onclick={() => setConcentrationMode("both")}>Both
+            </button>
+            <button
+                    class="btn basis-1/3"
+                    class:preset-filled-secondary-200-800={concentrationMode === "no-conc"}
+                    class:preset-tonal={concentrationMode !== "no-conc"}
+                    onclick={() => setConcentrationMode("no-conc")}>No Conc.
+            </button>
         </div>
-        <button class="btn w-full preset-filled-surface-200-800" onclick={filterAll}>Reset Filters</button>
+        <button class="btn w-full preset-filled-surface-200-800" onclick={resetFilters}>Reset Filters</button>
     </div>
 
     <SectionHeader title={`Spells (${spells.length})`} subtitle={`These are the spell currently known to ${data.character.name}.`}/>
@@ -128,8 +189,11 @@
                     <Accordion.ItemTrigger class="font-bold flex justify-between">
                         <div class="flex gap-2 items-center">
                             {formatSpellLevelLong(s.level)}
+                            {#if s.duration.includes("Concentration")}
+                                <span class="badge rounded-full preset-filled-secondary-100-900">C</span>
+                            {/if}
                             {#if s.school.includes("(ritual)")}
-                                <span class="badge rounded-full preset-filled-surface-300-700">R</span>
+                                <span class="badge rounded-full preset-filled-primary-100-900">R</span>
                             {/if}
                         </div>
                         <Accordion.ItemIndicator class="group">

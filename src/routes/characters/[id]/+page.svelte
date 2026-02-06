@@ -203,15 +203,26 @@
                     <Accordion.ItemContent>
                         {#snippet element(attributes)}
                             {#if !attributes.hidden}
-                                <div {...attributes} class="space-y-4 card preset-filled-surface-50-950" transition:slide={{ duration: 300 }}>
+                                {@const slot = data.character.spellSlots.find(slot => slot.level === s.level)}
+                                {@const remaining = (slot.total ?? 0) - (slot.used ?? 0)}
+                                {@const total = slot.total ?? 0}
+                                <div {...attributes} class="space-y-4 card preset-filled-surface-100-900" transition:slide={{ duration: 300 }}>
                                     {#if s.level !== 0}
-                                        <div class="flex justify-between items-center">
-                                            <button class="btn preset-filled-primary-500" onclick={() => useSlot(s.level)}>
-                                                Cast as {s.castingTime}
+                                        <div class="flex justify-between gap-2">
+                                            <button class="btn w-full transition-all duration-500" onclick={() => useSlot(s.level)}
+                                                    class:preset-filled-primary-500={remaining > 0}
+                                                    class:preset-filled-surface-500={remaining === 0}
+                                                    class:disabled={remaining === 0}
+                                                    disabled={remaining === 0}>
+                                                Cast as {s.castingTime} at {formatSpellLevel(s.level)} ({remaining}/{total})
                                             </button>
-                                            {#if s.school.includes("(ritual)")}
-                                                <span>or cast as Ritual</span>
-                                            {/if}
+                                            <button class="btn" onclick={() => restoreSlot(s.level)}
+                                                    class:preset-tonal-primary={remaining !== total}
+                                                    class:preset-tonal-surface={remaining === total}
+                                                    class:disabled={remaining === total}
+                                                    disabled={remaining === total}>
+                                                Undo
+                                            </button>
                                         </div>
                                     {/if}
                                     <div>
@@ -222,7 +233,7 @@
                                         <p><strong>Components:</strong> {s.components}</p>
                                     </div>
                                     <div>
-                                        <p>{s.text}</p>
+                                        <i>{s.text}</i>
                                     </div>
                                     {#if s.atHigherLevels}
                                         <p><strong>At higher levels:</strong> {s.atHigherLevels}</p>

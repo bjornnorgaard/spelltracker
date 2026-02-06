@@ -163,8 +163,7 @@
                 Cantrips
             </button>
             {#each SPELL_LEVELS.filter(level => data.character.spellSlots.filter(slot => slot.total > 0).some(slot => slot.level === level)) as spellLevel}
-                <button
-                        class="btn grow"
+                <button class="btn grow"
                         class:preset-filled-tertiary-200-800={selectedLevels.includes(spellLevel)}
                         class:preset-tonal={!selectedLevels.includes(spellLevel)}
                         onclick={() => toggleLevel(spellLevel)}>{formatSpellLevel(spellLevel)}
@@ -172,44 +171,37 @@
             {/each}
         </div>
         <div class="flex flex-row gap-1">
-            <button
-                    class="btn basis-1/3"
+            <button class="btn basis-1/3"
                     class:preset-filled-primary-200-800={selectedCastingTimes.includes("Action")}
                     class:preset-tonal={!selectedCastingTimes.includes("Action")}
                     onclick={() => toggleCastingTime("Action")}>Action
             </button>
-            <button
-                    class="btn basis-1/3"
+            <button class="btn basis-1/3"
                     class:preset-filled-primary-200-800={selectedCastingTimes.includes("Bonus")}
                     class:preset-tonal={!selectedCastingTimes.includes("Bonus")}
                     onclick={() => toggleCastingTime("Bonus")}>Bonus
             </button>
-            <button
-                    class="btn basis-1/3"
+            <button class="btn basis-1/3"
                     class:preset-filled-primary-200-800={selectedCastingTimes.includes("Reaction")}
                     class:preset-tonal={!selectedCastingTimes.includes("Reaction")}
                     onclick={() => toggleCastingTime("Reaction")}>Reaction
             </button>
-            <button
-                    class="btn basis-1/3"
+            <button class="btn basis-1/3"
                     class:preset-filled-primary-200-800={requireRitual}
                     class:preset-tonal={!requireRitual}
                     onclick={toggleRituals}>Ritual
             </button>
         </div>
         <div class="flex flex-row gap-1">
-            <button
-                    class="btn basis-1/3"
+            <button class="btn basis-1/3"
                     class:preset-filled-secondary-200-800={concentrationMode === "conc"}
                     class:preset-tonal={concentrationMode !== "conc"}
                     onclick={() => setConcentrationMode("conc")}>Conc.
             </button>
-            <button
-                    class="btn basis-1/3 preset-tonal"
+            <button class="btn basis-1/3 preset-tonal"
                     onclick={() => setConcentrationMode("both")}>Both
             </button>
-            <button
-                    class="btn basis-1/3"
+            <button class="btn basis-1/3"
                     class:preset-filled-secondary-200-800={concentrationMode === "no-conc"}
                     class:preset-tonal={concentrationMode !== "no-conc"}
                     onclick={() => setConcentrationMode("no-conc")}>No Conc.

@@ -140,9 +140,13 @@
                         {#snippet element(attributes)}
                             {#if !attributes.hidden}
                                 <div {...attributes} class="space-y-4 card preset-filled-surface-50-950" transition:slide={{ duration: 300 }}>
-                                    <div>
-                                        <button class="btn preset-filled-primary-500">Cast ({s.castingTime})</button>
-                                    </div>
+                                    {#if s.level !== 0}
+                                        <div>
+                                            <button class="btn preset-filled-primary-500 w-full">
+                                                Cast as<span class="font-bold">{s.castingTime}</span>
+                                            </button>
+                                        </div>
+                                    {/if}
                                     <div>
                                         <p><strong>School:</strong> {s.school}</p>
                                         <p><strong>Casting time:</strong> {s.castingTime}</p>

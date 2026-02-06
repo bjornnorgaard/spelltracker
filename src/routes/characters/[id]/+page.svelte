@@ -60,26 +60,27 @@
         →</a>
 
     <SectionHeader title="Spell Slots" subtitle={`View and use ${data.character.name}'s spell slots. Use the edit link to change totals or add spell slots for higher levels.`}/>
-    <div class="flex gap-2 justify-between">
+    <div class="flex justify-between">
         {#each data.character.spellSlots as slot (slot.level)}
             {#if slot.total > 0}
-                <div class="">
+                <div>
                     <div class="flex items-center justify-between">
                         <p class="text-base font-semibold">{formatSpellLevel(slot.level)}</p>
                     </div>
-                    <div class="mt-2 flex flex-col items-center gap-2">
-                        <button class="btn h-7 w-7 p-0 text-xs preset-filled-primary-200-800" onclick={() => useSlot(slot.level)} disabled={slot.used >= slot.total}>
+                    <div class="mt-2 flex flex-col-reverse items-center gap-2">
+                        <button class="btn h-8 w-8 rounded-full mb-1 p-0 text-xs preset-filled-primary-200-800" onclick={() => useSlot(slot.level)} disabled={slot.used >= slot.total}>
                             U
                         </button>
                         {#each Array(slot.total) as _, i (i)}
-                                <span class="h-8 w-8 badge rounded-full"
+                                <span class="h-8 w-8 badge rounded-full font-bold text-xl"
+                                      style={`filter: hue-rotate(${(slot.level+1)*10}deg)`}
                                       class:preset-filled-primary-500={i >= slot.used}
                                       class:preset-filled-surface-500={i < slot.used}
                                       class:opacity-50={i < slot.used}>
-                                    {i + 1}
+                                    {slot.total - i }
                                 </span>
                         {/each}
-                        <button class="btn h-7 w-7 p-0 text-xs preset-filled-surface-200-800" onclick={() => restoreSlot(slot.level)} disabled={slot.used <= 0}>
+                        <button class="btn rounded-full h-8 w-8 mt-1 p-0 text-xs preset-filled-surface-200-800" onclick={() => restoreSlot(slot.level)} disabled={slot.used <= 0}>
                             R
                         </button>
                     </div>

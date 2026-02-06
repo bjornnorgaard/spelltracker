@@ -96,7 +96,7 @@
         {/each}
     </div>
 
-    <SectionHeader title={`Spells (${spells.length})`} subtitle={`These are the spell currently known to ${data.character.name}. Use the filters to quickly find what you need.`}/>
+    <SectionHeader title={`Quick Filters`} subtitle={`Use the filters to quickly find what you need.`}/>
     <div class="space-y-1">
         <div class="flex flex-wrap gap-1">
             <button class="btn grow preset-filled-tertiary-200-800" onclick={() => filterSpellLevel(0)}>
@@ -120,6 +120,7 @@
         <button class="btn w-full preset-filled-surface-200-800" onclick={filterAll}>Reset Filters</button>
     </div>
 
+    <SectionHeader title={`Spells (${spells.length})`} subtitle={`These are the spell currently known to ${data.character.name}.`}/>
     <Accordion collapsible>
         {#each filteredSpells as s (s.id)}
             <div animate:flip={{duration: 300}} in:fly={{x: 1000}} out:fly={{x: -1000}}>

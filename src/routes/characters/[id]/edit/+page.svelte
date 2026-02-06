@@ -4,6 +4,7 @@
     import {goto} from "$app/navigation";
     import {formatSpellLevelLong} from "$lib/utils/spell-formatter";
     import {parseSpellCSV} from "$lib/utils/csv-parser";
+    import type {Character} from "$lib/types/character";
 
     const {data} = $props();
 
@@ -49,7 +50,7 @@
             }
         }
 
-        app.current.characters.find((c: any) => c.id === data.character.id).spells = characterSpells;
+        app.current.characters.find((c: Character) => c.id === data.character.id).spells = characterSpells;
     }
 
     const spellImportPlaceholder = `"Name","Source","Page","Level","Casting Time","Duration","School","Range","Components","Classes","Optional/Variant Classes","Subclasses","Text","At Higher Levels"

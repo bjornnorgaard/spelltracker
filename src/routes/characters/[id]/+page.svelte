@@ -84,7 +84,7 @@
             <button class="btn basis-1/2 preset-filled-secondary-200-800" onclick={filterRituals}>Ritual</button>
             <button class="btn basis-1/2 preset-filled-secondary-200-800" onclick={filterConcentration}>Concentration</button>
         </div>
-        <button class="btn w-full preset-filled-surface-200-800" onclick={filterAll}>View all spells</button>
+        <button class="btn w-full preset-filled-surface-200-800" onclick={filterAll}>Reset Filters</button>
     </div>
 
     <Accordion collapsible>

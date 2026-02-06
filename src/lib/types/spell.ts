@@ -16,3 +16,4 @@ export interface Spell {
     text: string;
     atHigherLevels: string;
 }
+

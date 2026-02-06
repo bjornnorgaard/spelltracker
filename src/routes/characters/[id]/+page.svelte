@@ -9,6 +9,7 @@
     import {flip} from "svelte/animate";
     import type {Spell} from "$lib/types/spell";
     import type {SpellSlot} from "$lib/types/spellSlot";
+    import type {SpellEvent} from "$lib/types/spellEvent";
 
     const {data} = $props();
 
@@ -22,7 +23,6 @@
 
     $effect(() => {
         if (!spells) return [];
-
         filteredSpells = spells.filter((spell: Spell) => {
             if (selectedLevels.length && !selectedLevels.includes(spell.level)) return false;
             if (selectedCastingTimes.length && !selectedCastingTimes.some(time => spell.castingTime.includes(time))) return false;
@@ -33,20 +33,20 @@
         });
     });
 
-    function longRest() {
-        data.character.spellSlots.forEach((slot: SpellSlot) => slot.used = 0);
-    }
-
     function toggleLevel(level: number) {
-        selectedLevels = selectedLevels.includes(level)
-            ? selectedLevels.filter(value => value !== level)
-            : [...selectedLevels, level];
+        if (selectedLevels.includes(level)) {
+            selectedLevels = selectedLevels.filter(value => value !== level);
+            return;
+        }
+        selectedLevels = [...selectedLevels, level];
     }
 
     function toggleCastingTime(time: string) {
-        selectedCastingTimes = selectedCastingTimes.includes(time)
-            ? selectedCastingTimes.filter(value => value !== time)
-            : [...selectedCastingTimes, time];
+        if (selectedCastingTimes.includes(time)) {
+            selectedCastingTimes = selectedCastingTimes.filter(value => value !== time);
+            return;
+        }
+        selectedCastingTimes = [...selectedCastingTimes, time];
     }
 
     function toggleRituals() {
@@ -64,16 +64,42 @@
         concentrationMode = "both";
     }
 
+    function longRest() {
+        data.character.spellSlots.forEach((slot: SpellSlot) => slot.used = 0);
+        logEvent("Long Rest");
+    }
+
     function useSlot(level: number) {
-        const slot = data.character.spellSlots.find(s => s.level === level);
+        const slot = data.character.spellSlots.find((s: SpellSlot) => s.level === level);
         if (!slot || slot.used >= slot.total) return;
+        logEvent(`Use ${formatSpellLevel(level)} slot`);
         slot.used += 1;
     }
 
     function restoreSlot(level: number) {
-        const slot = data.character.spellSlots.find(s => s.level === level);
+        const slot = data.character.spellSlots.find((s: SpellSlot) => s.level === level);
         if (!slot || slot.used <= 0) return;
+        logEvent(`Restore ${formatSpellLevel(level)} slot`);
         slot.used -= 1;
+    }
+
+    function castSpell(spell: Spell) {
+        const slot = data.character.spellSlots.find((s: SpellSlot) => s.level === spell.level);
+        if (!slot || slot.used >= slot.total) return;
+        logEvent(`Cast ${spell.name} at ${formatSpellLevel(spell.level)}`);
+        slot.used += 1;
+    }
+
+    function undoCast(spell: Spell) {
+        const slot = data.character.spellSlots.find((s: SpellSlot) => s.level === spell.level);
+        if (!slot) return;
+        logEvent(`Undo ${formatSpellLevelLong(spell.level)} ${spell.name}`);
+        slot.used -= 1;
+    }
+
+    function logEvent(s: string) {
+        const e: SpellEvent = {text: s, timestamp: new Date()};
+        data.character.spellEvents.push(e);
     }
 </script>
 
@@ -209,14 +235,14 @@
                                 <div {...attributes} class="space-y-4 card preset-filled-surface-100-900" transition:slide={{ duration: 300 }}>
                                     {#if s.level !== 0}
                                         <div class="flex justify-between gap-2">
-                                            <button class="btn w-full transition-all duration-500" onclick={() => useSlot(s.level)}
+                                            <button class="btn w-full transition-all duration-500" onclick={() => castSpell(s)}
                                                     class:preset-filled-primary-500={remaining > 0}
                                                     class:preset-filled-surface-500={remaining === 0}
                                                     class:disabled={remaining === 0}
                                                     disabled={remaining === 0}>
                                                 Cast as {s.castingTime} at {formatSpellLevel(s.level)} ({remaining}/{total})
                                             </button>
-                                            <button class="btn" onclick={() => restoreSlot(s.level)}
+                                            <button class="btn" onclick={() => undoCast(s)}
                                                     class:preset-tonal-primary={remaining !== total}
                                                     class:preset-tonal-surface={remaining === total}
                                                     class:disabled={remaining === total}

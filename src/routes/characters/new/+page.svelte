@@ -17,7 +17,8 @@
             level: level,
             name: name,
             knownSpells: [],
-            spellSlots: []
+            spellSlots: [],
+            spellEvents: [],
         };
 
         for (const l of SPELL_LEVELS) {
@@ -29,7 +30,7 @@
         }
 
         app.current.characters.push(character);
-        await goto("/");
+        await goto(`/characters/${character.id}/edit`);
     }
 </script>
 

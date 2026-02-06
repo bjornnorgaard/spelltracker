@@ -115,7 +115,7 @@
             </tr>
             </thead>
             <tbody>
-            {#each c.spellSlots.filter(s => s.level !== 0) as s, i}
+            {#each c.spellSlots.filter(s => s.level !== 0) as s}
                 <tr class:opacity-50={!s.total}>
                     <td>{formatSpellLevelLong(s.level)}</td>
                     <td class="text-center">{s.total}</td>

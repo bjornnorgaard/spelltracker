@@ -2,11 +2,11 @@
     import {app} from "$lib/stores/app.svelte";
     import {Accordion} from '@skeletonlabs/skeleton-svelte';
     import {formatSpellLevel, formatSpellLevelLong} from "$lib/utils/spell-formatter";
-    import {fly, slide} from "svelte/transition";
+    import {slide} from "svelte/transition";
+    import {onMount, tick} from "svelte";
     import PageHeader from "$lib/components/PageHeader.svelte";
     import SectionHeader from "$lib/components/SectionHeader.svelte";
     import {SPELL_LEVELS} from "$lib/utils/constants";
-    import {flip} from "svelte/animate";
     import type {Spell} from "$lib/types/spell";
     import type {SpellSlot} from "$lib/types/spellSlot";
     import type {SpellEvent} from "$lib/types/spellEvent";
@@ -21,6 +21,10 @@
     let spells = app.current.spells?.filter((s: Spell) => data.character.spells?.includes(s.id)).sort((a: Spell, b: Spell) => a.level - b.level);
     let filteredSpells = $state<Spell[]>(spells);
 
+    let spellsListEl: HTMLDivElement | null = null;
+    let spellsListHeight = $state(0);
+    let spellsListMeasured = false;
+
     $effect(() => {
         if (!spells) return [];
         filteredSpells = spells.filter((spell: Spell) => {
@@ -31,6 +35,13 @@
             if (concentrationMode === "no-conc" && spell.duration.includes("Concentration")) return false;
             return true;
         });
+    });
+
+    onMount(async () => {
+        if (!spellsListEl || spellsListMeasured) return;
+        await tick();
+        spellsListHeight = spellsListEl.scrollHeight;
+        spellsListMeasured = true;
     });
 
     function toggleLevel(level: number) {
@@ -208,9 +219,9 @@
     </div>
 
     <SectionHeader title={`Spells (${spells.length})`} subtitle={`These are the spell currently known to ${data.character.name}.`}/>
-    <Accordion collapsible>
-        {#each filteredSpells as s (s.id)}
-            <div animate:flip={{duration: 300}} in:fly={{x: 1000}} out:fly={{x: -1000}}>
+    <div bind:this={spellsListEl} style={`height: ${spellsListHeight}px; overflow-y: auto; overflow-anchor: none;`}>
+        <Accordion collapsible>
+            {#each filteredSpells as s (s.name)}
                 <Accordion.Item value={s.id} class="card preset-tonal border-2 border-surface-200-800">
                     <Accordion.ItemTrigger class="font-bold flex justify-between">
                         <div class="flex gap-2 items-center">
@@ -270,7 +281,7 @@
                         {/snippet}
                     </Accordion.ItemContent>
                 </Accordion.Item>
-            </div>
-        {/each}
-    </Accordion>
+            {/each}
+        </Accordion>
+    </div>
 </div>

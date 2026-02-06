@@ -14,7 +14,6 @@
     let filteredSpells = $state(spells);
 
     function filterSpellLevel(level: number) {
-        console.log("filtering spells by level", level, spells?.filter(s => s.level === level))
         filteredSpells = spells?.filter(s => s.level === level);
     }
 
@@ -56,53 +55,32 @@
 </script>
 
 <div class="space-y-4">
-    <PageHeader title={data.character.name}
-                subtitle={`Your ${data.character.level}th level ${data.character.class}. Here you can view ${data.character.name}'s spells and spell slots.`}/>
-    <a href={`/characters/${data.character.id}/edit`}
-       class="btn preset-filled-primary-200-800">Edit {data.character.name} →</a>
+    <PageHeader title={data.character.name} subtitle={`Your ${data.character.level}th level ${data.character.class}. Here you can view ${data.character.name}'s spells and spell slots.`}/>
+    <a href={`/characters/${data.character.id}/edit`} class="btn preset-filled-primary-200-800">Edit {data.character.name}
+        →</a>
 
-    <SectionHeader title="Spell Slots"
-                   subtitle={`View and use ${data.character.name}'s spell slots. Use the edit link to change totals or add spell slots for higher levels.`}/>
-    <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+    <SectionHeader title="Spell Slots" subtitle={`View and use ${data.character.name}'s spell slots. Use the edit link to change totals or add spell slots for higher levels.`}/>
+    <div class="flex gap-2 justify-between">
         {#each data.character.spellSlots as slot (slot.level)}
             {#if slot.total > 0}
-                <div class="card preset-tonal p-4 space-y-3">
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <p class="text-lg font-semibold">{formatSpellLevelLong(slot.level)}</p>
-                            <p class="text-sm opacity-70">{slot.total - slot.used} available</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="chip rounded-full preset-filled-primary-500">
-                                {slot.total - slot.used}/{slot.total}
-                            </span>
-                        </div>
+                <div class="">
+                    <div class="flex items-center justify-between">
+                        <p class="text-base font-semibold">{formatSpellLevel(slot.level)}</p>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        {#each Array(slot.total) as _, i (i)}
-                            {#if i < slot.used}
-                                <button class="h-7 w-7 rounded-full border border-surface-300-700 bg-surface-200-800 opacity-60"
-                                        onclick={() => restoreSlot(slot.level)}
-                                />
-                            {:else}
-                                <button class="h-7 w-7 rounded-full border border-primary-400-700 bg-primary-500/30 shadow-sm"
-                                        onclick={() => useSlot(slot.level)}
-                                />
-                            {/if}
-                        {/each}
-                    </div>
-                    <div class="flex gap-2">
-                        <button class="btn grow preset-filled-primary-200-800"
-                                onclick={() => useSlot(slot.level)}
-                                disabled={slot.used >= slot.total}
-                        >
-                            Use Slot
+                    <div class="mt-2 flex flex-col items-center gap-2">
+                        <button class="btn h-7 w-7 p-0 text-xs preset-filled-primary-200-800" onclick={() => useSlot(slot.level)} disabled={slot.used >= slot.total}>
+                            U
                         </button>
-                        <button class="btn grow preset-filled-surface-200-800"
-                                onclick={() => restoreSlot(slot.level)}
-                                disabled={slot.used <= 0}
-                        >
-                            Restore Slot
+                        {#each Array(slot.total) as _, i (i)}
+                                <span class="h-8 w-8 badge rounded-full"
+                                      class:preset-filled-primary-500={i >= slot.used}
+                                      class:preset-filled-surface-500={i < slot.used}
+                                      class:opacity-50={i < slot.used}>
+                                    {i + 1}
+                                </span>
+                        {/each}
+                        <button class="btn h-7 w-7 p-0 text-xs preset-filled-surface-200-800" onclick={() => restoreSlot(slot.level)} disabled={slot.used <= 0}>
+                            R
                         </button>
                     </div>
                 </div>

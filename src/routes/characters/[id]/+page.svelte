@@ -1,8 +1,8 @@
 <script lang="ts">
     import {app} from "$lib/stores/app.svelte";
     import {Accordion} from '@skeletonlabs/skeleton-svelte';
-    import {formatSpellLevelLong} from "$lib/utils/spell-formatter";
-    import {formatSpellLevel} from "$lib/utils/spell-formatter.ts";
+    import {formatSpellLevel, formatSpellLevelLong} from "$lib/utils/spell-formatter";
+    import {slide} from "svelte/transition";
 
     const {data} = $props();
 
@@ -30,7 +30,7 @@
 
     <h3 class="h3">Spells</h3>
 
-    <Accordion multiple>
+    <Accordion collapsible>
         {#each spells as s}
             <Accordion.Item value={s.id} class="card preset-tonal">
                 <Accordion.ItemTrigger class="font-bold flex justify-between gap-2">
@@ -42,21 +42,25 @@
                     </Accordion.ItemIndicator>
                 </Accordion.ItemTrigger>
                 <Accordion.ItemContent>
-                    <div class="space-y-4">
-                        <div>
-                            <p><strong>Casting time:</strong> {s.castingTime}</p>
-                            <p><strong>Range:</strong> {s.range}</p>
-                            <p><strong>Duration:</strong> {s.duration}</p>
-                            <p><strong>Components:</strong> {s.components}</p>
-                        </div>
-                        <div>
-                            <p>{s.text}</p>
-                        </div>
-                        {#if s.atHigherLevels}
-                            <p><strong>At higher levels:</strong> {s.atHigherLevels}</p>
+                    {#snippet element(attributes)}
+                        {#if !attributes.hidden}
+                            <div {...attributes} class="space-y-4 card preset-filled-primary-50-950" transition:slide={{ duration: 300 }}>
+                                <div>
+                                    <p><strong>Casting time:</strong> {s.castingTime}</p>
+                                    <p><strong>Range:</strong> {s.range}</p>
+                                    <p><strong>Duration:</strong> {s.duration}</p>
+                                    <p><strong>Components:</strong> {s.components}</p>
+                                </div>
+                                <div>
+                                    <p>{s.text}</p>
+                                </div>
+                                {#if s.atHigherLevels}
+                                    <p><strong>At higher levels:</strong> {s.atHigherLevels}</p>
+                                {/if}
+                                <p>{s.source} p{s.page}</p>
+                            </div>
                         {/if}
-                        <p>{s.source} p{s.page}</p>
-                    </div>
+                    {/snippet}
                 </Accordion.ItemContent>
             </Accordion.Item>
         {/each}

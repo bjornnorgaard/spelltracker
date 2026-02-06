@@ -56,11 +56,18 @@
 
 <div class="space-y-4">
     <PageHeader title={data.character.name} subtitle={`Your ${data.character.level}th level ${data.character.class}. Here you can view ${data.character.name}'s spells and spell slots.`}/>
-    <a href={`/characters/${data.character.id}/edit`} class="btn preset-filled-primary-200-800">Edit {data.character.name}
-        →</a>
+    <div class="flex justify-between gap-2">
+        <a href={`/`} class="btn preset-filled-primary-200-800">
+            ⬅ Home
+        </a>
+        <button class="btn grow preset-filled-primary-500">Long Rest</button>
+        <a href={`/characters/${data.character.id}/edit`} class="btn preset-filled-primary-200-800">
+            Edit<span class="rotate-180">⬅</span>
+        </a>
+    </div>
 
     <SectionHeader title="Spell Slots" subtitle={`View and use ${data.character.name}'s spell slots. Use the edit link to change totals or add spell slots for higher levels.`}/>
-    <div class="flex justify-between">
+    <div class="flex  gap-2">
         {#each data.character.spellSlots as slot (slot.level)}
             {#if slot.total > 0}
                 <div>
@@ -69,7 +76,7 @@
                     </div>
                     <div class="mt-2 flex flex-col-reverse items-center gap-2">
                         <button class="btn h-8 w-8 rounded-full mb-1 p-0 text-xs preset-filled-primary-200-800" onclick={() => useSlot(slot.level)} disabled={slot.used >= slot.total}>
-                            U
+                            Use
                         </button>
                         {#each Array(slot.total) as _, i (i)}
                                 <span class="h-8 w-8 badge rounded-full font-bold text-xl"
@@ -81,7 +88,7 @@
                                 </span>
                         {/each}
                         <button class="btn rounded-full h-8 w-8 mt-1 p-0 text-xs preset-filled-surface-200-800" onclick={() => restoreSlot(slot.level)} disabled={slot.used <= 0}>
-                            R
+                            Res
                         </button>
                     </div>
                 </div>

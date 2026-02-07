@@ -8,7 +8,7 @@
 <div class="min-h-screen flex flex-col">
     <header class="p-4">
         <a href="/">
-            <p class="preset-typo-headline">Spelltracker <span class="opacity-50">by Bear</span></p>
+            <p class="preset-typo-headline">Spelltracker <span class="opacity-25 font-serif font-thin ml-1">by Bear</span></p>
         </a>
     </header>
 

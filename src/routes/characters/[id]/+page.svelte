@@ -9,7 +9,7 @@
     import type {SpellSlot} from "$lib/types/spellSlot";
     import type {SpellEvent} from "$lib/types/spellEvent";
     import CharacterCard from "$lib/components/CharacterCard.svelte";
-    import {ArrowLeft, ArrowRight, Heart, SquarePen, Zap} from "@lucide/svelte";
+    import {ArrowLeft, ArrowRight, Heart, SquarePen, Zap, Brain, FlameKindling, Sun, RotateCcw} from "@lucide/svelte";
 
     const {data} = $props();
 
@@ -154,11 +154,8 @@
         </div>
 
         <div class="flex justify-end gap-2">
-            <a href={`/characters/${data.character.id}/edit`} class="btn preset-filled">
-                Edit Slots
-                <SquarePen/>
-            </a>
-            <button class="btn grow preset-filled-primary-200-800" onclick={longRest}>Take a Long Rest</button>
+            <a href={`/characters/${data.character.id}/edit`} class="btn preset-filled">Edit Slots<SquarePen/></a>
+            <button class="btn grow preset-filled-primary-200-800" onclick={longRest}>Long Rest<Sun/></button>
         </div>
     </div>
 
@@ -227,22 +224,23 @@
                     No Conc.
                 </button>
             </div>
-            <button class="btn w-full preset-filled-surface-200-800" onclick={resetFilters}>Reset Filters</button>
+            <button class="btn w-full preset-filled-surface-200-800" onclick={resetFilters}>Reset Filters <RotateCcw size="20"/></button>
         </div>
     </div>
 
     <SectionHeader title={`Spells (${spells.length})`} subtitle={`These are the spell currently known to ${data.character.name}.`}/>
     <Accordion collapsible value={openSpellId} onValueChange={(details) => (openSpellId = details.value)}>
         {#each filteredSpells as s (s.name)}
-            <Accordion.Item value={s.id} class="card preset-filled-primary-50-950">
+            <Accordion.Item value={s.id} class="card preset-tonal border-b-2 border-b-primary-100-900"
+                            style={`filter: hue-rotate(${(s.level)*90}deg)`}>
                 <Accordion.ItemTrigger class="font-bold flex justify-between">
-                    <div class="flex gap-2 items-center">
+                    <div class="flex gap-4 items-center">
                         {formatSpellLevelLong(s.level)}
                         {#if s.duration.includes("Concentration")}
-                            <span class="badge rounded-full preset-filled-secondary-100-900">C</span>
+                            <Brain/>
                         {/if}
                         {#if s.school.includes("(ritual)")}
-                            <span class="badge rounded-full preset-filled-primary-100-900">R</span>
+                            <FlameKindling/>
                         {/if}
                     </div>
                     <Accordion.ItemIndicator class="group">

@@ -2,11 +2,12 @@
     import {DND_CLASSES} from "$lib/utils/constants";
     import {app} from "$lib/stores/app.svelte.js";
     import {goto} from "$app/navigation";
-    import {formatSpellLevel, formatSpellLevelLong} from "$lib/utils/spell-formatter";
+    import {formatSpellLevelLong} from "$lib/utils/spell-formatter";
     import {parseSpellCSV} from "$lib/utils/csv-parser";
     import type {Character} from "$lib/types/character";
     import SectionHeader from "$lib/components/SectionHeader.svelte";
     import {ArrowLeft} from "@lucide/svelte";
+    import CharacterCard from "$lib/components/CharacterCard.svelte";
 
     const {data} = $props();
 
@@ -90,6 +91,8 @@
                 View
             </a>
         </div>
+
+        <CharacterCard character={data.character}/>
 
         <div class="card preset-filled-surface-100-900 p-4 space-y-4">
             <SectionHeader title="Character Info" subtitle="This is just to help you tell characters apart, we don't use this information for anything."/>

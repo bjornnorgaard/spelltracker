@@ -228,7 +228,7 @@
                     No Conc.
                 </button>
             </div>
-            <button class="btn w-full preset-filled-surface-200-800" onclick={resetFilters}>Reset Filters
+            <button class="btn w-full preset-tonal" onclick={resetFilters}>Reset Filters
                 <RotateCcw size="20"/>
             </button>
         </div>

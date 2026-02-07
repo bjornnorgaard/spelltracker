@@ -1,6 +1,7 @@
 <script lang="ts">
     import {onMount} from "svelte";
     import {app} from "$lib/stores/app.svelte";
+    import {goto} from "$app/navigation";
 
     const STORAGE_KEY = "spelltracker";
 
@@ -70,7 +71,7 @@
         return `Backup restored. ${details.join(", ")}.`;
     }
 
-    function applyData() {
+    async function applyData() {
         try {
             const parsed = JSON.parse(backupText);
             if (typeof localStorage !== "undefined") {
@@ -78,6 +79,7 @@
             }
             app.current = parsed;
             status = formatImportSummary(parsed);
+            await goto("/");
         } catch {
             status = "Invalid JSON. Please paste the full backup data.";
         }

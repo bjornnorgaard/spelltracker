@@ -7,11 +7,18 @@
     let backupText = $state("");
     let status = $state("");
 
-    function loadFromStorage() {
+    function getStorageText() {
         if (typeof localStorage === "undefined") return;
         const raw = localStorage.getItem(STORAGE_KEY);
-        backupText = raw ?? JSON.stringify(app.current ?? {}, null, 2);
-        status = "Loaded current browser data.";
+        return raw ?? JSON.stringify(app.current ?? {}, null, 2);
+    }
+
+    function loadFromStorage() {
+        const text = getStorageText();
+        if (typeof text === "string") {
+            backupText = text;
+            status = "Loaded current browser data.";
+        }
     }
 
     onMount(() => {
@@ -20,6 +27,10 @@
 
     async function copyData() {
         try {
+            const text = getStorageText();
+            if (typeof text === "string") {
+                backupText = text;
+            }
             await navigator.clipboard.writeText(backupText);
             status = "Copied to clipboard.";
         } catch {
@@ -29,6 +40,10 @@
 
     function downloadData() {
         try {
+            const text = getStorageText();
+            if (typeof text === "string") {
+                backupText = text;
+            }
             const blob = new Blob([backupText], {type: "application/json"});
             const url = URL.createObjectURL(blob);
             const anchor = document.createElement("a");
@@ -42,6 +57,19 @@
         }
     }
 
+    function formatImportSummary(data: unknown) {
+        const characters = Array.isArray((data as {characters?: unknown})?.characters)
+            ? (data as {characters?: Array<{name?: string; spellIds?: string[]}>}).characters
+            : [];
+        if (characters.length === 0) return "Backup restored. No characters found.";
+        const details = characters.map((character) => {
+            const name = typeof character?.name === "string" ? character.name : "Unnamed";
+            const spellCount = Array.isArray(character?.spellIds) ? character.spellIds.length : 0;
+            return `${name} (${spellCount} spells)`;
+        });
+        return `Backup restored. ${details.join(", ")}.`;
+    }
+
     function applyData() {
         try {
             const parsed = JSON.parse(backupText);
@@ -49,7 +77,7 @@
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
             }
             app.current = parsed;
-            status = "Backup restored.";
+            status = formatImportSummary(parsed);
         } catch {
             status = "Invalid JSON. Please paste the full backup data.";
         }
@@ -76,7 +104,6 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <button class="btn preset-filled-primary-500" onclick={copyData}>Copy</button>
             <button class="btn preset-filled-primary-500" onclick={downloadData}>Download</button>
-            <button class="btn preset-filled-primary-500" onclick={loadFromStorage}>Refresh</button>
         </div>
         <textarea class="textarea w-full font-mono text-sm" bind:value={backupText} rows="10"></textarea>
         <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">

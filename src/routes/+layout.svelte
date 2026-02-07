@@ -5,14 +5,14 @@
     let {children} = $props();
 </script>
 
-<div class="min-h-screen">
+<div class="min-h-screen flex flex-col">
     <header class="p-4">
         <a href="/">
             <p class="preset-typo-headline">Spelltracker <span class="opacity-50">by Bear</span></p>
         </a>
     </header>
 
-    <main class="mx-auto max-w-xl p-4">
+    <main class="mx-auto max-w-xl p-4 flex-1 w-full">
         {@render children()}
     </main>
 

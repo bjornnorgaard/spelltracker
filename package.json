@@ -15,6 +15,7 @@
 		"test:run": "vitest run"
 	},
 	"devDependencies": {
+		"@lucide/svelte": "^0.563.1",
 		"@skeletonlabs/skeleton": "^4.11.0",
 		"@skeletonlabs/skeleton-svelte": "^4.11.0",
 		"@sveltejs/adapter-vercel": "^6.3.1",

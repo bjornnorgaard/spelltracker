@@ -28,7 +28,7 @@
                     <p class="uppercase text-xs tracking-widest">Links</p>
                     <ul class="space-y-1">
                         <li><a class="anchor" href="/">Home</a></li>
-                        <li><a class="anchor" href="/spells">Spells</a></li>
+                        <li><a class="anchor" href="/backup">Backup</a></li>
                     </ul>
                 </div>
                 <div class="space-y-2">

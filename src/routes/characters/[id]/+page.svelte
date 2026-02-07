@@ -137,7 +137,7 @@
                             </button>
                             {#each Array(slot.total) as _, i (i)}
                                 <span class="h-8 w-8 badge rounded-full font-bold text-xl"
-                                      style={`filter: hue-rotate(${(slot.level+1)*10}deg)`}
+                                      style={`filter: hue-rotate(${(slot.level)*12}deg)`}
                                       class:preset-filled-primary-500={i >= slot.used}
                                       class:preset-filled-surface-500={i < slot.used}
                                       class:opacity-50={i < slot.used}>
@@ -237,7 +237,7 @@
     <SectionHeader title={`Spells (${spells.length})`} subtitle={`These are the spell currently known to ${data.character.name}.`}/>
     <Accordion collapsible value={openSpellId} onValueChange={(details) => (openSpellId = details.value)}>
         {#each filteredSpells as s (s.name)}
-            <Accordion.Item value={s.id} class="card preset-tonal border-b-2 border-b-primary-100-900"
+            <Accordion.Item value={s.id} class="preset-tonal border-l-4 border-l-primary-500 rounded-r-2xl"
                             style={`filter: hue-rotate(${(s.level)*90}deg)`}>
                 <Accordion.ItemTrigger class="font-bold flex justify-between">
                     <div class="flex gap-4 items-center">

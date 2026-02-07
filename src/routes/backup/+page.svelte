@@ -78,16 +78,13 @@
             <button class="btn preset-filled-primary-500" onclick={downloadData}>Download</button>
             <button class="btn preset-filled-primary-500" onclick={loadFromStorage}>Refresh</button>
         </div>
-        <textarea
-            class="textarea w-full min-h-[16rem] font-mono text-sm"
-            bind:value={backupText}
-        ></textarea>
+        <textarea class="textarea w-full font-mono text-sm" bind:value={backupText} rows="10"></textarea>
         <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
             <label class="block">
                 <span class="preset-typo-caption block mb-1">Upload backup file</span>
                 <input class="input" type="file" accept="application/json" onchange={handleFileChange} />
             </label>
-            <button class="btn preset-filled-secondary-500 sm:mt-6" onclick={applyData}>
+            <button class="btn preset-filled-primary-500 sm:mt-6" onclick={applyData}>
                 Restore from Text
             </button>
         </div>

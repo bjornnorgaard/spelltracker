@@ -12,18 +12,18 @@
         </a>
     </header>
 
-    <main class="mx-auto p-4">
+    <main class="mx-auto max-w-xl p-4">
         {@render children()}
     </main>
 
-    <footer class="opacity-70 mt-16 space-y-4">
-        <div class="p-4">
+    <footer class="opacity-70 preset-filled-surface-100-900 mt-16 space-y-4">
+        <div class="p-4 sm:p-8 md:px-16 lg:max-w-7xl mx-auto">
             <div>
                 <p class="preset-typo-title">Spelltracker by Bear</p>
                 <p class="preset-typo-caption">Manage spells and spell-slots.</p>
             </div>
 
-            <div class="flex gap-4 justify-between my-8">
+            <div class="flex gap-4 justify-between sm:justify-start sm:gap-16 md:gap-32 my-8">
                 <div class="space-y-2 ">
                     <p class="uppercase text-xs tracking-widest">Links</p>
                     <ul class="space-y-1">

@@ -9,7 +9,7 @@
     import type {SpellSlot} from "$lib/types/spellSlot";
     import type {SpellEvent} from "$lib/types/spellEvent";
     import CharacterCard from "$lib/components/CharacterCard.svelte";
-    import {ArrowLeft, ArrowRight, SquarePen} from "@lucide/svelte";
+    import {ArrowLeft, ArrowRight, Heart, SquarePen, Zap} from "@lucide/svelte";
 
     const {data} = $props();
 
@@ -25,7 +25,6 @@
 
     $effect(() => {
         if (!spells) return [];
-        openSpellId = [];
         filteredSpells = spells.filter((spell: Spell) => {
             if (selectedLevels.length && !selectedLevels.includes(spell.level)) return false;
             if (selectedCastingTimes.length && !selectedCastingTimes.some(time => spell.castingTime.includes(time))) return false;
@@ -112,27 +111,31 @@
 
 <div class="space-y-4">
     <div class="flex justify-between gap-2">
-        <button class="flex gap-2 items-center" onclick={goBack}><ArrowLeft/>Back</button>
-        <a href={`/characters/${data.character.id}/edit`} class="flex gap-2 items-center">Edit <ArrowRight/></a>
+        <button class="flex gap-2 items-center" onclick={goBack}>
+            <ArrowLeft/>
+            Back
+        </button>
+        <a href={`/characters/${data.character.id}/edit`} class="flex gap-2 items-center">Edit
+            <ArrowRight/>
+        </a>
     </div>
 
     <CharacterCard character={data.character}/>
 
-    <button class="btn grow preset-filled-primary-200-800" onclick={longRest}>Long Rest</button>
-
-    <SectionHeader title="Spell Slots" subtitle={`View and use ${data.character.name}'s spell slots. Use the edit link to change totals or add spell slots for higher levels.`}/>
-    <div class="flex  gap-2">
-        {#each data.character.slots as slot (slot.level)}
-            {#if slot.total > 0}
-                <div>
-                    <div class="flex items-center justify-between">
-                        <p class="text-base font-semibold">{formatSpellLevel(slot.level)}</p>
-                    </div>
-                    <div class="mt-2 flex flex-col-reverse items-center gap-2">
-                        <button class="btn h-8 w-8 rounded-full mb-1 p-0 text-xs preset-filled-primary-200-800" onclick={() => useSlot(slot.level)} disabled={slot.used >= slot.total}>
-                            Use
-                        </button>
-                        {#each Array(slot.total) as _, i (i)}
+    <div class="card preset-filled-surface-100-900 p-4 space-y-4">
+        <SectionHeader title="Spell Slots" subtitle={`Use and restore spell slots`}/>
+        <div class="flex gap-2">
+            {#each data.character.slots as slot (slot.level)}
+                {#if slot.total > 0}
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <p class="text-base font-semibold">{formatSpellLevel(slot.level)}</p>
+                        </div>
+                        <div class="mt-2 flex flex-col-reverse items-center gap-2">
+                            <button class="btn h-8 w-8 rounded-full mb-1 p-0 text-xs preset-filled-error-100-900" onclick={() => useSlot(slot.level)} disabled={slot.used >= slot.total}>
+                                <Zap/>
+                            </button>
+                            {#each Array(slot.total) as _, i (i)}
                                 <span class="h-8 w-8 badge rounded-full font-bold text-xl"
                                       style={`filter: hue-rotate(${(slot.level+1)*10}deg)`}
                                       class:preset-filled-primary-500={i >= slot.used}
@@ -140,86 +143,98 @@
                                       class:opacity-50={i < slot.used}>
                                     {slot.total - i }
                                 </span>
-                        {/each}
-                        <button class="btn rounded-full h-8 w-8 mt-1 p-0 text-xs preset-filled-surface-200-800" onclick={() => restoreSlot(slot.level)} disabled={slot.used <= 0}>
-                            Res
-                        </button>
+                            {/each}
+                            <button class="btn rounded-full h-8 w-8 mt-1 p-0 text-xs preset-filled-success-100-900" onclick={() => restoreSlot(slot.level)} disabled={slot.used <= 0}>
+                                <Heart/>
+                            </button>
+                        </div>
                     </div>
-                </div>
-            {/if}
-        {/each}
-    </div>
-
-    <SectionHeader title="Quick Filters" subtitle={`Use the filters to quickly find what you need.`}/>
-    <div class="space-y-1">
-        <div class="flex flex-wrap gap-1">
-            <button
-                    class="btn grow"
-                    class:preset-filled-tertiary-200-800={selectedLevels.includes(0)}
-                    class:preset-tonal={!selectedLevels.includes(0)}
-                    onclick={() => toggleLevel(0)}>
-                Cantrips
-            </button>
-            {#each SPELL_LEVELS.filter(level => data.character.slots.filter(slot => slot.total > 0).some(slot => slot.level === level)) as spellLevel}
-                <button class="btn grow"
-                        class:preset-filled-tertiary-200-800={selectedLevels.includes(spellLevel)}
-                        class:preset-tonal={!selectedLevels.includes(spellLevel)}
-                        onclick={() => toggleLevel(spellLevel)}>
-                    {formatSpellLevel(spellLevel)}
-                </button>
+                {/if}
             {/each}
         </div>
-        <div class="flex flex-row gap-1">
-            <button class="btn basis-1/3"
-                    class:preset-filled-primary-200-800={selectedCastingTimes.includes("Action")}
-                    class:preset-tonal={!selectedCastingTimes.includes("Action")}
-                    onclick={() => toggleCastingTime("Action")}>
-                Action
-            </button>
-            <button class="btn basis-1/3"
-                    class:preset-filled-primary-200-800={selectedCastingTimes.includes("Bonus")}
-                    class:preset-tonal={!selectedCastingTimes.includes("Bonus")}
-                    onclick={() => toggleCastingTime("Bonus")}>
-                Bonus
-            </button>
-            <button class="btn basis-1/3"
-                    class:preset-filled-primary-200-800={selectedCastingTimes.includes("Reaction")}
-                    class:preset-tonal={!selectedCastingTimes.includes("Reaction")}
-                    onclick={() => toggleCastingTime("Reaction")}>
-                Reaction
-            </button>
-            <button class="btn basis-1/3"
-                    class:preset-filled-primary-200-800={requireRitual}
-                    class:preset-tonal={!requireRitual}
-                    onclick={toggleRituals}>
-                Ritual
-            </button>
+
+        <div class="flex justify-end gap-2">
+            <a href={`/characters/${data.character.id}/edit`} class="btn preset-filled">
+                Edit Slots
+                <SquarePen/>
+            </a>
+            <button class="btn grow preset-filled-primary-200-800" onclick={longRest}>Take a Long Rest</button>
         </div>
-        <div class="flex flex-row gap-1">
-            <button class="btn basis-1/3"
-                    class:preset-filled-secondary-200-800={concentrationMode === "conc"}
-                    class:preset-tonal={concentrationMode !== "conc"}
-                    onclick={() => setConcentrationMode("conc")}>
-                Conc.
-            </button>
-            <button class="btn basis-1/3 preset-tonal"
-                    onclick={() => setConcentrationMode("both")}>
-                Both
-            </button>
-            <button class="btn basis-1/3"
-                    class:preset-filled-secondary-200-800={concentrationMode === "no-conc"}
-                    class:preset-tonal={concentrationMode !== "no-conc"}
-                    onclick={() => setConcentrationMode("no-conc")}>
-                No Conc.
-            </button>
+    </div>
+
+    <div class="card preset-filled-surface-100-900 p-4 space-y-4">
+
+        <SectionHeader title="Quick Filters" subtitle={`Use the filters to quickly find what you need.`}/>
+        <div class="space-y-1">
+            <div class="flex flex-wrap gap-1">
+                <button
+                        class="btn grow"
+                        class:preset-filled-tertiary-200-800={selectedLevels.includes(0)}
+                        class:preset-tonal={!selectedLevels.includes(0)}
+                        onclick={() => toggleLevel(0)}>
+                    Cantrips
+                </button>
+                {#each SPELL_LEVELS.filter(level => data.character.slots.filter(slot => slot.total > 0).some(slot => slot.level === level)) as spellLevel}
+                    <button class="btn grow"
+                            class:preset-filled-tertiary-200-800={selectedLevels.includes(spellLevel)}
+                            class:preset-tonal={!selectedLevels.includes(spellLevel)}
+                            onclick={() => toggleLevel(spellLevel)}>
+                        {formatSpellLevel(spellLevel)}
+                    </button>
+                {/each}
+            </div>
+            <div class="flex flex-row gap-1">
+                <button class="btn basis-1/3"
+                        class:preset-filled-primary-200-800={selectedCastingTimes.includes("Action")}
+                        class:preset-tonal={!selectedCastingTimes.includes("Action")}
+                        onclick={() => toggleCastingTime("Action")}>
+                    Action
+                </button>
+                <button class="btn basis-1/3"
+                        class:preset-filled-primary-200-800={selectedCastingTimes.includes("Bonus")}
+                        class:preset-tonal={!selectedCastingTimes.includes("Bonus")}
+                        onclick={() => toggleCastingTime("Bonus")}>
+                    Bonus
+                </button>
+                <button class="btn basis-1/3"
+                        class:preset-filled-primary-200-800={selectedCastingTimes.includes("Reaction")}
+                        class:preset-tonal={!selectedCastingTimes.includes("Reaction")}
+                        onclick={() => toggleCastingTime("Reaction")}>
+                    Reaction
+                </button>
+                <button class="btn basis-1/3"
+                        class:preset-filled-primary-200-800={requireRitual}
+                        class:preset-tonal={!requireRitual}
+                        onclick={toggleRituals}>
+                    Rit.
+                </button>
+            </div>
+            <div class="flex flex-row gap-1">
+                <button class="btn basis-1/3"
+                        class:preset-filled-secondary-200-800={concentrationMode === "conc"}
+                        class:preset-tonal={concentrationMode !== "conc"}
+                        onclick={() => setConcentrationMode("conc")}>
+                    Conc.
+                </button>
+                <button class="btn basis-1/3 preset-tonal"
+                        onclick={() => setConcentrationMode("both")}>
+                    Both
+                </button>
+                <button class="btn basis-1/3"
+                        class:preset-filled-secondary-200-800={concentrationMode === "no-conc"}
+                        class:preset-tonal={concentrationMode !== "no-conc"}
+                        onclick={() => setConcentrationMode("no-conc")}>
+                    No Conc.
+                </button>
+            </div>
+            <button class="btn w-full preset-filled-surface-200-800" onclick={resetFilters}>Reset Filters</button>
         </div>
-        <button class="btn w-full preset-filled-surface-200-800" onclick={resetFilters}>Reset Filters</button>
     </div>
 
     <SectionHeader title={`Spells (${spells.length})`} subtitle={`These are the spell currently known to ${data.character.name}.`}/>
     <Accordion collapsible value={openSpellId} onValueChange={(details) => (openSpellId = details.value)}>
         {#each filteredSpells as s (s.name)}
-            <Accordion.Item value={s.id} class="card preset-tonal border-2 border-surface-200-800">
+            <Accordion.Item value={s.id} class="card preset-filled-primary-50-950">
                 <Accordion.ItemTrigger class="font-bold flex justify-between">
                     <div class="flex gap-2 items-center">
                         {formatSpellLevelLong(s.level)}
@@ -240,7 +255,22 @@
                             {@const slot = data.character.slots.find(slot => slot.level === s.level)}
                             {@const remaining = (slot.total ?? 0) - (slot.used ?? 0)}
                             {@const total = slot.total ?? 0}
-                            <div {...attributes} class="space-y-4 card preset-filled-surface-100-900" transition:slide={{ duration: 300 }}>
+                            <div {...attributes} class="space-y-4 p-4 card preset-filled-surface-100-900" transition:slide={{ duration: 300 }}>
+                                <p class="preset-typo-headline tracking-wide">{s.name}</p>
+                                <div>
+                                    <p><strong>School:</strong> {s.school}</p>
+                                    <p><strong>Casting time:</strong> {s.castingTime}</p>
+                                    <p><strong>Range:</strong> {s.range}</p>
+                                    <p><strong>Duration:</strong> {s.duration}</p>
+                                    <p><strong>Components:</strong> {s.components}</p>
+                                </div>
+                                <div>
+                                    <i>{s.text}</i>
+                                </div>
+                                {#if s.atHigherLevels}
+                                    <p><strong>At higher levels:</strong> {s.atHigherLevels}</p>
+                                {/if}
+                                <p>{s.source} p{s.page}</p>
                                 {#if s.level !== 0}
                                     <div class="flex justify-between gap-2">
                                         <button class="btn w-full transition-all duration-500" onclick={() => castSpell(s)}
@@ -259,20 +289,6 @@
                                         </button>
                                     </div>
                                 {/if}
-                                <div>
-                                    <p><strong>School:</strong> {s.school}</p>
-                                    <p><strong>Casting time:</strong> {s.castingTime}</p>
-                                    <p><strong>Range:</strong> {s.range}</p>
-                                    <p><strong>Duration:</strong> {s.duration}</p>
-                                    <p><strong>Components:</strong> {s.components}</p>
-                                </div>
-                                <div>
-                                    <i>{s.text}</i>
-                                </div>
-                                {#if s.atHigherLevels}
-                                    <p><strong>At higher levels:</strong> {s.atHigherLevels}</p>
-                                {/if}
-                                <p>{s.source} p{s.page}</p>
                             </div>
                         {/if}
                     {/snippet}

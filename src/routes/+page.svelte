@@ -4,6 +4,7 @@
     import {goto} from "$app/navigation";
     import SectionHeader from "$lib/components/SectionHeader.svelte";
     import {formatSpellLevel} from "$lib/utils/spell-formatter";
+    import CharacterCard from "$lib/components/CharacterCard.svelte";
 
     async function createNewCharacter() {
         let character = createCharacter();
@@ -16,13 +17,8 @@
     <SectionHeader title="Your Characters" subtitle="Here are your characters."/>
     <div class="grid grid-cols-1 gap-4">
         {#each app.current.characters ?? [] as c, i}
-            <a href={`/characters/${c.id}`} class="card preset-filled-primary-50-950 p-4" style={`filter: hue-rotate(${(i)*30}deg)`}>
-                <p class="preset-typo-title">{c.name}</p>
-                <p class="preset-typo-subtitle">{formatSpellLevel(c.level)} Level {c.class}</p>
-                <div class="flex justify-between">
-                    <span>{c.spellIds?.length} spells</span>
-                    <span class="anchor">View character</span>
-                </div>
+            <a href={`/characters/${c.id}`}>
+                <CharacterCard character={c} index={i} showLink={true}/>
             </a>
         {/each}
     </div>

@@ -3,12 +3,13 @@
     import {Accordion} from '@skeletonlabs/skeleton-svelte';
     import {formatSpellLevel, formatSpellLevelLong} from "$lib/utils/spell-formatter";
     import {slide} from "svelte/transition";
-    import PageHeader from "$lib/components/PageHeader.svelte";
     import SectionHeader from "$lib/components/SectionHeader.svelte";
     import {SPELL_LEVELS} from "$lib/utils/constants";
     import type {Spell} from "$lib/types/spell";
     import type {SpellSlot} from "$lib/types/spellSlot";
     import type {SpellEvent} from "$lib/types/spellEvent";
+    import CharacterCard from "$lib/components/CharacterCard.svelte";
+    import {ArrowLeft, ArrowRight, SquarePen} from "@lucide/svelte";
 
     const {data} = $props();
 
@@ -34,6 +35,10 @@
             return true;
         });
     });
+
+    function goBack() {
+        history.back();
+    }
 
     function toggleLevel(level: number) {
         if (selectedLevels.includes(level)) {
@@ -106,12 +111,14 @@
 </script>
 
 <div class="space-y-4">
-    <PageHeader title={data.character.name} subtitle={`Your ${data.character.level}th level ${data.character.class}. Here you can view ${data.character.name}'s spells and spell slots.`}/>
     <div class="flex justify-between gap-2">
-        <a href={`/`} class="btn preset-tonal">⬅ Home</a>
-        <button class="btn grow preset-filled-primary-200-800" onclick={longRest}>Long Rest</button>
-        <a href={`/characters/${data.character.id}/edit`} class="btn preset-tonal">Edit<span class="rotate-180">⬅</span></a>
+        <button class="flex gap-2 items-center" onclick={goBack}><ArrowLeft/>Back</button>
+        <a href={`/characters/${data.character.id}/edit`} class="flex gap-2 items-center">Edit <ArrowRight/></a>
     </div>
+
+    <CharacterCard character={data.character}/>
+
+    <button class="btn grow preset-filled-primary-200-800" onclick={longRest}>Long Rest</button>
 
     <SectionHeader title="Spell Slots" subtitle={`View and use ${data.character.name}'s spell slots. Use the edit link to change totals or add spell slots for higher levels.`}/>
     <div class="flex  gap-2">

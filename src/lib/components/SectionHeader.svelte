@@ -2,7 +2,5 @@
     const {title, subtitle} = $props();
 </script>
 
-<div class="space-y-1 mt-8">
-    <h3 class="h3 tracking-wide border-b-2">{title}</h3>
-    <p class="text-sm opacity-75">{subtitle}</p>
-</div>
+<h1 class="preset-typo-title mb-0">{title}</h1>
+<p class="preset-typo-caption opacity-75 leading-4">{subtitle}</p>

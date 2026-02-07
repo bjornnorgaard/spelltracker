@@ -5,14 +5,20 @@
     let {children} = $props();
 </script>
 
-<main class="mx-auto p-4 min-h-screen">
+<header class="p-4">
+    <a href="/">
+        <p class="preset-typo-headline">Spelltracker <span class="opacity-50">by Bear</span></p>
+    </a>
+</header>
+
+<main class="mx-auto p-4">
     {@render children()}
 </main>
 
 <footer class="p-8 mt-16 preset-filled-primary-50-950 space-y-4">
-    <div class="space-y-1">
-        <p>Spelltracker <span class="opacity-50">by Bear</span></p>
-        <p class="text-xs">A small and simple app to track spell list and slots.</p>
+    <div>
+        <p class="preset-typo-title">Spelltracker <span class="opacity-50">by Bear</span></p>
+        <p class="preset-typo-caption">Manage spells and spell-slots.</p>
     </div>
 
     <div class="flex gap-4 justify-between my-8">
@@ -36,8 +42,7 @@
             </ul>
         </div>
     </div>
-    <div class="flex items-center justify-between text-xs opacity-50">
-        <span>Spell Tracker by Bear</span>
-        <span>Made for quick table use</span>
+    <div class="flex items-center justify-between preset-typo-caption opacity-50">
+        <span>For D&D 5th Edition Spellcasters</span>
     </div>
 </footer>

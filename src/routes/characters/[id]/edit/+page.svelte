@@ -31,7 +31,7 @@
         const result = parseSpellCSV(importData);
 
         // Fetch existing spells
-        const characterSpells = [];
+        const characterSpellIds = [];
 
         for (let spell of result.spells) {
             // If an existing spell is found, update it.
@@ -45,14 +45,14 @@
                 existingSpell.range = spell.range;
                 existingSpell.components = spell.components;
                 existingSpell.classes = spell.classes;
-                characterSpells.push(existingSpell.id);
+                characterSpellIds.push(existingSpell.id);
             } else {
                 app.current.spells.push(spell);
-                characterSpells.push(spell.id);
+                characterSpellIds.push(spell.id);
             }
         }
 
-        app.current.characters.find((c: Character) => c.id === data.character.id).spells = characterSpells;
+        app.current.characters.find((c: Character) => c.id === data.character.id).spellIds = characterSpellIds;
     }
 
     const spellImportPlaceholder = `"Name","Source","Page","Level","Casting Time","Duration","School","Range","Components","Classes","Optional/Variant Classes","Subclasses","Text","At Higher Levels"
@@ -119,7 +119,7 @@
             </tr>
             </thead>
             <tbody>
-            {#each c.spellSlots.filter(s => s.level !== 0) as s}
+            {#each c.slots?.filter(s => s.level !== 0) as s}
                 <tr class:opacity-50={!s.total}>
                     <td>{formatSpellLevelLong(s.level)}</td>
                     <td class="text-center">{s.total}</td>
@@ -132,7 +132,7 @@
             </tbody>
         </table>
 
-        <SectionHeader title="Spellbook" subtitle="Paste the CSV data into the box below. If you don't know where to find the data, then maybe ask a friend."/>
+        <SectionHeader title="Import Spellbook" subtitle="Paste the CSV data into the box below. If you don't know where to find the data, then maybe ask a friend."/>
         <textarea class="input" rows="5" bind:value={importData} placeholder={spellImportPlaceholder}>
             {importData}
         </textarea>

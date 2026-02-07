@@ -9,9 +9,9 @@ export interface Character {
     name: string;
     class: string;
     level: number;
-    spellSlots: SpellSlot[];
-    knownSpells: string[]; // spell IDs
-    spellEvents: SpellEvent[];
+    slots: SpellSlot[];
+    spellIds: string[]; // spell IDs
+    events: SpellEvent[];
 }
 
 

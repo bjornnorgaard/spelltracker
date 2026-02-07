@@ -17,11 +17,14 @@
     let requireRitual = $state(false);
     let concentrationMode = $state<"both" | "conc" | "no-conc">("both");
 
-    let spells = app.current.spells?.filter((s: Spell) => data.character.spells?.includes(s.id)).sort((a: Spell, b: Spell) => a.level - b.level);
+    let openSpellId = $state<string[]>([]);
+
+    let spells = app.current.spells?.filter((s: Spell) => data.character.spellIds?.includes(s.id)).sort((a: Spell, b: Spell) => a.level - b.level);
     let filteredSpells = $state<Spell[]>(spells);
 
     $effect(() => {
         if (!spells) return [];
+        openSpellId = [];
         filteredSpells = spells.filter((spell: Spell) => {
             if (selectedLevels.length && !selectedLevels.includes(spell.level)) return false;
             if (selectedCastingTimes.length && !selectedCastingTimes.some(time => spell.castingTime.includes(time))) return false;
@@ -64,33 +67,33 @@
     }
 
     function longRest() {
-        data.character.spellSlots.forEach((slot: SpellSlot) => slot.used = 0);
+        data.character.slots.forEach((slot: SpellSlot) => slot.used = 0);
         logEvent("Long Rest");
     }
 
     function useSlot(level: number) {
-        const slot = data.character.spellSlots.find((s: SpellSlot) => s.level === level);
+        const slot = data.character.slots.find((s: SpellSlot) => s.level === level);
         if (!slot || slot.used >= slot.total) return;
         logEvent(`Use ${formatSpellLevel(level)} slot`);
         slot.used += 1;
     }
 
     function restoreSlot(level: number) {
-        const slot = data.character.spellSlots.find((s: SpellSlot) => s.level === level);
+        const slot = data.character.slots.find((s: SpellSlot) => s.level === level);
         if (!slot || slot.used <= 0) return;
         logEvent(`Restore ${formatSpellLevel(level)} slot`);
         slot.used -= 1;
     }
 
     function castSpell(spell: Spell) {
-        const slot = data.character.spellSlots.find((s: SpellSlot) => s.level === spell.level);
+        const slot = data.character.slots.find((s: SpellSlot) => s.level === spell.level);
         if (!slot || slot.used >= slot.total) return;
         logEvent(`Cast ${spell.name} at ${formatSpellLevel(spell.level)}`);
         slot.used += 1;
     }
 
     function undoCast(spell: Spell) {
-        const slot = data.character.spellSlots.find((s: SpellSlot) => s.level === spell.level);
+        const slot = data.character.slots.find((s: SpellSlot) => s.level === spell.level);
         if (!slot) return;
         logEvent(`Undo ${formatSpellLevelLong(spell.level)} ${spell.name}`);
         slot.used -= 1;
@@ -98,7 +101,7 @@
 
     function logEvent(s: string) {
         const e: SpellEvent = {text: s, timestamp: new Date()};
-        data.character.spellEvents.push(e);
+        data.character.events.push(e);
     }
 </script>
 
@@ -112,7 +115,7 @@
 
     <SectionHeader title="Spell Slots" subtitle={`View and use ${data.character.name}'s spell slots. Use the edit link to change totals or add spell slots for higher levels.`}/>
     <div class="flex  gap-2">
-        {#each data.character.spellSlots as slot (slot.level)}
+        {#each data.character.slots as slot (slot.level)}
             {#if slot.total > 0}
                 <div>
                     <div class="flex items-center justify-between">
@@ -150,7 +153,7 @@
                     onclick={() => toggleLevel(0)}>
                 Cantrips
             </button>
-            {#each SPELL_LEVELS.filter(level => data.character.spellSlots.filter(slot => slot.total > 0).some(slot => slot.level === level)) as spellLevel}
+            {#each SPELL_LEVELS.filter(level => data.character.slots.filter(slot => slot.total > 0).some(slot => slot.level === level)) as spellLevel}
                 <button class="btn grow"
                         class:preset-filled-tertiary-200-800={selectedLevels.includes(spellLevel)}
                         class:preset-tonal={!selectedLevels.includes(spellLevel)}
@@ -207,7 +210,7 @@
     </div>
 
     <SectionHeader title={`Spells (${spells.length})`} subtitle={`These are the spell currently known to ${data.character.name}.`}/>
-    <Accordion collapsible>
+    <Accordion collapsible value={openSpellId} onValueChange={(details) => (openSpellId = details.value)}>
         {#each filteredSpells as s (s.name)}
             <Accordion.Item value={s.id} class="card preset-tonal border-2 border-surface-200-800">
                 <Accordion.ItemTrigger class="font-bold flex justify-between">
@@ -227,7 +230,7 @@
                 <Accordion.ItemContent>
                     {#snippet element(attributes)}
                         {#if !attributes.hidden}
-                            {@const slot = data.character.spellSlots.find(slot => slot.level === s.level)}
+                            {@const slot = data.character.slots.find(slot => slot.level === s.level)}
                             {@const remaining = (slot.total ?? 0) - (slot.used ?? 0)}
                             {@const total = slot.total ?? 0}
                             <div {...attributes} class="space-y-4 card preset-filled-surface-100-900" transition:slide={{ duration: 300 }}>
@@ -269,5 +272,10 @@
                 </Accordion.ItemContent>
             </Accordion.Item>
         {/each}
+        <div class="space-y-2">
+            {#each spells.slice(0, spells.length - filteredSpells.length) as _}
+                <div class="h-8"></div>
+            {/each}
+        </div>
     </Accordion>
 </div>

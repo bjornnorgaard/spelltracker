@@ -2,15 +2,19 @@
     import {DND_CLASSES} from "$lib/utils/constants";
     import {app} from "$lib/stores/app.svelte.js";
     import {goto} from "$app/navigation";
-    import {formatSpellLevelLong} from "$lib/utils/spell-formatter";
+    import {formatSpellLevel, formatSpellLevelLong} from "$lib/utils/spell-formatter";
     import {parseSpellCSV} from "$lib/utils/csv-parser";
     import type {Character} from "$lib/types/character";
-    import PageHeader from "$lib/components/PageHeader.svelte";
     import SectionHeader from "$lib/components/SectionHeader.svelte";
+    import {ArrowLeft} from "@lucide/svelte";
 
     const {data} = $props();
 
     let importData = $state("");
+
+    function goBack() {
+        history.back();
+    }
 
     async function deleteCharacter() {
         app.current.characters = app.current.characters?.filter((c: any) => c.id !== data.character.id);
@@ -80,70 +84,74 @@
 <div class="space-y-4">
     {#if data.character}
         {@const c = data.character}
-
-        <PageHeader title={`Edit ${c.name}`} subtitle="Update character details, spell slots, and import spells from CSV."/>
         <div class="flex justify-between gap-2">
-            <a href={`/`} class="btn preset-tonal">⬅ Home</a>
-            <a href={`/characters/${c.id}`} class="btn preset-tonal">View<span class="rotate-180">⬅</span></a>
+            <a class="flex gap-2 items-center" href="/characters/{data.character.id}">
+                <ArrowLeft/>
+                View
+            </a>
         </div>
 
-        <SectionHeader title="Character Info" subtitle="This is just to help you tell characters apart, we don't use this information for anything."/>
-        <label class="label">
-            <span class="label-text">Name</span>
-            <input type="text" class="input" autocomplete="off" bind:value={c.name} required>
-        </label>
-
-        <div class="flex justify-between gap-4">
+        <div class="card preset-filled-surface-100-900 p-4 space-y-4">
+            <SectionHeader title="Character Info" subtitle="This is just to help you tell characters apart, we don't use this information for anything."/>
             <label class="label">
-                <span class="label-text">Level</span>
-                <input type="number" min={1} max={20} class="input" bind:value={c.level} required>
+                <span class="label-text">Name</span>
+                <input type="text" class="input preset-tonal" autocomplete="off" bind:value={c.name} required>
             </label>
-
-            <label class="label">
-                <span class="label-text">Class</span>
-                <select class="select" bind:value={c.class} required>
-                    {#each DND_CLASSES as c}
-                        <option value={c}>{c}</option>
-                    {/each}
-                </select>
-            </label>
+            <div class="flex justify-between gap-4">
+                <label class="label">
+                    <span class="label-text">Level</span>
+                    <input type="number" min={1} max={20} class="input preset-tonal" bind:value={c.level} required>
+                </label>
+                <label class="label">
+                    <span class="label-text">Class</span>
+                    <select class="select preset-tonal" bind:value={c.class} required>
+                        {#each DND_CLASSES as c}
+                            <option value={c}>{c}</option>
+                        {/each}
+                    </select>
+                </label>
+            </div>
         </div>
 
-        <SectionHeader title="Spell Slots" subtitle="When you're happy with your spell slots, you might want to import spells below."/>
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Level</th>
-                <th>Total Slots</th>
-                <th class="text-right">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {#each c.slots?.filter(s => s.level !== 0) as s}
-                <tr class:opacity-50={!s.total}>
-                    <td>{formatSpellLevelLong(s.level)}</td>
-                    <td class="text-center">{s.total}</td>
-                    <td class="flex">
-                        <button class="btn btn-sm" onclick={() => s.total--}>Less</button>
-                        <button class="btn btn-sm" onclick={() => s.total++}>More</button>
-                    </td>
+        <div class="card preset-filled-surface-100-900 p-4 space-y-4">
+            <SectionHeader title="Spell Slots" subtitle="When you're happy with your spell slots, you might want to import spells below."/>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Level</th>
+                    <th>Total Slots</th>
+                    <th class="text-right">Actions</th>
                 </tr>
-            {/each}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                {#each c.slots?.filter(s => s.level !== 0) as s}
+                    <tr class:opacity-50={!s.total}>
+                        <td>{formatSpellLevelLong(s.level)}</td>
+                        <td class="text-center">{s.total}</td>
+                        <td class="flex">
+                            <button class="btn btn-sm" onclick={() => s.total--}>Less</button>
+                            <button class="btn btn-sm" onclick={() => s.total++}>More</button>
+                        </td>
+                    </tr>
+                {/each}
+                </tbody>
+            </table>
+        </div>
 
-        <SectionHeader title="Import Spellbook" subtitle="Paste the CSV data into the box below. If you don't know where to find the data, then maybe ask a friend."/>
-        <textarea class="input" rows="5" bind:value={importData} placeholder={spellImportPlaceholder}>
-            {importData}
-        </textarea>
+        <div class="card preset-tonal p-4 space-y-4">
+            <SectionHeader title="Import Spellbook" subtitle="Paste the CSV data into the box below. If you don't know where to find the data, then maybe ask a friend..."/>
+            <textarea class="input" rows="5" bind:value={importData} placeholder="Paste spell CSV data here...">
+                {importData}
+            </textarea>
 
-        <div class="flex gap-4">
-            <button class="btn preset-tonal" onclick={() => importData = spellImportPlaceholder}>Test</button>
-            <button class="btn preset-tonal" onclick={() => readClipboard()}>Read Clipboard</button>
-            <button class="btn preset-filled-primary-500 grow" onclick={() => runImport()}>Import</button>
+            <div class="flex gap-4">
+                <button class="btn preset-tonal" onclick={() => importData = spellImportPlaceholder}>Test</button>
+                <button class="btn preset-tonal" onclick={() => readClipboard()}>Read Clipboard</button>
+                <button class="btn preset-filled-primary-500 grow" onclick={() => runImport()}>Import</button>
+            </div>
         </div>
 
         <SectionHeader title="Danger Zone" subtitle="Careful. This will delete all your character data. This action is permanent."/>
-        <button class="btn preset-outlined" onclick={() => deleteCharacter()}>Delete Character</button>
+        <button class="btn preset-filled-error-500" onclick={() => deleteCharacter()}>Delete Character</button>
     {/if}
 </div>

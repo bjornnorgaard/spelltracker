@@ -9,7 +9,7 @@
     import type {SpellSlot} from "$lib/types/spellSlot";
     import type {SpellEvent} from "$lib/types/spellEvent";
     import CharacterCard from "$lib/components/CharacterCard.svelte";
-    import {ArrowLeft, ArrowRight, Heart, SquarePen, Zap, Brain, FlameKindling, Sun, RotateCcw} from "@lucide/svelte";
+    import {ArrowLeft, ArrowRight, Brain, FlameKindling, Heart, RotateCcw, SquarePen, Sun, Zap} from "@lucide/svelte";
 
     const {data} = $props();
 
@@ -154,8 +154,12 @@
         </div>
 
         <div class="flex justify-end gap-2">
-            <a href={`/characters/${data.character.id}/edit`} class="btn preset-filled">Edit Slots<SquarePen/></a>
-            <button class="btn grow preset-filled-primary-200-800" onclick={longRest}>Long Rest<Sun/></button>
+            <a href={`/characters/${data.character.id}/edit`} class="btn preset-filled">Edit Slots
+                <SquarePen/>
+            </a>
+            <button class="btn grow preset-filled-primary-200-800" onclick={longRest}>Long Rest
+                <Sun/>
+            </button>
         </div>
     </div>
 
@@ -224,7 +228,9 @@
                     No Conc.
                 </button>
             </div>
-            <button class="btn w-full preset-filled-surface-200-800" onclick={resetFilters}>Reset Filters <RotateCcw size="20"/></button>
+            <button class="btn w-full preset-filled-surface-200-800" onclick={resetFilters}>Reset Filters
+                <RotateCcw size="20"/>
+            </button>
         </div>
     </div>
 

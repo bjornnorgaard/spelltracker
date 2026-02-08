@@ -87,6 +87,18 @@ export class LocalStorage<T> {
         return proxy(root);
     }
 
+    reset() {
+        if (typeof localStorage !== 'undefined') {
+            if (this.#value === undefined) {
+                localStorage.removeItem(this.#key);
+            } else {
+                localStorage.setItem(this.#key, JSON.stringify(this.#value));
+            }
+        }
+
+        this.#version += 1;
+    }
+
     set current(value) {
         if (typeof localStorage !== 'undefined') {
             localStorage.setItem(this.#key, JSON.stringify(value));

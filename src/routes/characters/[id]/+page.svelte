@@ -237,8 +237,7 @@
     <SectionHeader title={`Spells (${spells.length})`} subtitle={`These are the spell currently known to ${data.character.name}.`}/>
     <Accordion collapsible value={openSpellId} onValueChange={(details) => (openSpellId = details.value)}>
         {#each filteredSpells as s (s.name)}
-            <Accordion.Item value={s.id} class="preset-tonal border-l-4 border-l-primary-500 rounded-r-2xl"
-                            style={`filter: hue-rotate(${(s.level)*90}deg)`}>
+            <Accordion.Item value={s.id} class="preset-tonal border-l-4 border-l-primary-500 rounded-r-2xl" style={`filter: hue-rotate(${(s.level)*90}deg)`}>
                 <Accordion.ItemTrigger class="font-bold flex justify-between">
                     <div class="flex gap-4 items-center">
                         {formatSpellLevelLong(s.level)}

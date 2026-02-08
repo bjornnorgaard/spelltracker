@@ -101,20 +101,22 @@
                 <span class="label-text">Name</span>
                 <input type="text" class="input preset-tonal" autocomplete="off" bind:value={c.name} required>
             </label>
-            <div class="flex justify-between gap-4">
-                <label class="label">
-                    <span class="label-text">Level</span>
-                    <input type="number" min={1} max={20} class="input preset-tonal" bind:value={c.level} required>
-                </label>
-                <label class="label">
-                    <span class="label-text">Class</span>
-                    <select class="select preset-tonal" bind:value={c.class} required>
-                        {#each DND_CLASSES as c}
-                            <option value={c}>{c}</option>
-                        {/each}
-                    </select>
-                </label>
-            </div>
+            <label class="label">
+                <span class="label-text">Level</span>
+                <input type="number" min={1} max={20} class="input preset-tonal" bind:value={c.level} required>
+            </label>
+            <label class="label">
+                <span class="label-text">Class</span>
+                <select class="select preset-tonal" bind:value={c.class} required>
+                    {#each DND_CLASSES as cla}
+                        <option value={cla}>{cla}</option>
+                    {/each}
+                </select>
+            </label>
+            <label class="label">
+                <span class="label-text">Prepared Spells</span>
+                <input type="number" min={1} max={25} class="input preset-tonal" bind:value={c.preparedLimit} required>
+            </label>
         </div>
 
         <div class="card preset-filled-surface-100-900 p-4 space-y-4">
@@ -128,7 +130,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                {#each c.slots?.filter(s => s.level !== 0) as s}
+                {#each c.spellSlots?.filter(s => s.level !== 0) as s}
                     <tr class:opacity-50={!s.total}>
                         <td>{formatSpellLevelLong(s.level)}</td>
                         <td class="text-center">{s.total}</td>

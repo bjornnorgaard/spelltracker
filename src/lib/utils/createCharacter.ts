@@ -7,13 +7,14 @@ export function createCharacter(): Character {
         name: randomName(),
         class: DND_CLASSES[Math.floor(Math.random() * DND_CLASSES.length)],
         level: 1,
-        events: [],
-        slots: [],
-        spellIds: []
+        spellSlots: [],
+        spellIds: [],
+        preparedLimit: 1,
+        preparedSpellIds: []
     };
 
     for (const spellLevel of SPELL_LEVELS) {
-        newCharacter.slots[spellLevel] = {
+        newCharacter.spellSlots[spellLevel] = {
             level: spellLevel,
             used: 0,
             total: 0,

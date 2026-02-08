@@ -7,9 +7,8 @@
     import {SPELL_LEVELS} from "$lib/utils/constants";
     import type {Spell} from "$lib/types/spell";
     import type {SpellSlot} from "$lib/types/spellSlot";
-    import type {SpellEvent} from "$lib/types/spellEvent";
     import CharacterCard from "$lib/components/CharacterCard.svelte";
-    import {ArrowLeft, ArrowRight, Brain, FlameKindling, Heart, RotateCcw, SquarePen, Sun, Zap} from "@lucide/svelte";
+    import {ArrowLeft, ArrowRight, Brain, CircleCheckBig, FlameKindling, Heart, RotateCcw, SquarePen, Sun, Zap, Circle} from "@lucide/svelte";
     import type {Character} from "$lib/types/character";
 
     const {data} = $props();
@@ -73,41 +72,40 @@
     }
 
     function longRest() {
-        character.slots.forEach((slot: SpellSlot) => slot.used = 0);
-        logEvent("Long Rest");
+        character.spellSlots.forEach((slot: SpellSlot) => slot.used = 0);
     }
 
     function useSlot(level: number) {
-        const slot = character.slots.find((s: SpellSlot) => s.level === level);
+        const slot = character.spellSlots.find((s: SpellSlot) => s.level === level);
         if (!slot || slot.used >= slot.total) return;
-        logEvent(`Use ${formatSpellLevel(level)} slot`);
         slot.used += 1;
     }
 
     function restoreSlot(level: number) {
-        const slot = character.slots.find((s: SpellSlot) => s.level === level);
+        const slot = character.spellSlots.find((s: SpellSlot) => s.level === level);
         if (!slot || slot.used <= 0) return;
-        logEvent(`Restore ${formatSpellLevel(level)} slot`);
         slot.used -= 1;
     }
 
     function castSpell(spell: Spell) {
-        const slot = character.slots.find((s: SpellSlot) => s.level === spell.level);
+        const slot = character.spellSlots.find((s: SpellSlot) => s.level === spell.level);
         if (!slot || slot.used >= slot.total) return;
-        logEvent(`Cast ${spell.name} at ${formatSpellLevel(spell.level)}`);
         slot.used += 1;
     }
 
     function undoCast(spell: Spell) {
-        const slot = character.slots.find((s: SpellSlot) => s.level === spell.level);
+        const slot = character.spellSlots.find((s: SpellSlot) => s.level === spell.level);
         if (!slot) return;
-        logEvent(`Undo ${formatSpellLevelLong(spell.level)} ${spell.name}`);
         slot.used -= 1;
     }
 
-    function logEvent(s: string) {
-        const e: SpellEvent = {text: s, timestamp: new Date()};
-        character.events.push(e);
+    function togglePrepared(spell: Spell) {
+        const index = character.preparedSpellIds?.findIndex((id: string) => id === spell.id);
+        if (index === -1) {
+            character.preparedSpellIds = [...(character.preparedSpellIds ?? []), spell.id];
+        } else {
+            character.preparedSpellIds = character.preparedSpellIds?.filter((id: string) => id !== spell.id);
+        }
     }
 </script>
 
@@ -127,7 +125,7 @@
     <div class="card preset-filled-surface-100-900 p-4 space-y-4">
         <SectionHeader title="Spell Slots" subtitle={`Use and restore spell slots`}/>
         <div class="flex gap-2">
-            {#each character.slots as slot (slot.level)}
+            {#each character.spellSlots as slot (slot.level)}
                 {#if slot.total > 0}
                     <div>
                         <div class="flex items-center justify-between">
@@ -177,7 +175,7 @@
                         onclick={() => toggleLevel(0)}>
                     Cantrips
                 </button>
-                {#each SPELL_LEVELS.filter(level => character.slots.filter(slot => slot.total > 0).some(slot => slot.level === level)) as spellLevel}
+                {#each SPELL_LEVELS.filter(level => character.spellSlots.filter(slot => slot.total > 0).some(slot => slot.level === level)) as spellLevel}
                     <button class="btn grow"
                             class:preset-filled-tertiary-200-800={selectedLevels.includes(spellLevel)}
                             class:preset-tonal={!selectedLevels.includes(spellLevel)}
@@ -243,6 +241,9 @@
                 <Accordion.ItemTrigger class="font-bold flex justify-between">
                     <div class="flex gap-4 items-center">
                         {formatSpellLevelLong(s.level)}
+                        {#if character.preparedSpellIds?.includes(s.id)}
+                            <CircleCheckBig/>
+                        {/if}
                         {#if s.duration.includes("Concentration")}
                             <Brain/>
                         {/if}
@@ -257,7 +258,7 @@
                 <Accordion.ItemContent>
                     {#snippet element(attributes)}
                         {#if !attributes.hidden}
-                            {@const slot = character.slots.find(slot => slot.level === s.level)}
+                            {@const slot = character.spellSlots.find(slot => slot.level === s.level)}
                             {@const remaining = (slot?.total ?? 0) - (slot?.used ?? 0)}
                             {@const total = slot?.total ?? 0}
                             <div {...attributes} class="space-y-4 p-4 card preset-filled-surface-100-900" transition:slide={{ duration: 300 }}>
@@ -277,20 +278,36 @@
                                 {/if}
                                 <p>{s.source} p{s.page}</p>
                                 {#if s.level !== 0}
-                                    <div class="flex justify-between gap-2">
-                                        <button class="btn w-full transition-all duration-500" onclick={() => castSpell(s)}
+                                    <div class="flex flex-wrap justify-between gap-2">
+                                        <button class="btn grow" onclick={() => togglePrepared(s)}
+                                                class:preset-filled-primary-500={character.preparedSpellIds?.includes(s.id)}
+                                                class:preset-tonal-surface={!character.preparedSpellIds?.includes(s.id)}>
+                                            {#snippet preparedStatus()}
+                                                ({character.preparedSpellIds?.length ?? 0}/{character.preparedLimit})
+                                            {/snippet}
+                                            {#if character.preparedSpellIds?.includes(s.id)}
+                                                Prepared
+                                                <CircleCheckBig/>
+                                                {@render preparedStatus()}
+                                            {:else}
+                                                Prepare
+                                                <Circle/>
+                                                {@render preparedStatus()}
+                                            {/if}
+                                        </button>
+                                        <button class="btn grow" onclick={() => undoCast(s)}
+                                                class:preset-tonal-primary={remaining !== total}
+                                                class:preset-tonal-surface={remaining === total}
+                                                class:disabled={remaining === total}
+                                                disabled={remaining === total}>
+                                            Restore Slot
+                                        </button>
+                                        <button class="btn grow transition-all duration-500" onclick={() => castSpell(s)}
                                                 class:preset-filled-primary-500={remaining > 0}
                                                 class:preset-filled-surface-500={remaining === 0}
                                                 class:disabled={remaining === 0}
                                                 disabled={remaining === 0}>
                                             Cast as {s.castingTime} at {formatSpellLevel(s.level)} ({remaining}/{total})
-                                        </button>
-                                        <button class="btn" onclick={() => undoCast(s)}
-                                                class:preset-tonal-primary={remaining !== total}
-                                                class:preset-tonal-surface={remaining === total}
-                                                class:disabled={remaining === total}
-                                                disabled={remaining === total}>
-                                            Undo
                                         </button>
                                     </div>
                                 {/if}

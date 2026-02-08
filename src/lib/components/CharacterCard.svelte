@@ -12,7 +12,7 @@
     <p class="preset-typo-title">{character.name}</p>
     <p class="preset-typo-subtitle">{formatSpellLevel(character.level)} Level {character.class}</p>
     <div class="flex justify-between">
-        <span>{character.spellIds?.length} spells</span>
+        <span>{character.spellIds?.length} spells and {character.preparedLimit} prepared</span>
         {#if showLink}
             <span class="anchor">View character</span>
         {/if}

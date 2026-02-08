@@ -4,6 +4,6 @@ export const ssr = false;
 
 export function load({params}) {
     return {
-        character: app.current.characters.find((c: any) => c.id === params.id)
+        characterId: params.id,
     };
 }

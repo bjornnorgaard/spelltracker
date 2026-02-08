@@ -10,8 +10,10 @@
     import type {SpellEvent} from "$lib/types/spellEvent";
     import CharacterCard from "$lib/components/CharacterCard.svelte";
     import {ArrowLeft, ArrowRight, Brain, FlameKindling, Heart, RotateCcw, SquarePen, Sun, Zap} from "@lucide/svelte";
+    import type {Character} from "$lib/types/character";
 
     const {data} = $props();
+    let character: Character = $derived.by(() => app.current.characters.find((c: any) => c.id === data.characterId));
 
     let selectedLevels = $state<number[]>([]);
     let selectedCastingTimes = $state<string[]>([]);
@@ -20,7 +22,7 @@
 
     let openSpellId = $state<string[]>([]);
 
-    let spells = app.current.spells?.filter((s: Spell) => data.character.spellIds?.includes(s.id)).sort((a: Spell, b: Spell) => a.level - b.level);
+    let spells = app.current.spells?.filter((s: Spell) => character.spellIds?.includes(s.id)).sort((a: Spell, b: Spell) => a.level - b.level);
     let filteredSpells = $state<Spell[]>(spells);
 
     $effect(() => {
@@ -71,33 +73,33 @@
     }
 
     function longRest() {
-        data.character.slots.forEach((slot: SpellSlot) => slot.used = 0);
+        character.slots.forEach((slot: SpellSlot) => slot.used = 0);
         logEvent("Long Rest");
     }
 
     function useSlot(level: number) {
-        const slot = data.character.slots.find((s: SpellSlot) => s.level === level);
+        const slot = character.slots.find((s: SpellSlot) => s.level === level);
         if (!slot || slot.used >= slot.total) return;
         logEvent(`Use ${formatSpellLevel(level)} slot`);
         slot.used += 1;
     }
 
     function restoreSlot(level: number) {
-        const slot = data.character.slots.find((s: SpellSlot) => s.level === level);
+        const slot = character.slots.find((s: SpellSlot) => s.level === level);
         if (!slot || slot.used <= 0) return;
         logEvent(`Restore ${formatSpellLevel(level)} slot`);
         slot.used -= 1;
     }
 
     function castSpell(spell: Spell) {
-        const slot = data.character.slots.find((s: SpellSlot) => s.level === spell.level);
+        const slot = character.slots.find((s: SpellSlot) => s.level === spell.level);
         if (!slot || slot.used >= slot.total) return;
         logEvent(`Cast ${spell.name} at ${formatSpellLevel(spell.level)}`);
         slot.used += 1;
     }
 
     function undoCast(spell: Spell) {
-        const slot = data.character.slots.find((s: SpellSlot) => s.level === spell.level);
+        const slot = character.slots.find((s: SpellSlot) => s.level === spell.level);
         if (!slot) return;
         logEvent(`Undo ${formatSpellLevelLong(spell.level)} ${spell.name}`);
         slot.used -= 1;
@@ -105,7 +107,7 @@
 
     function logEvent(s: string) {
         const e: SpellEvent = {text: s, timestamp: new Date()};
-        data.character.events.push(e);
+        character.events.push(e);
     }
 </script>
 
@@ -115,17 +117,17 @@
             <ArrowLeft/>
             Back
         </button>
-        <a href={`/characters/${data.character.id}/edit`} class="flex gap-2 items-center">Edit
+        <a href={`/characters/${character.id}/edit`} class="flex gap-2 items-center">Edit
             <ArrowRight/>
         </a>
     </div>
 
-    <CharacterCard character={data.character}/>
+    <CharacterCard character={character}/>
 
     <div class="card preset-filled-surface-100-900 p-4 space-y-4">
         <SectionHeader title="Spell Slots" subtitle={`Use and restore spell slots`}/>
         <div class="flex gap-2">
-            {#each data.character.slots as slot (slot.level)}
+            {#each character.slots as slot (slot.level)}
                 {#if slot.total > 0}
                     <div>
                         <div class="flex items-center justify-between">
@@ -154,7 +156,7 @@
         </div>
 
         <div class="flex justify-end gap-2">
-            <a href={`/characters/${data.character.id}/edit`} class="btn preset-filled">Edit Slots
+            <a href={`/characters/${character.id}/edit`} class="btn preset-filled">Edit Slots
                 <SquarePen/>
             </a>
             <button class="btn grow preset-filled-primary-200-800" onclick={longRest}>Long Rest
@@ -175,7 +177,7 @@
                         onclick={() => toggleLevel(0)}>
                     Cantrips
                 </button>
-                {#each SPELL_LEVELS.filter(level => data.character.slots.filter(slot => slot.total > 0).some(slot => slot.level === level)) as spellLevel}
+                {#each SPELL_LEVELS.filter(level => character.slots.filter(slot => slot.total > 0).some(slot => slot.level === level)) as spellLevel}
                     <button class="btn grow"
                             class:preset-filled-tertiary-200-800={selectedLevels.includes(spellLevel)}
                             class:preset-tonal={!selectedLevels.includes(spellLevel)}
@@ -234,7 +236,7 @@
         </div>
     </div>
 
-    <SectionHeader title={`Spells (${spells.length})`} subtitle={`These are the spell currently known to ${data.character.name}.`}/>
+    <SectionHeader title={`Spells (${spells.length})`} subtitle={`These are the spell currently known to ${character.name}.`}/>
     <Accordion collapsible value={openSpellId} onValueChange={(details) => (openSpellId = details.value)}>
         {#each filteredSpells as s (s.name)}
             <Accordion.Item value={s.id} class="preset-tonal border-l-4 border-l-primary-500 rounded-r-2xl" style={`filter: hue-rotate(${(s.level)*90}deg)`}>
@@ -255,9 +257,9 @@
                 <Accordion.ItemContent>
                     {#snippet element(attributes)}
                         {#if !attributes.hidden}
-                            {@const slot = data.character.slots.find(slot => slot.level === s.level)}
-                            {@const remaining = (slot.total ?? 0) - (slot.used ?? 0)}
-                            {@const total = slot.total ?? 0}
+                            {@const slot = character.slots.find(slot => slot.level === s.level)}
+                            {@const remaining = (slot?.total ?? 0) - (slot?.used ?? 0)}
+                            {@const total = slot?.total ?? 0}
                             <div {...attributes} class="space-y-4 p-4 card preset-filled-surface-100-900" transition:slide={{ duration: 300 }}>
                                 <p class="preset-typo-headline tracking-wide">{s.name}</p>
                                 <div>

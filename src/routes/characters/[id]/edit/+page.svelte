@@ -10,6 +10,7 @@
     import CharacterCard from "$lib/components/CharacterCard.svelte";
 
     const {data} = $props();
+    let character: Character = $derived.by(() => app.current.characters.find((c: any) => c.id === data.characterId));
 
     let importData = $state("");
 
@@ -18,7 +19,7 @@
     }
 
     async function deleteCharacter() {
-        app.current.characters = app.current.characters?.filter((c: any) => c.id !== data.character.id);
+        app.current.characters = app.current.characters?.filter((c: any) => c.id !== character.id);
         await goto("/");
     }
 
@@ -57,7 +58,7 @@
             }
         }
 
-        app.current.characters.find((c: Character) => c.id === data.character.id).spellIds = characterSpellIds;
+        app.current.characters.find((c: Character) => c.id === character.id).spellIds = characterSpellIds;
     }
 
     const spellImportPlaceholder = `"Name","Source","Page","Level","Casting Time","Duration","School","Range","Components","Classes","Optional/Variant Classes","Subclasses","Text","At Higher Levels"
@@ -83,16 +84,16 @@
 </script>
 
 <div class="space-y-4">
-    {#if data.character}
-        {@const c = data.character}
+    {#if character}
+        {@const c = character}
         <div class="flex justify-between gap-2">
-            <a class="flex gap-2 items-center" href="/characters/{data.character.id}">
+            <a class="flex gap-2 items-center" href="/characters/{character.id}">
                 <ArrowLeft/>
                 View
             </a>
         </div>
 
-        <CharacterCard character={data.character}/>
+        <CharacterCard character={character}/>
 
         <div class="card preset-filled-surface-100-900 p-4 space-y-4">
             <SectionHeader title="Character Info" subtitle="This is just to help you tell characters apart, we don't use this information for anything."/>

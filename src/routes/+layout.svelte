@@ -29,6 +29,7 @@
                     <ul class="space-y-1">
                         <li><a class="anchor" href="/">Home</a></li>
                         <li><a class="anchor" href="/backup">Backup</a></li>
+                        <li><a class="anchor" href="/settings">Settings</a></li>
                     </ul>
                 </div>
                 <div class="space-y-2">

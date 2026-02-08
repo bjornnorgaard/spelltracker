@@ -19,7 +19,7 @@
     <footer class="opacity-70 preset-filled-surface-100-900 mt-16 pb-4 space-y-4">
         <div class="p-4 sm:p-8 md:px-16 lg:max-w-7xl mx-auto">
             <div>
-                <p class="preset-typo-title">Spelltracker by Bear</p>
+                <p class="preset-typo-body-2">Spelltracker by Bear</p>
                 <p class="preset-typo-caption">Manage spells and spell-slots.</p>
             </div>
 

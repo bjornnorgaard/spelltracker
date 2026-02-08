@@ -103,7 +103,7 @@
     </div>
 
     <div class="space-y-3">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button class="btn preset-filled-primary-500" onclick={copyData}>Copy</button>
             <button class="btn preset-filled-primary-500" onclick={downloadData}>Download</button>
         </div>

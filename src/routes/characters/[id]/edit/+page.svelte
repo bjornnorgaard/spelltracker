@@ -140,13 +140,18 @@
             <div class="flex flex-col gap-3">
                 <label class="label">
                     <span class="label-text">Upload CSV file</span>
-                    <input class="input" type="file" accept=".csv,text/csv" onchange={handleFileChange} />
+                    <input class="input" type="file" accept=".csv,text/csv" onchange={handleFileChange}/>
                 </label>
                 <div class="flex gap-3 sm:ml-auto sm:mt-6">
                     <button class="btn preset-tonal" onclick={() => readClipboard()}>Read Clipboard</button>
                     <button class="btn grow preset-filled-primary-500" onclick={() => runImport()}>Import</button>
                 </div>
             </div>
+        </div>
+
+        <div class="card preset-filled-surface-100-900 p-4 space-y-4">
+            <SectionHeader title="Free Casts" subtitle="Set which spells can be cast for free per short or long rest."/>
+            <a class="btn preset-filled-primary-200-800" href={`/characters/${character.id}/edit/free-casts`}>Edit Free Casts</a>
         </div>
 
         <SectionHeader title="Danger Zone" subtitle="Careful. This will delete all your character data. This action is permanent."/>

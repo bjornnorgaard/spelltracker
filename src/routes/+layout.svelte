@@ -1,8 +1,16 @@
 <script lang="ts">
     import "./layout.css";
     import {app} from "$lib/stores/app.svelte";
+    import {onMount} from "svelte";
 
     let {children} = $props();
+
+    onMount(() => {
+        for (let c of app.current.characters) {
+            if (!c.freePerLongRestSpells?.length) c.freePerLongRestSpells = [];
+            if (!c.freePerShortRestSpells?.length) c.freePerShortRestSpells = [];
+        }
+    });
 </script>
 
 <div class="min-h-screen flex flex-col">

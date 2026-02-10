@@ -1,4 +1,4 @@
 export interface SpellNote {
     spellId: string;
-    note: string;
+    text: string;
 }

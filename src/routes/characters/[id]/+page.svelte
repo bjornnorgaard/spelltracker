@@ -8,7 +8,7 @@
     import type {Spell} from "$lib/types/spell";
     import type {SpellSlot} from "$lib/types/spellSlot";
     import CharacterCard from "$lib/components/CharacterCard.svelte";
-    import {ArrowLeft, ArrowRight, Brain, CircleCheckBig, FlameKindling, Heart, RotateCcw, SquarePen, Sun, Zap, Circle} from "@lucide/svelte";
+    import {ArrowLeft, ArrowRight, Brain, Circle, CircleCheckBig, FlameKindling, Heart, RotateCcw, SquarePen, Sun, Zap} from "@lucide/svelte";
     import type {Character} from "$lib/types/character";
 
     const {data} = $props();
@@ -270,6 +270,13 @@
                                     <p><strong>Duration:</strong> {s.duration}</p>
                                     <p><strong>Components:</strong> {s.components}</p>
                                 </div>
+                                {#if character.spellNotes.find(n => n.spellId === s.id)}
+                                    {@const note = character.spellNotes.find(n => n.spellId === s.id)}
+                                    <div class="card preset-filled-primary-500 p-4">
+                                        <p class="font-bold text-lg">User note</p>
+                                        <p>{note?.text}</p>
+                                    </div>
+                                {/if}
                                 <div>
                                     <i>{s.text}</i>
                                 </div>

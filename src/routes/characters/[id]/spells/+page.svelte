@@ -30,7 +30,7 @@
     }
 
     function getNote(list: SpellNote[], spellId: string) {
-        return list?.find((entry: SpellNote) => entry.spellId === spellId)?.note ?? "";
+        return list?.find((entry: SpellNote) => entry.spellId === spellId)?.text ?? "";
     }
 
     function setCount(kind: "long" | "short", spellId: string, next: number) {
@@ -62,9 +62,9 @@
         if (!note) {
             nextList = index === -1 ? list : list.filter((entry: SpellNote) => entry.spellId !== spellId);
         } else if (index === -1) {
-            nextList = [...list, {spellId, note}];
+            nextList = [...list, {spellId, text: note}];
         } else {
-            nextList = list.map((entry: SpellNote) => entry.spellId === spellId ? {...entry, note} : entry);
+            nextList = list.map((entry: SpellNote) => entry.spellId === spellId ? {...entry, text: note} : entry);
         }
 
         character.spellNotes = nextList;

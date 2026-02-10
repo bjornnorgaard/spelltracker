@@ -9,6 +9,12 @@
         for (let c of app.current.characters) {
             if (!c.freePerLongRestSpells?.length) c.freePerLongRestSpells = [];
             if (!c.freePerShortRestSpells?.length) c.freePerShortRestSpells = [];
+            for (let entry of c.freePerLongRestSpells) {
+                if (entry.used == null) entry.used = 0;
+            }
+            for (let entry of c.freePerShortRestSpells) {
+                if (entry.used == null) entry.used = 0;
+            }
             if (!c.spellNotes?.length) c.spellNotes = [];
         }
     });

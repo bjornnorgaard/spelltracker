@@ -7,6 +7,7 @@
     import {SPELL_LEVELS} from "$lib/utils/constants";
     import type {Spell} from "$lib/types/spell";
     import type {SpellSlot} from "$lib/types/spellSlot";
+    import type {FreeCast} from "$lib/types/freeCast";
     import CharacterCard from "$lib/components/CharacterCard.svelte";
     import {ArrowLeft, ArrowRight, Brain, Circle, CircleCheckBig, FlameKindling, Heart, RotateCcw, SquarePen, Sun, Zap} from "@lucide/svelte";
     import type {Character} from "$lib/types/character";
@@ -73,6 +74,12 @@
 
     function longRest() {
         character.spellSlots.forEach((slot: SpellSlot) => slot.used = 0);
+        character.freePerLongRestSpells?.forEach((entry: FreeCast) => entry.used = 0);
+        character.freePerShortRestSpells?.forEach((entry: FreeCast) => entry.used = 0);
+    }
+
+    function shortRest() {
+        character.freePerShortRestSpells?.forEach((entry: FreeCast) => entry.used = 0);
     }
 
     function useSlot(level: number) {
@@ -97,6 +104,42 @@
         const slot = character.spellSlots.find((s: SpellSlot) => s.level === spell.level);
         if (!slot) return;
         slot.used -= 1;
+    }
+
+    function getFreeCast(list: FreeCast[], spellId: string) {
+        return list?.find((entry: FreeCast) => entry.spellId === spellId);
+    }
+
+    function getFreeCastCount(list: FreeCast[], spellId: string) {
+        return getFreeCast(list, spellId)?.count ?? 0;
+    }
+
+    function getFreeCastRemaining(list: FreeCast[], spellId: string) {
+        const entry = getFreeCast(list, spellId);
+        if (!entry) return 0;
+        return Math.max(entry.count - (entry.used ?? 0), 0);
+    }
+
+    function castFree(kind: "long" | "short", spellId: string) {
+        const list = kind === "long" ? character.freePerLongRestSpells : character.freePerShortRestSpells;
+        const entry = getFreeCast(list, spellId);
+        if (!entry) return;
+        const remaining = getFreeCastRemaining(list, spellId);
+        if (remaining <= 0) return;
+        entry.used = (entry.used ?? 0) + 1;
+    }
+
+    function undoFree(kind: "long" | "short", spellId: string) {
+        const list = kind === "long" ? character.freePerLongRestSpells : character.freePerShortRestSpells;
+        const entry = getFreeCast(list, spellId);
+        if (!entry) return;
+        const used = entry.used ?? 0;
+        if (used <= 0) return;
+        entry.used = used - 1;
+    }
+
+    function getSpellName(spellId: string) {
+        return app.current.spells.find((spell: Spell) => spell.id === spellId)?.name ?? "Unknown spell";
     }
 
     function togglePrepared(spell: Spell) {
@@ -153,13 +196,50 @@
             {/each}
         </div>
 
-        <div class="flex justify-end gap-2">
-            <a href={`/characters/${character.id}/edit`} class="btn preset-filled">Edit Slots
+        {#if character.freePerLongRestSpells?.length || character.freePerShortRestSpells?.length}
+            {@const longFree = character.freePerLongRestSpells?.filter(entry => entry.count > 0) ?? []}
+            {@const shortFree = character.freePerShortRestSpells?.filter(entry => entry.count > 0) ?? []}
+            {#if longFree.length || shortFree.length}
+                <div class="space-y-4">
+                    <SectionHeader title="Free Casts" subtitle="Cast without expending a spell slot"/>
+                    {#if longFree.length}
+                        <div class="space-y-1">
+                            <p class="text-xs uppercase tracking-wide opacity-70">Per Long Rest</p>
+                            {#each longFree as entry (entry.spellId)}
+                                <div class="flex items-center justify-between gap-2 text-sm">
+                                    <span class="font-semibold">{getSpellName(entry.spellId)}</span>
+                                    <span class="badge preset-filled-surface-500">{Math.max(entry.count - (entry.used ?? 0), 0)}/{entry.count} left</span>
+                                </div>
+                            {/each}
+                        </div>
+                    {/if}
+                    {#if shortFree.length}
+                        <div class="space-y-1">
+                            <p class="text-xs uppercase tracking-wide opacity-70">Short Rest</p>
+                            {#each shortFree as entry (entry.spellId)}
+                                <div class="flex items-center justify-between gap-2 text-sm">
+                                    <span class="font-semibold">{getSpellName(entry.spellId)}</span>
+                                    <span class="badge preset-filled-surface-500">{Math.max(entry.count - (entry.used ?? 0), 0)}/{entry.count} left</span>
+                                </div>
+                            {/each}
+                        </div>
+                    {/if}
+                </div>
+            {/if}
+        {/if}
+
+        <div class="flex flex-col justify-end gap-2">
+            <a href={`/characters/${character.id}/edit`} class="btn preset-tonal">Edit Slots
                 <SquarePen/>
             </a>
-            <button class="btn grow preset-filled-primary-200-800" onclick={longRest}>Long Rest
-                <Sun/>
-            </button>
+            <div class="flex gap-4">
+                <button class="btn grow preset-filled-primary-200-800" onclick={shortRest}>Short Rest
+                    <RotateCcw/>
+                </button>
+                <button class="btn grow preset-filled-primary-200-800" onclick={longRest}>Long Rest
+                    <Sun/>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -261,6 +341,10 @@
                             {@const slot = character.spellSlots.find(slot => slot.level === s.level)}
                             {@const remaining = (slot?.total ?? 0) - (slot?.used ?? 0)}
                             {@const total = slot?.total ?? 0}
+                            {@const longRemaining = getFreeCastRemaining(character.freePerLongRestSpells, s.id)}
+                            {@const shortRemaining = getFreeCastRemaining(character.freePerShortRestSpells, s.id)}
+                            {@const longTotal = getFreeCastCount(character.freePerLongRestSpells, s.id)}
+                            {@const shortTotal = getFreeCastCount(character.freePerShortRestSpells, s.id)}
                             <div {...attributes} class="space-y-4 p-4 card preset-filled-surface-100-900" transition:slide={{ duration: 300 }}>
                                 <p class="preset-typo-headline tracking-wide">{s.name}</p>
                                 <div>
@@ -284,6 +368,29 @@
                                     <p><strong>At higher levels:</strong> {s.atHigherLevels}</p>
                                 {/if}
                                 <p>{s.source} p{s.page}</p>
+
+                                {#if longTotal > 0 || shortTotal > 0}
+                                    <div class="flex flex-wrap gap-2">
+                                        {#if longTotal > 0}
+                                            <button class="btn grow" onclick={() => castFree("long", s.id)}
+                                                    class:preset-filled-primary-500={longRemaining > 0}
+                                                    class:preset-filled-surface-500={longRemaining === 0}
+                                                    class:disabled={longRemaining === 0}
+                                                    disabled={longRemaining === 0}>
+                                                Cast Free (Long {longRemaining}/{longTotal})
+                                            </button>
+                                        {/if}
+                                        {#if shortTotal > 0}
+                                            <button class="btn grow" onclick={() => castFree("short", s.id)}
+                                                    class:preset-filled-primary-500={shortRemaining > 0}
+                                                    class:preset-filled-surface-500={shortRemaining === 0}
+                                                    class:disabled={shortRemaining === 0}
+                                                    disabled={shortRemaining === 0}>
+                                                Cast Free (Short {shortRemaining}/{shortTotal})
+                                            </button>
+                                        {/if}
+                                    </div>
+                                {/if}
                                 {#if s.level !== 0}
                                     <div class="flex flex-wrap justify-between gap-2">
                                         <button class="btn grow" onclick={() => togglePrepared(s)}

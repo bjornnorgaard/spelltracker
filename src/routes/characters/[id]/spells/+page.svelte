@@ -44,9 +44,13 @@
         if (count === 0) {
             nextList = index === -1 ? list : list.filter((entry: FreeCast) => entry.spellId !== spellId);
         } else if (index === -1) {
-            nextList = [...list, {spellId, count}];
+            nextList = [...list, {spellId, count, used: 0}];
         } else {
-            nextList = list.map((entry: FreeCast) => entry.spellId === spellId ? {...entry, count} : entry);
+            nextList = list.map((entry: FreeCast) => {
+                if (entry.spellId !== spellId) return entry;
+                const nextUsed = Math.min(entry.used ?? 0, count);
+                return {...entry, count, used: nextUsed};
+            });
         }
 
         character[listKey] = nextList;

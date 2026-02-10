@@ -6,6 +6,8 @@
     let {children} = $props();
 
     onMount(() => {
+        // Cheap version of migration.
+        // If the field was introduced after character creation, it will be added with an empty value.
         for (let c of app.current.characters) {
             if (!c.freePerLongRestSpells?.length) c.freePerLongRestSpells = [];
             if (!c.freePerShortRestSpells?.length) c.freePerShortRestSpells = [];

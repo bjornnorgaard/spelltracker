@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {app} from "$lib/stores/app.svelte";
+    import {app} from "$lib/stores/app.svelte.js";
     import SectionHeader from "$lib/components/SectionHeader.svelte";
     import CharacterCard from "$lib/components/CharacterCard.svelte";
     import {formatSpellLevelLong} from "$lib/utils/spell-formatter";

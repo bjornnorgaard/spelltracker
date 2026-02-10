@@ -9,6 +9,7 @@
         for (let c of app.current.characters) {
             if (!c.freePerLongRestSpells?.length) c.freePerLongRestSpells = [];
             if (!c.freePerShortRestSpells?.length) c.freePerShortRestSpells = [];
+            if (!c.spellNotes?.length) c.spellNotes = [];
         }
     });
 </script>

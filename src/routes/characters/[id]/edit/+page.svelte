@@ -151,7 +151,7 @@
 
         <div class="card preset-filled-surface-100-900 p-4 space-y-4">
             <SectionHeader title="Free Casts" subtitle="Set which spells can be cast for free per short or long rest."/>
-            <a class="btn preset-filled-primary-200-800" href={`/characters/${character.id}/edit/free-casts`}>Edit Free Casts</a>
+            <a class="btn preset-filled-primary-200-800" href={`/characters/${character.id}/spells`}>Edit Free Casts</a>
         </div>
 
         <SectionHeader title="Danger Zone" subtitle="Careful. This will delete all your character data. This action is permanent."/>

@@ -369,60 +369,80 @@
                                 {/if}
                                 <p>{s.source} p{s.page}</p>
 
+                                <button class="btn grow" onclick={() => togglePrepared(s)}
+                                        class:preset-filled-primary-500={character.preparedSpellIds?.includes(s.id)}
+                                        class:preset-tonal-surface={!character.preparedSpellIds?.includes(s.id)}>
+                                    {#snippet preparedStatus()}
+                                        ({character.preparedSpellIds?.length ?? 0}/{character.preparedLimit})
+                                    {/snippet}
+                                    {#if character.preparedSpellIds?.includes(s.id)}
+                                        Prepared
+                                        <CircleCheckBig/>
+                                        {@render preparedStatus()}
+                                    {:else}
+                                        Prepare
+                                        <Circle/>
+                                        {@render preparedStatus()}
+                                    {/if}
+                                </button>
                                 {#if longTotal > 0 || shortTotal > 0}
                                     <div class="flex flex-wrap gap-2">
                                         {#if longTotal > 0}
-                                            <button class="btn grow" onclick={() => castFree("long", s.id)}
-                                                    class:preset-filled-primary-500={longRemaining > 0}
-                                                    class:preset-filled-surface-500={longRemaining === 0}
-                                                    class:disabled={longRemaining === 0}
-                                                    disabled={longRemaining === 0}>
-                                                Cast Free (Long {longRemaining}/{longTotal})
-                                            </button>
+                                            <div class="flex w-full gap-4">
+                                                <button class="btn grow" onclick={() => castFree("long", s.id)}
+                                                        class:preset-filled-primary-500={longRemaining > 0}
+                                                        class:preset-filled-surface-500={longRemaining === 0}
+                                                        class:disabled={longRemaining === 0}
+                                                        disabled={longRemaining === 0}>
+                                                    Cast Free (Long {longRemaining}/{longTotal})
+                                                </button>
+                                                <button class="btn" onclick={() => undoFree("long", s.id)}
+                                                        class:preset-tonal-primary={longRemaining !== longTotal}
+                                                        class:preset-tonal-surface={longRemaining === longTotal}
+                                                        class:disabled={longRemaining === longTotal}
+                                                        disabled={longRemaining === longTotal}>
+                                                    Undo
+                                                </button>
+                                            </div>
                                         {/if}
                                         {#if shortTotal > 0}
-                                            <button class="btn grow" onclick={() => castFree("short", s.id)}
-                                                    class:preset-filled-primary-500={shortRemaining > 0}
-                                                    class:preset-filled-surface-500={shortRemaining === 0}
-                                                    class:disabled={shortRemaining === 0}
-                                                    disabled={shortRemaining === 0}>
-                                                Cast Free (Short {shortRemaining}/{shortTotal})
-                                            </button>
+                                            <div class="flex w-full gap-4">
+                                                <button class="btn grow" onclick={() => castFree("short", s.id)}
+                                                        class:preset-filled-primary-500={shortRemaining > 0}
+                                                        class:preset-filled-surface-500={shortRemaining === 0}
+                                                        class:disabled={shortRemaining === 0}
+                                                        disabled={shortRemaining === 0}>
+                                                    Cast Free (Short {shortRemaining}/{shortTotal})
+                                                </button>
+                                                <button class="btn" onclick={() => undoFree("short", s.id)}
+                                                        class:preset-tonal-primary={shortRemaining !== shortTotal}
+                                                        class:preset-tonal-surface={shortRemaining === shortTotal}
+                                                        class:disabled={shortRemaining === shortTotal}
+                                                        disabled={shortRemaining === shortTotal}>
+                                                    Undo Free (Short)
+                                                </button>
+                                            </div>
                                         {/if}
                                     </div>
                                 {/if}
                                 {#if s.level !== 0}
                                     <div class="flex flex-wrap justify-between gap-2">
-                                        <button class="btn grow" onclick={() => togglePrepared(s)}
-                                                class:preset-filled-primary-500={character.preparedSpellIds?.includes(s.id)}
-                                                class:preset-tonal-surface={!character.preparedSpellIds?.includes(s.id)}>
-                                            {#snippet preparedStatus()}
-                                                ({character.preparedSpellIds?.length ?? 0}/{character.preparedLimit})
-                                            {/snippet}
-                                            {#if character.preparedSpellIds?.includes(s.id)}
-                                                Prepared
-                                                <CircleCheckBig/>
-                                                {@render preparedStatus()}
-                                            {:else}
-                                                Prepare
-                                                <Circle/>
-                                                {@render preparedStatus()}
-                                            {/if}
-                                        </button>
-                                        <button class="btn grow" onclick={() => undoCast(s)}
-                                                class:preset-tonal-primary={remaining !== total}
-                                                class:preset-tonal-surface={remaining === total}
-                                                class:disabled={remaining === total}
-                                                disabled={remaining === total}>
-                                            Restore Slot
-                                        </button>
-                                        <button class="btn grow transition-all duration-500" onclick={() => castSpell(s)}
-                                                class:preset-filled-primary-500={remaining > 0}
-                                                class:preset-filled-surface-500={remaining === 0}
-                                                class:disabled={remaining === 0}
-                                                disabled={remaining === 0}>
-                                            Cast as {s.castingTime} at {formatSpellLevel(s.level)} ({remaining}/{total})
-                                        </button>
+                                        <div class="flex w-full gap-4">
+                                            <button class="btn grow transition-all duration-500" onclick={() => castSpell(s)}
+                                                    class:preset-filled-primary-500={remaining > 0}
+                                                    class:preset-filled-surface-500={remaining === 0}
+                                                    class:disabled={remaining === 0}
+                                                    disabled={remaining === 0}>
+                                                Cast as {s.castingTime} at {formatSpellLevel(s.level)} ({remaining}/{total})
+                                            </button>
+                                            <button class="btn " onclick={() => undoCast(s)}
+                                                    class:preset-tonal-primary={remaining !== total}
+                                                    class:preset-tonal-surface={remaining === total}
+                                                    class:disabled={remaining === total}
+                                                    disabled={remaining === total}>
+                                                Undo
+                                            </button>
+                                        </div>
                                     </div>
                                 {/if}
                             </div>

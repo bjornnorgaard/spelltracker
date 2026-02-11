@@ -20,8 +20,8 @@
 <Dialog {open} onOpenChange={(details) => (open = details.open)}>
     <Portal>
         <Dialog.Backdrop class="fixed inset-0 z-40 bg-black opacity-70"/>
-        <Dialog.Positioner class="fixed inset-0 z-50 flex justify-center items-center p-8">
-            <Dialog.Content class="card bg-surface-100-900 border-2 border-surface-200-800 w-full max-w-xl p-4 space-y-4 shadow-xl {animation}">
+        <Dialog.Positioner class="fixed inset-0 z-50 flex justify-center items-center p-2">
+            <Dialog.Content class="card bg-surface-100-900 border-2 border-surface-200-800 w-full p-4 space-y-4 {animation}">
                 <header class="flex items-center gap-3">
                     <CircleAlert class="text-warning-500" size={32}/>
                     <Dialog.Title class="text-xl font-bold">Concentration Warning</Dialog.Title>

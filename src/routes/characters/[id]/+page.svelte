@@ -320,7 +320,7 @@
                 >Edit Slots
                 <SquarePen />
             </a>
-            <div class="flex gap-4">
+            <div class="flex gap-2">
                 <button class="btn grow preset-filled-primary-200-800" onclick={shortRest}
                     >Short Rest
                     <RotateCcw />

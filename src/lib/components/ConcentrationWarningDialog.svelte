@@ -6,7 +6,7 @@
     interface Props {
         open: boolean;
         currentSpell: Spell | null;
-        newSpell: Spell;
+        newSpell: Spell | null;
         onConfirm: () => void;
         onCancel: () => void;
     }
@@ -27,7 +27,7 @@
                     <Dialog.Title class="text-xl font-bold">Concentration Warning</Dialog.Title>
                 </header>
                 <Dialog.Description class="space-y-3">
-                    {#if currentSpell}
+                    {#if currentSpell && newSpell}
                         <div class="card preset-filled-warning-500 p-4">
                             <div class="flex items-center gap-2 mb-2">
                                 <Brain size={20} />

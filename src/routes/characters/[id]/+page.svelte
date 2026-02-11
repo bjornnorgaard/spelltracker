@@ -230,12 +230,12 @@
 
 <ConcentrationFloatingAlert spell={concentratingSpell} ondrop={() => dropConcentration()} />
 
-<!--<ConcentrationWarningDialog-->
-<!--    bind:open={showConcentrationDialog}-->
-<!--    currentSpell={concentratingSpell}-->
-<!--    newSpell={pendingConcentrationSpell!}-->
-<!--    onConfirm={confirmConcentrationCast}-->
-<!--    onCancel={cancelConcentrationCast} />-->
+<ConcentrationWarningDialog
+    bind:open={showConcentrationDialog}
+    currentSpell={concentratingSpell}
+    newSpell={pendingConcentrationSpell}
+    onConfirm={confirmConcentrationCast}
+    onCancel={cancelConcentrationCast} />
 
 <div class="space-y-4">
     <div class="flex justify-between gap-2">
@@ -263,6 +263,7 @@
                         <div class="mt-2 flex flex-col-reverse items-center gap-2">
                             <button class="btn h-8 w-8 rounded-full mb-1 p-0 text-xs preset-filled-error-100-900" onclick={() => useSlot(slot.level)} disabled={slot.used >= slot.total}>
                                 <Zap />
+
                             </button>
                             {#each Array(slot.total) as _, i (i)}
                                 <span

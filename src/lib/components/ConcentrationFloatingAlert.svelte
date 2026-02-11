@@ -1,14 +1,14 @@
 <script lang="ts">
-    import {Brain, X} from "@lucide/svelte";
-    import {fly} from "svelte/transition";
-    import type {Spell} from "$lib/types/spell";
+    import { Brain, X } from "@lucide/svelte";
+    import { fly } from "svelte/transition";
+    import type { Spell } from "$lib/types/spell";
 
     interface Props {
         spell?: Spell;
         ondrop: () => void;
     }
 
-    let {spell, ondrop}: Props = $props();
+    let { spell, ondrop }: Props = $props();
 </script>
 
 {#if spell}
@@ -17,12 +17,14 @@
             <div></div>
             <div class="flex flex-col items-center">
                 <p class="preset-typo-title flex text-center items-center gap-2">
-                    <Brain size={24} class="animate-pulse"/> {spell.name}</p>
+                    <Brain size={24} class="animate-pulse" />
+                    {spell.name}
+                </p>
                 <p class="font-bold text-sm">{spell.duration}</p>
             </div>
             <div class="">
                 <button class="btn" onclick={ondrop}>
-                    <X/>
+                    <X />
                 </button>
             </div>
         </div>

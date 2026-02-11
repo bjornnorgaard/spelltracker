@@ -1,9 +1,9 @@
 <script lang="ts">
     import "./layout.css";
-    import {app} from "$lib/stores/app.svelte";
-    import {onMount} from "svelte";
+    import { app } from "$lib/stores/app.svelte";
+    import { onMount } from "svelte";
 
-    let {children} = $props();
+    let { children } = $props();
 
     onMount(() => {
         // Cheap version of migration.
@@ -11,6 +11,7 @@
         for (let c of app.current.characters) {
             if (!c.freePerLongRestSpells?.length) c.freePerLongRestSpells = [];
             if (!c.freePerShortRestSpells?.length) c.freePerShortRestSpells = [];
+            if (!c.concentrationSpellId?.length) c.concentrationSpellId = [];
             for (let entry of c.freePerLongRestSpells) {
                 if (entry.used == null) entry.used = 0;
             }
@@ -41,12 +42,13 @@
             </div>
 
             <div class="flex gap-4 justify-between sm:justify-start sm:gap-16 md:gap-32 my-8">
-                <div class="space-y-2 ">
+                <div class="space-y-2">
                     <p class="uppercase text-xs tracking-widest">Links</p>
                     <ul class="space-y-1">
                         <li><a class="anchor" href="/">Home</a></li>
                         <li><a class="anchor" href="/backup">Backup</a></li>
                         <li><a class="anchor" href="/settings">Settings</a></li>
+                        <li><a class="anchor" href="/debug">Debug</a></li>
                     </ul>
                 </div>
                 <div class="space-y-2">

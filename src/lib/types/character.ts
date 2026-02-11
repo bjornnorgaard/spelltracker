@@ -1,6 +1,6 @@
-import type {SpellSlot} from "$lib/types/spellSlot";
-import type {FreeCast} from "$lib/types/freeCast";
-import type {SpellNote} from "$lib/types/spellNote";
+import type { SpellSlot } from "$lib/types/spellSlot";
+import type { FreeCast } from "$lib/types/freeCast";
+import type { SpellNote } from "$lib/types/spellNote";
 
 /**
  * Character with spellcasting abilities
@@ -15,7 +15,7 @@ export interface Character {
     spellNotes: SpellNote[];
     preparedLimit: number;
     preparedSpellIds: string[];
+    concentrationSpellId: string | null;
     freePerLongRestSpells: FreeCast[];
     freePerShortRestSpells: FreeCast[];
 }
-

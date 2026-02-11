@@ -152,9 +152,13 @@
     }
 
     function castSpell(spell: Spell) {
+        if (spell.level === 0) {
+            checkConcentrationAndCast(spell, () => {
+            });
+        }
+
         const slot = character.spellSlots.find((s: SpellSlot) => s.level === spell.level);
         if (!slot || slot.used >= slot.total) return;
-
         checkConcentrationAndCast(spell, () => {
             slot.used += 1;
         });
@@ -532,10 +536,10 @@
                                     <div class="flex w-full gap-4">
                                         <button class="btn grow transition-all duration-500"
                                                 onclick={() => castSpell(s)}
-                                                class:preset-filled-primary-500={remaining > 0}
-                                                class:preset-filled-surface-500={remaining === 0}
-                                                class:disabled={remaining === 0}
-                                                disabled={remaining === 0}>
+                                                class:preset-filled-primary-500={remaining > 0 || s.level === 0}
+                                                class:preset-filled-surface-500={remaining === 0 && s.level !== 0}
+                                                class:disabled={remaining === 0 && s.level !== 0}
+                                                disabled={remaining === 0 && s.level !== 0}>
                                             Cast as {s.castingTime} at {formatSpellLevel(s.level)} ({remaining}/{total})
                                         </button>
                                         <button class="btn"

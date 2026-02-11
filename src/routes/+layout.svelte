@@ -1,24 +1,28 @@
 <script lang="ts">
     import "./layout.css";
-    import { app } from "$lib/stores/app.svelte";
-    import { onMount } from "svelte";
+    import {app} from "$lib/stores/app.svelte";
+    import {onMount} from "svelte";
+    import {DND_CLASSES} from "$lib/utils/constants";
 
-    let { children } = $props();
+    let {children} = $props();
 
     onMount(() => {
         // Cheap version of migration.
         // If the field was introduced after character creation, it will be added with an empty value.
+        // Every field on the character type should have a default value.
         for (let c of app.current.characters) {
-            if (!c.freePerLongRestSpells?.length) c.freePerLongRestSpells = [];
-            if (!c.freePerShortRestSpells?.length) c.freePerShortRestSpells = [];
-            if (!c.concentrationSpellId?.length) c.concentrationSpellId = [];
-            for (let entry of c.freePerLongRestSpells) {
-                if (entry.used == null) entry.used = 0;
-            }
-            for (let entry of c.freePerShortRestSpells) {
-                if (entry.used == null) entry.used = 0;
-            }
-            if (!c.spellNotes?.length) c.spellNotes = [];
+            if (!c.id) c.id = crypto.randomUUID();
+            if (!c.name) c.name = "John Doe";
+            if (!c.class) c.class = DND_CLASSES[0];
+            if (!c.level) c.level = 1;
+            if (!c.spellIds) c.spellIds = [];
+            if (!c.spellSlots) c.spellSlots = [];
+            if (!c.spellNotes) c.spellNotes = [];
+            if (!c.preparedLimit) c.preparedLimit = 42;
+            if (!c.preparedSpellIds) c.preparedSpellIds = [];
+            if (!c.concentrationSpellId) c.concentrationSpellId = null;
+            if (!c.freePerLongRestSpells) c.freePerLongRestSpells = [];
+            if (!c.freePerShortRestSpells) c.freePerShortRestSpells = [];
         }
     });
 </script>

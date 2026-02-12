@@ -75,6 +75,13 @@
         }
     }
 
+    function setRecommendedSelected() {
+        const recommended = new Set(["TCE", "XGE", "XPHB"]);
+        for (const entry of sourceEntries) {
+            entry.selected = recommended.has(entry.source.toUpperCase());
+        }
+    }
+
     async function loadSources() {
         loadError = "";
         importError = "";
@@ -210,6 +217,7 @@
                 <p class="text-sm opacity-80">{sourceEntries.length} sources found, {selectedCount} selected.</p>
                 <div class="flex gap-2">
                     <button class="btn btn-sm preset-tonal" onclick={() => setAllSelected(true)}>Select all</button>
+                    <button class="btn btn-sm preset-tonal" onclick={setRecommendedSelected}>Recommended</button>
                     <button class="btn btn-sm preset-tonal" onclick={() => setAllSelected(false)}>Select none</button>
                 </div>
             </div>

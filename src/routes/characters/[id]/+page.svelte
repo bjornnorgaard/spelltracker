@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {characters, spells as spellsStore} from "$lib/stores/stores";
+    import {characters, spells} from "$lib/stores/stores";
     import {Accordion} from "@skeletonlabs/skeleton-svelte";
     import {formatSpellLevel, formatSpellLevelLong} from "$lib/utils/spell-formatter";
     import {slide} from "svelte/transition";
@@ -15,7 +15,6 @@
     import {ArrowLeft, ArrowRight, Brain, FlameKindling, Heart, HeartPlus, RotateCcw, SquarePen, Sun, X, Zap} from "@lucide/svelte";
     import type {Character} from "$lib/types/character";
     import Section from "$lib/components/Section.svelte";
-    import PageHeader from "$lib/components/PageHeader.svelte";
 
     const {data} = $props();
     let character: Character = $derived.by(() => characters.current.find((c: any) => c.id === data.characterId));
@@ -32,16 +31,15 @@
     let pendingConcentrationSpell = $state<Spell | null>(null);
     let pendingCastAction = $state<(() => void) | null>(null);
 
-    let spells = $derived.by(() => {
+    let allSpells = $derived.by(() => {
         if (!character) return [];
         const selectedSpellIds = new Set<string>(character.selectedSpellIds ?? []);
-
-        return (spellsStore.current ?? []).filter((spell: Spell) => selectedSpellIds.has(spell.id)).sort((a: Spell, b: Spell) => a.level - b.level);
+        return (spells.current ?? []).filter((spell: Spell) => selectedSpellIds.has(spell.id)).sort((a: Spell, b: Spell) => a.level - b.level);
     });
     let filteredSpells = $derived.by(() => {
-        if (!spells) return [];
+        if (!allSpells) return [];
 
-        return spells.filter((spell: Spell) => {
+        return allSpells.filter((spell: Spell) => {
             if (selectedLevels.length && !selectedLevels.includes(spell.level)) return false;
             if (selectedCastingTimes.length && !selectedCastingTimes.some((time) => spell.castingTime.includes(time))) return false;
             if (requireRitual && !spell.ritual) return false;
@@ -54,7 +52,7 @@
     // Derived concentration spell
     let concentratingSpell = $derived.by(() => {
         if (!character?.concentrationSpellId) return null;
-        return spellsStore.current.find((s: Spell) => s.id === character.concentrationSpellId) ?? null;
+        return spells.current.find((s: Spell) => s.id === character.concentrationSpellId) ?? null;
     });
 
     function goBack() {
@@ -199,7 +197,7 @@
         const remaining = getFreeCastRemaining(list, spellId);
         if (remaining <= 0) return;
 
-        const spell = spellsStore.current.find((s: Spell) => s.id === spellId);
+        const spell = spells.current.find((s: Spell) => s.id === spellId);
         if (!spell) return;
 
         checkConcentrationAndCast(spell, () => {
@@ -222,7 +220,7 @@
     }
 
     function getSpellName(spellId: string) {
-        return spellsStore.current.find((spell: Spell) => spell.id === spellId)?.name ?? "Unknown spell";
+        return spells.current.find((spell: Spell) => spell.id === spellId)?.name ?? "Unknown spell";
     }
 </script>
 
@@ -346,21 +344,21 @@
     </Section>
 
     <Section title="Spellbook" subtitle="View your spellbook">
-        <a href={"/characters/" + data.characterId + "/spells" } class="btn w-full preset-filled-primary-500">Edit Spells</a>
-        {#if character.selectedSpellIds.length ?? []}
-            {#each character.selectedSpellIds as spell}
-                <pre>{JSON.stringify(spell, null, 2)}</pre>
-            {/each}
-        {:else if spells.current?.length ?? []}
+        {#if !spells.current?.length}
             <aside class="card preset-filled-warning-500 p-4">
-                <strong class="text-xl">No Prepared Spells</strong>
-                <p>You have not prepared any spells yet.</p>
-            </aside>
-        {:else}
-            <aside class="card preset-filled-warning-500 p-4">
-                <strong class="text-xl">No Imported Spells</strong>
+                <strong class="text-xl">No imported spells</strong>
                 <p>You have not imported any spells yet.</p>
             </aside>
+            <a href="/spells/import" class="btn preset-filled-primary-500 w-full">Go Import Spells</a>
+        {:else if !character.selectedSpellIds.length}
+            <aside class="card preset-filled-warning-500 p-4">
+                <strong class="text-xl">No prepared spells</strong>
+                <p>You have not prepared any spells yet.</p>
+            </aside>
+            <a href={"/characters/" + data.characterId + "/spells" } class="btn w-full preset-filled-primary-500">Edit Spells</a>
+        {:else}
+            the actual spell list goes here...
+            <a href={"/characters/" + data.characterId + "/spells" } class="btn w-full preset-filled-primary-500">Edit Spells</a>
         {/if}
     </Section>
 </div>
@@ -532,7 +530,7 @@
 
     <ConcentrationCard spell={concentratingSpell} onDrop={dropConcentration}/>
 
-    <SectionHeader title={`Spells (${spells.length})`} subtitle={`These are the spells selected for ${character.name}.`}/>
+    <SectionHeader title={`Spells (${allSpells.length})`} subtitle={`These are the spells selected for ${character.name}.`}/>
     <Accordion collapsible value={openSpellId} onValueChange={(details) => (openSpellId = details.value)}>
         {#each filteredSpells as s (s.id)}
             <Accordion.Item value={s.id} class="preset-tonal border-l-4 border-l-primary-500 rounded-r-2xl" style={`filter: hue-rotate(${s.level * 90}deg)`}>
@@ -668,7 +666,7 @@
             </Accordion.Item>
         {/each}
         <div class="space-y-2">
-            {#each spells.slice(0, spells.length - filteredSpells.length) as _, i (i)}
+            {#each allSpells.slice(0, allSpells.length - filteredSpells.length) as _, i (i)}
                 <div class="h-8"></div>
             {/each}
         </div>

@@ -57,17 +57,20 @@
     </Section>
 
     <Section title="Spellbook" subtitle="Select character spells, prepared spells, always prepared, and free casts.">
-        <a href={"/characters/" + data.characterId + "/spells" } class="btn w-full preset-filled-primary-500">Edit Spells</a>
-        {#if !character.selectedSpellIds?.length && spells.current?.length}
-            <aside class="card preset-filled-warning-500 p-4">
-                <strong class="text-xl">No Prepared Spells</strong>
-                <p>You have not prepared any spells yet.</p>
-            </aside>
-        {:else}
+        {#if !spells.current?.length}
             <aside class="card preset-filled-warning-500 p-4">
                 <strong class="text-xl">No Imported Spells</strong>
                 <p>You have not imported any spells yet.</p>
             </aside>
+            <a href="/spells/import" class="btn w-full preset-filled-primary-500">Import Spells</a>
+        {:else if !character.selectedSpellIds.length}
+            <aside class="card preset-filled-warning-500 p-4">
+                <strong class="text-xl">No Prepared Spells</strong>
+                <p>You have not prepared any spells yet.</p>
+            </aside>
+            <a href={"/characters/" + character.id + "/spells"} class="btn w-full preset-filled-primary-500">Prepare Spells</a>
+        {:else}
+            <a href={"/characters/" + character.id + "/spells"} class="btn w-full preset-filled-primary-500">Prepare Spells</a>
         {/if}
     </Section>
 

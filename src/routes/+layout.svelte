@@ -51,6 +51,7 @@
                     <ul class="space-y-1">
                         <li><a class="anchor" href="/">Home</a></li>
                         <li><a class="anchor" href="/backup">Backup</a></li>
+                        <li><a class="anchor" href="/spells">Spells</a></li>
                         <li><a class="anchor" href="/settings">Settings</a></li>
                         <li><a class="anchor" href="/debug">Debug</a></li>
                     </ul>

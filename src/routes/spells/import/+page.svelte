@@ -1,7 +1,6 @@
 <script lang="ts">
     import PageHeader from "$lib/components/PageHeader.svelte";
     import SectionHeader from "$lib/components/SectionHeader.svelte";
-    import { convertToRawLink } from "$lib/utils/convertToRawLink";
     import { spells } from "$lib/stores/stores";
     import { convertSpellCsvRows } from "$lib/types/spell";
     import type { Spell } from "$lib/types/spell";
@@ -9,6 +8,7 @@
         buildSpellFromCsvRow,
         createSourceEntries,
         enrichSpellsWithLookupClasses,
+        getSpellIndexUrlFromRepositoryUrl,
         getSpellSourceLookupUrl,
         type SpellSourceLookup,
         type SourceEntry,
@@ -27,8 +27,8 @@
      * The JSON contents of the file are then parsed and converted to an array of spells and stored locally on the client, in localStorage.
      * */
 
-    let originalUrl = $state<string>("");
-    let converted = $derived.by(() => convertToRawLink(originalUrl));
+    let repositoryUrl = $state<string>("");
+    let indexUrl = $state<string>("");
     let sourceEntries = $state<SourceEntry[]>([]);
     let isLoadingSources = $state(false);
     let isImportingSources = $state(false);
@@ -52,21 +52,23 @@
         importSummary = "";
         sourceEntries = [];
 
-        if (!converted.trim()) {
-            loadError = "Please enter a valid index URL first.";
+        if (!repositoryUrl.trim()) {
+            loadError = "Please enter a valid repository URL first.";
             return;
         }
 
         isLoadingSources = true;
 
         try {
-            const response = await fetch(converted);
+            indexUrl = getSpellIndexUrlFromRepositoryUrl(repositoryUrl);
+
+            const response = await fetch(indexUrl);
             if (!response.ok) {
                 throw new Error(`Failed to load index file (${response.status}).`);
             }
 
             const payload = await response.json();
-            sourceEntries = createSourceEntries(payload, converted);
+            sourceEntries = createSourceEntries(payload, indexUrl);
         } catch (error) {
             loadError = error instanceof Error ? error.message : "Unable to load the index file.";
         } finally {
@@ -93,7 +95,7 @@
         let spellsUpdated = 0;
 
         try {
-            const lookupUrl = getSpellSourceLookupUrl(converted);
+            const lookupUrl = getSpellSourceLookupUrl(indexUrl);
             const lookupResponse = await fetch(lookupUrl);
             if (!lookupResponse.ok) {
                 throw new Error(`Failed to fetch spell class lookup (${lookupResponse.status}).`);
@@ -133,8 +135,9 @@
 <div class="space-y-4">
     <div class="card preset-tonal p-4 space-y-4">
         <label class="label">
-            <span class="label-text">Data Index URL</span>
-            <input type="url" class="input" placeholder="https://example.com/data/spells/index.json" bind:value={originalUrl} />
+            <span class="label-text">Repository URL</span>
+            <input type="url" class="input" placeholder="https://github.com/owner/repository" bind:value={repositoryUrl} />
+            <span class="label-text">Index URL: {indexUrl || "(derived when loading sources)"}</span>
         </label>
 
         <div class="flex gap-3">

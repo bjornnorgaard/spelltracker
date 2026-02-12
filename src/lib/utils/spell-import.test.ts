@@ -6,6 +6,7 @@ import {
     normalizeClassName,
     parseSpellClasses,
     enrichSpellsWithLookupClasses,
+    getSpellIndexUrlFromRepositoryUrl,
     getSpellSourceLookupUrl,
     selectAllSources,
     selectRecommendedSources,
@@ -41,6 +42,35 @@ describe("getSpellSourceLookupUrl", () => {
 
         expect(result).toBe(
             "https://raw.githubusercontent.com/5etools-mirror-3/5etools-src/refs/heads/main/data/generated/gendata-spell-source-lookup.json"
+        );
+    });
+});
+
+describe("getSpellIndexUrlFromRepositoryUrl", () => {
+    it("derives spells index URL from github repo URL", () => {
+        const repositoryUrl = "https://github.com/5etools-mirror-3/5etools-src";
+        const result = getSpellIndexUrlFromRepositoryUrl(repositoryUrl);
+
+        expect(result).toBe(
+            "https://raw.githubusercontent.com/5etools-mirror-3/5etools-src/refs/heads/main/data/spells/index.json"
+        );
+    });
+
+    it("uses branch from github tree URL", () => {
+        const repositoryUrl = "https://github.com/5etools-mirror-3/5etools-src/tree/dev";
+        const result = getSpellIndexUrlFromRepositoryUrl(repositoryUrl);
+
+        expect(result).toBe(
+            "https://raw.githubusercontent.com/5etools-mirror-3/5etools-src/refs/heads/dev/data/spells/index.json"
+        );
+    });
+
+    it("supports owner/repo shorthand input", () => {
+        const repositoryUrl = "5etools-mirror-3/5etools-src";
+        const result = getSpellIndexUrlFromRepositoryUrl(repositoryUrl);
+
+        expect(result).toBe(
+            "https://raw.githubusercontent.com/5etools-mirror-3/5etools-src/refs/heads/main/data/spells/index.json"
         );
     });
 });

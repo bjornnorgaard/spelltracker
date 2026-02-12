@@ -11,6 +11,7 @@ export type SourceEntry = {
 export type SpellSourceLookup = Record<string, Record<string, unknown>>;
 
 const SPELL_SOURCE_LOOKUP_PATH = "/data/generated/gendata-spell-source-lookup.json";
+const SPELL_INDEX_PATH = "/data/spells/index.json";
 
 export function sourceFileToUrl(fileName: string, indexUrl: string): string {
     try {
@@ -37,6 +38,58 @@ export function getSpellSourceLookupUrl(indexUrl: string): string {
         return new URL("../generated/gendata-spell-source-lookup.json", parsed).toString();
     } catch {
         return SPELL_SOURCE_LOOKUP_PATH;
+    }
+}
+
+export function getSpellIndexUrlFromRepositoryUrl(repositoryUrl: string): string {
+    try {
+        const shorthandMatch = repositoryUrl.trim().match(/^([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)$/);
+        if (shorthandMatch) {
+            const owner = shorthandMatch[1];
+            const repo = shorthandMatch[2];
+            return `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/main${SPELL_INDEX_PATH}`;
+        }
+
+        const parsed = new URL(repositoryUrl);
+
+        if (parsed.hostname === "github.com") {
+            const parts = parsed.pathname.split("/").filter(Boolean);
+            if (parts.length < 2) {
+                throw new Error("Repository URL must include owner and repository name.");
+            }
+
+            const owner = parts[0];
+            const repo = parts[1];
+            const treeIndex = parts.findIndex((part) => part === "tree");
+            const branch = treeIndex >= 0 && parts[treeIndex + 1] ? parts[treeIndex + 1] : "main";
+
+            return `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/${branch}${SPELL_INDEX_PATH}`;
+        }
+
+        if (parsed.hostname === "raw.githubusercontent.com") {
+            const parts = parsed.pathname.split("/").filter(Boolean);
+            if (parts.length < 2) {
+                throw new Error("Raw repository URL must include owner and repository name.");
+            }
+
+            const owner = parts[0];
+            const repo = parts[1];
+            let branch = "main";
+
+            const refsIndex = parts.findIndex((part) => part === "refs");
+            if (refsIndex >= 0 && parts[refsIndex + 2]) {
+                branch = parts[refsIndex + 2];
+            }
+
+            return `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/${branch}${SPELL_INDEX_PATH}`;
+        }
+
+        throw new Error("Please provide a GitHub repository URL.");
+    } catch (error) {
+        if (error instanceof Error) {
+            throw error;
+        }
+        throw new Error("Invalid repository URL.");
     }
 }
 

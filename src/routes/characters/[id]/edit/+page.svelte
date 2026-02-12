@@ -102,7 +102,7 @@
             </label>
             <label class="label">
                 <span class="label-text">Prepared Spells</span>
-                <input type="number" min={1} max={25} class="input preset-tonal" bind:value={c.preparedLimit} required>
+                <input type="number" min={1} max={25} class="input preset-tonal" bind:value={c.preparedSpellsLimit} required>
             </label>
         </div>
 

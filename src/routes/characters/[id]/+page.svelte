@@ -465,7 +465,7 @@
                                         class:preset-filled-primary-500={character.preparedSpellIds?.includes(s.id)}
                                         class:preset-tonal-surface={!character.preparedSpellIds?.includes(s.id)}>
                                     {#snippet preparedStatus()}
-                                        ({character.preparedSpellIds?.length ?? 0}/{character.preparedLimit})
+                                        ({character.preparedSpellIds?.length ?? 0}/{character.preparedSpellsLimit})
                                     {/snippet}
                                     {#if character.preparedSpellIds?.includes(s.id)}
                                         Prepared

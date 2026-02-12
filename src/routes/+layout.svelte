@@ -82,7 +82,7 @@
         </button>
     </header>
 
-    <main class="mx-auto max-w-xl p-4 flex-1 w-full">
+    <main class="mx-auto max-w-xl p-4 mb-4 flex-1 w-full">
         {@render children()}
     </main>
 

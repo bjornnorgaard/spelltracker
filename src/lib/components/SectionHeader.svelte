@@ -3,4 +3,4 @@
 </script>
 
 <h1 class="preset-typo-title mb-0">{title}</h1>
-<p class="preset-typo-caption opacity-75 leading-4">{subtitle}</p>
+<p class="preset-typo-caption leading-4">{subtitle}</p>

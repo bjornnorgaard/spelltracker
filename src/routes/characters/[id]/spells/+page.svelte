@@ -262,7 +262,11 @@
                 <p class="text-xs uppercase tracking-wide opacity-70">Filter by level</p>
                 <div class="flex flex-wrap gap-2">
                     {#each spellLevels as level (level)}
-                        <button class="btn btn-sm" class:preset-filled-primary-500={levelFilters.includes(level)} class:preset-tonal={!levelFilters.includes(level)} onclick={() => toggleLevelFilter(level)}>
+                        <button
+                            class="btn btn-sm"
+                            class:preset-filled-primary-500={levelFilters.includes(level)}
+                            class:preset-tonal={!levelFilters.includes(level)}
+                            onclick={() => toggleLevelFilter(level)}>
                             {levelLabel(level)}
                         </button>
                     {/each}

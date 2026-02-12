@@ -8,11 +8,35 @@ export type SourceEntry = {
     selected: boolean;
 };
 
+export type SpellSourceLookup = Record<string, Record<string, unknown>>;
+
+const SPELL_SOURCE_LOOKUP_PATH = "/data/generated/gendata-spell-source-lookup.json";
+
 export function sourceFileToUrl(fileName: string, indexUrl: string): string {
     try {
         return new URL(fileName, indexUrl).toString();
     } catch {
         return fileName;
+    }
+}
+
+export function getSpellSourceLookupUrl(indexUrl: string): string {
+    try {
+        const parsed = new URL(indexUrl);
+
+        if (parsed.pathname.endsWith("/data/spells/index.json")) {
+            parsed.pathname = parsed.pathname.replace(
+                /\/data\/spells\/index\.json$/,
+                SPELL_SOURCE_LOOKUP_PATH,
+            );
+            parsed.search = "";
+            parsed.hash = "";
+            return parsed.toString();
+        }
+
+        return new URL("../generated/gendata-spell-source-lookup.json", parsed).toString();
+    } catch {
+        return SPELL_SOURCE_LOOKUP_PATH;
     }
 }
 
@@ -110,6 +134,56 @@ export function buildSpellFromCsvRow(row: SpellCsvRow): Spell {
         text: row.text,
         atHigherLevels: row.atHigherLevels,
     };
+}
+
+function getClassesFromLookup(lookup: SpellSourceLookup, spellSource: string, spellName: string): string[] {
+    const sourceKey = spellSource.toLowerCase();
+    const spellKey = spellName.toLowerCase();
+
+    const sourceLookup = lookup[sourceKey];
+    if (!sourceLookup || typeof sourceLookup !== "object") {
+        return [];
+    }
+
+    const lookupEntry = sourceLookup[spellKey] as Record<string, unknown> | undefined;
+    if (!lookupEntry || typeof lookupEntry !== "object") {
+        return [];
+    }
+
+    const classTree = lookupEntry.class as Record<string, unknown> | undefined;
+    if (!classTree || typeof classTree !== "object") {
+        return [];
+    }
+
+    const classNames = new Set<string>();
+
+    for (const sourceVersionMap of Object.values(classTree)) {
+        if (!sourceVersionMap || typeof sourceVersionMap !== "object") continue;
+
+        for (const [className, enabled] of Object.entries(sourceVersionMap as Record<string, unknown>)) {
+            if (!enabled) continue;
+            const normalized = normalizeClassName(className);
+            if (normalized) classNames.add(normalized);
+        }
+    }
+
+    return [...classNames];
+}
+
+export function enrichSpellWithLookupClasses(spell: Spell, lookup: SpellSourceLookup): Spell {
+    const lookupClasses = getClassesFromLookup(lookup, spell.source, spell.name);
+    if (!lookupClasses.length) {
+        return spell;
+    }
+
+    return {
+        ...spell,
+        classes: [...new Set([...lookupClasses, ...(spell.classes ?? [])].map(normalizeClassName).filter(Boolean))],
+    };
+}
+
+export function enrichSpellsWithLookupClasses(spellList: Spell[], lookup: SpellSourceLookup): Spell[] {
+    return spellList.map((spell) => enrichSpellWithLookupClasses(spell, lookup));
 }
 
 export function upsertSpellsByNameSource(existingSpells: Spell[], incomingSpells: Spell[]): {

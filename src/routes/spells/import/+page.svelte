@@ -8,6 +8,9 @@
     import {
         buildSpellFromCsvRow,
         createSourceEntries,
+        enrichSpellsWithLookupClasses,
+        getSpellSourceLookupUrl,
+        type SpellSourceLookup,
         type SourceEntry,
         selectAllSources,
         selectRecommendedSources,
@@ -90,6 +93,13 @@
         let spellsUpdated = 0;
 
         try {
+            const lookupUrl = getSpellSourceLookupUrl(converted);
+            const lookupResponse = await fetch(lookupUrl);
+            if (!lookupResponse.ok) {
+                throw new Error(`Failed to fetch spell class lookup (${lookupResponse.status}).`);
+            }
+            const lookupPayload = (await lookupResponse.json()) as SpellSourceLookup;
+
             for (const entry of selectedSources) {
                 const response = await fetch(entry.url);
                 if (!response.ok) {
@@ -98,7 +108,7 @@
 
                 const sourcePayload = await response.json();
                 const rows = convertSpellCsvRows(sourcePayload);
-                const incomingSpells = rows.map(buildSpellFromCsvRow);
+                const incomingSpells = enrichSpellsWithLookupClasses(rows.map(buildSpellFromCsvRow), lookupPayload);
                 const mergeResult = upsertSpellsByNameSource(currentSpells, incomingSpells);
                 currentSpells = mergeResult.spells;
                 spellsAdded += mergeResult.added;

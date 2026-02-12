@@ -5,6 +5,8 @@ import {
     createSourceEntries,
     normalizeClassName,
     parseSpellClasses,
+    enrichSpellsWithLookupClasses,
+    getSpellSourceLookupUrl,
     selectAllSources,
     selectRecommendedSources,
     sourceFileToUrl,
@@ -29,6 +31,17 @@ describe("sourceFileToUrl", () => {
         const result = sourceFileToUrl("spells-phb.json", "not-a-valid-url");
 
         expect(result).toBe("spells-phb.json");
+    });
+});
+
+describe("getSpellSourceLookupUrl", () => {
+    it("derives generated lookup URL from spells index URL", () => {
+        const indexUrl = "https://raw.githubusercontent.com/5etools-mirror-3/5etools-src/refs/heads/main/data/spells/index.json";
+        const result = getSpellSourceLookupUrl(indexUrl);
+
+        expect(result).toBe(
+            "https://raw.githubusercontent.com/5etools-mirror-3/5etools-src/refs/heads/main/data/generated/gendata-spell-source-lookup.json"
+        );
     });
 });
 
@@ -191,6 +204,47 @@ describe("example-data import smoke", () => {
             expect(typeof spell.classes).toBe("object");
             expect(spell.classes.every((className) => typeof className === "string")).toBe(true);
         }
+    });
+});
+
+describe("lookup class enrichment", () => {
+    it("enriches imported spell classes using source lookup payload", () => {
+        const lookupPayload = {
+            phb: {
+                "acid splash": {
+                    class: {
+                        PHB: {
+                            Wizard: true,
+                            Sorcerer: true,
+                        },
+                        XPHB: {
+                            Wizard: true,
+                        },
+                    },
+                },
+            },
+        };
+
+        const baseSpell: Spell = {
+            id: "acid splash|phb",
+            name: "Acid Splash",
+            source: "PHB",
+            page: "211",
+            level: 0,
+            castingTime: "1 action",
+            duration: "Instantaneous",
+            school: "Conjuration",
+            range: "60 feet",
+            components: "V, S",
+            classes: [],
+            subclasses: "",
+            text: "You hurl a bubble of acid.",
+            atHigherLevels: "",
+        };
+
+        const result = enrichSpellsWithLookupClasses([baseSpell], lookupPayload);
+
+        expect(result[0].classes).toEqual(["Wizard", "Sorcerer"]);
     });
 });
 

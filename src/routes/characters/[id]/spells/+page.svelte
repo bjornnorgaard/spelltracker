@@ -296,47 +296,44 @@
                 <button class="btn btn-sm preset-tonal" onclick={clearFilters}>Clear filters</button>
             </div>
         </div>
-        <p class="text-xs opacity-70">Use Prepared in the header for quick toggles. Expand only for Select/Always/Free-casts/Notes.</p>
+        <p class="text-xs opacity-70">Use Prepare in the header for quick toggles. Expand for Select/Always/Free-casts/Notes.</p>
         {#if spells.length === 0}
             <p class="text-center opacity-70">No spells match this search.</p>
         {:else}
             <Accordion collapsible value={openSpellId} onValueChange={(details) => (openSpellId = details.value)}>
                 {#each spells as spell (spell.id)}
-                    <Accordion.Item value={spell.id} class="preset-tonal border-l-4 border-l-primary-500 rounded-r-2xl" style={`filter: hue-rotate(${spell.level * 90}deg)`}>
-                        <Accordion.ItemTrigger class="font-bold flex items-center justify-between gap-3">
-                            <div>
+                    <Accordion.Item value={spell.id} class="preset-tonal border-l-2 border-l-primary-500 rounded-r-xl" style={`filter: hue-rotate(${spell.level * 90}deg)`}>
+                        <Accordion.ItemTrigger class="font-bold flex items-start justify-between gap-3">
+                            <div class="space-y-1">
                                 <div class="font-semibold">{spell.name}</div>
                                 <div class="text-xs opacity-70">{formatSpellLevelLong(spell.level)}</div>
+                                <div class="flex flex-wrap items-center gap-1 text-xs">
+                                    {#if isSelected(spell.id)}
+                                        <span class="badge preset-filled-primary-500">Selected</span>
+                                    {/if}
+                                    {#if isPrepared(spell.id)}
+                                        <span class="badge preset-filled-secondary-500">Prepared</span>
+                                    {/if}
+                                    {#if isAlwaysPrepared(spell.id)}
+                                        <span class="badge preset-filled-tertiary-500">Always</span>
+                                    {/if}
+                                </div>
                             </div>
                             <div class="flex items-center gap-2">
                                 <button
-                                    class="btn btn-sm"
+                                    class="btn btn-sm px-2"
                                     class:preset-filled-secondary-500={isPrepared(spell.id)}
                                     class:preset-tonal={!isPrepared(spell.id)}
                                     onclick={(event) => togglePreparedFromHeader(spell.id, event)}>
                                     {#if isPrepared(spell.id)}
-                                        Prepared
+                                        Ready
                                         <CircleCheckBig />
                                     {:else}
-                                        Mark Prepared
+                                        Prepare
                                         <Circle />
                                     {/if}
                                 </button>
-                                <Accordion.ItemIndicator class="group">
-                                    <div class="flex items-center gap-2 text-xs">
-                                        {#if isSelected(spell.id)}
-                                            <span class="badge preset-filled-primary-500">Selected</span>
-                                        {/if}
-                                        {#if isPrepared(spell.id)}
-                                            <span class="badge preset-filled-secondary-500">Prepared</span>
-                                        {/if}
-                                        {#if isAlwaysPrepared(spell.id)}
-                                            <span class="badge preset-filled-tertiary-500">Always</span>
-                                        {/if}
-                                        <span class="badge preset-filled-surface-500">Long {getCount(character.freePerLongRestSpells, spell.id)}</span>
-                                        <span class="badge preset-filled-surface-500">Short {getCount(character.freePerShortRestSpells, spell.id)}</span>
-                                    </div>
-                                </Accordion.ItemIndicator>
+                                <Accordion.ItemIndicator class="group" />
                             </div>
                         </Accordion.ItemTrigger>
                         <Accordion.ItemContent>

@@ -149,11 +149,12 @@ describe('validateSpell', () => {
             castingTime: 'Action',
             duration: 'Instantaneous',
             school: 'Evocation',
+            ritual: false,
             range: '150 feet',
             components: 'V, S, M',
             classes: ['Sorcerer', 'Wizard'],
             optionalClasses: [],
-            subclasses: [],
+            subclasses: '',
             text: 'A bright streak...',
             atHigherLevels: 'Damage increases...'
         };
@@ -172,11 +173,12 @@ describe('validateSpell', () => {
             castingTime: 'Action',
             duration: 'Instantaneous',
             school: 'Evocation',
+            ritual: false,
             range: '150 feet',
             components: 'V, S, M',
             classes: ['Sorcerer'],
             optionalClasses: [],
-            subclasses: [],
+            subclasses: '',
             text: 'Test',
             atHigherLevels: ''
         };
@@ -196,11 +198,12 @@ describe('validateSpell', () => {
             castingTime: 'Action',
             duration: 'Instant',
             school: 'Evocation',
+            ritual: false,
             range: '30 ft',
             components: 'V',
             classes: ['Wizard'],
             optionalClasses: [],
-            subclasses: [],
+            subclasses: '',
             text: 'Test',
             atHigherLevels: ''
         };
@@ -221,11 +224,12 @@ describe('validateSpell', () => {
             castingTime: 'Action',
             duration: 'Instant',
             school: '',
+            ritual: false,
             range: '30 ft',
             components: 'V',
             classes: ['Wizard'],
             optionalClasses: [],
-            subclasses: [],
+            subclasses: '',
             text: 'Test',
             atHigherLevels: ''
         };
@@ -244,11 +248,12 @@ describe('validateSpell', () => {
             castingTime: 'Action',
             duration: 'Instant',
             school: 'Evocation',
+            ritual: false,
             range: '30 ft',
             components: 'V',
             classes: [],
             optionalClasses: [],
-            subclasses: [],
+            subclasses: '',
             text: 'Test',
             atHigherLevels: ''
         };

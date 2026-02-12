@@ -3,9 +3,9 @@
     import SectionHeader from "$lib/components/SectionHeader.svelte";
     import { convertToRawLink } from "$lib/utils/convertToRawLink";
     import { app } from "$lib/stores/app.svelte";
-    import { convertSpellCsvRows, type SpellCsvRow } from "$lib/types/spell";
+    import { convertSpellCsvRows } from "$lib/types/spell";
     import type { Spell } from "$lib/types/spell";
-    import { parseSpellLevel } from "$lib/utils/spell-formatter";
+    import { buildSpellFromCsvRow, createSourceEntries, type SourceEntry, selectAllSources, selectRecommendedSources } from "$lib/utils/spell-import";
 
     /*
      * The user is expected to provide this specific URL: https://github.com/5etools-mirror-3/5etools-src/blob/main/data/spells/index.json
@@ -16,13 +16,6 @@
      *
      * The JSON contents of the file are then parsed and converted to an array of spells and stored locally on the client, in localStorage.
      * */
-
-    type SourceEntry = {
-        source: string;
-        fileName: string;
-        url: string;
-        selected: boolean;
-    };
 
     let originalUrl = $state<string>("");
     let converted = $derived.by(() => convertToRawLink(originalUrl));
@@ -35,51 +28,12 @@
 
     const selectedCount = $derived.by(() => sourceEntries.filter((entry) => entry.selected).length);
 
-    function sourceFileToUrl(fileName: string, indexUrl: string): string {
-        try {
-            return new URL(fileName, indexUrl).toString();
-        } catch {
-            return fileName;
-        }
-    }
-
-    function splitCommaValues(value: string): string[] {
-        return value
-            .split(",")
-            .map((part) => part.trim())
-            .filter((part) => part.length > 0);
-    }
-
-    function buildSpellFromCsvRow(row: SpellCsvRow): Spell {
-        return {
-            id: `${row.name}|${row.source}`.toLowerCase(),
-            name: row.name,
-            source: row.source,
-            page: row.page,
-            level: parseSpellLevel(row.level),
-            castingTime: row.castingTime,
-            duration: row.duration,
-            school: row.school,
-            range: row.range,
-            components: row.components,
-            classes: splitCommaValues(row.classes),
-            subclasses: row.subclasses,
-            text: row.text,
-            atHigherLevels: row.atHigherLevels,
-        };
-    }
-
     function setAllSelected(selected: boolean) {
-        for (const entry of sourceEntries) {
-            entry.selected = selected;
-        }
+        sourceEntries = selectAllSources(sourceEntries, selected);
     }
 
     function setRecommendedSelected() {
-        const recommended = new Set(["TCE", "XGE", "XPHB"]);
-        for (const entry of sourceEntries) {
-            entry.selected = recommended.has(entry.source.toUpperCase());
-        }
+        sourceEntries = selectRecommendedSources(sourceEntries);
     }
 
     async function loadSources() {
@@ -102,24 +56,7 @@
             }
 
             const payload = await response.json();
-            if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
-                throw new Error("The index file must be a JSON object of source-to-file mappings.");
-            }
-
-            const entries = Object.entries(payload)
-                .filter((item): item is [string, string] => typeof item[0] === "string" && typeof item[1] === "string")
-                .map(([source, fileName]) => ({
-                    source,
-                    fileName,
-                    url: sourceFileToUrl(fileName, converted),
-                    selected: true,
-                }));
-
-            if (!entries.length) {
-                throw new Error("No source files were found in this index.");
-            }
-
-            sourceEntries = entries;
+            sourceEntries = createSourceEntries(payload, converted);
         } catch (error) {
             loadError = error instanceof Error ? error.message : "Unable to load the index file.";
         } finally {
@@ -189,8 +126,6 @@
 <PageHeader title="Import Spells" subtitle="Bootstrap and update your local data" />
 
 <div class="space-y-4">
-    <SectionHeader title="Import Spells" subtitle="Provide URL to data index JSON" />
-
     <div class="card preset-tonal p-4 space-y-4">
         <label class="label">
             <span class="label-text">Data Index URL</span>

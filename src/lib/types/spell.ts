@@ -15,22 +15,6 @@ export interface Spell {
     atHigherLevels: string;
 }
 
-/*
-Usage:
-
-import {convertSpellCsvRows, type SpellCsvRow, type SpellDataFile} from "./5etools-spell-csv-standalone";
-
-// 1) From JSON text
-const rowsFromJson: SpellCsvRow[] = convertSpellCsvRows(jsonText);
-
-// 2) From parsed data file shape
-const dataFile: SpellDataFile = {spell: [...]};
-const rowsFromDataFile: SpellCsvRow[] = convertSpellCsvRows(dataFile);
-
-// 3) From spell array
-const rowsFromArray: SpellCsvRow[] = convertSpellCsvRows(dataFile.spell);
-*/
-
 export interface SpellCsvRow {
     name: string;
     source: string;

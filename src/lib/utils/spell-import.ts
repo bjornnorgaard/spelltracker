@@ -140,6 +140,46 @@ export function normalizeClassName(value: string): string {
     return value.replace(/\s*\([^)]*\)\s*$/g, "").trim();
 }
 
+const SCHOOL_CODE_TO_NAME: Record<string, string> = {
+    A: "Abjuration",
+    C: "Conjuration",
+    D: "Divination",
+    E: "Enchantment",
+    V: "Evocation",
+    I: "Illusion",
+    N: "Necromancy",
+    T: "Transmutation",
+};
+
+const SCHOOL_NAME_NORMALIZATION: Record<string, string> = {
+    abjuration: "Abjuration",
+    conjuration: "Conjuration",
+    divination: "Divination",
+    enchantment: "Enchantment",
+    evocation: "Evocation",
+    illusion: "Illusion",
+    necromancy: "Necromancy",
+    transmutation: "Transmutation",
+};
+
+export function normalizeSpellSchoolName(value: string): string {
+    const trimmed = String(value ?? "").trim();
+    if (!trimmed) return "";
+
+    const ritualSuffixRemoved = trimmed.replace(/\s*\(\s*ritual\s*\)\s*$/i, "").trim();
+    if (ritualSuffixRemoved.length === 1) {
+        return SCHOOL_CODE_TO_NAME[ritualSuffixRemoved.toUpperCase()] ?? ritualSuffixRemoved;
+    }
+
+    const lower = ritualSuffixRemoved.toLowerCase();
+    return SCHOOL_NAME_NORMALIZATION[lower] ?? ritualSuffixRemoved;
+}
+
+export function parseSpellRitual(value: string, explicitRitual?: boolean): boolean {
+    if (explicitRitual === true) return true;
+    return /\(\s*ritual\s*\)/i.test(String(value ?? ""));
+}
+
 function parseClassesFromSubclasses(subclasses: unknown): string[] {
     if (typeof subclasses !== "string" || !subclasses.trim()) {
         return [];
@@ -189,6 +229,8 @@ export function makeSpellId(name: string, source: string): string {
 }
 
 export function buildSpellFromCsvRow(row: SpellCsvRow): Spell {
+    const ritual = parseSpellRitual(row.school, row.ritual);
+
     return {
         id: makeSpellId(row.name, row.source),
         name: row.name,
@@ -197,7 +239,8 @@ export function buildSpellFromCsvRow(row: SpellCsvRow): Spell {
         level: parseSpellLevel(row.level),
         castingTime: row.castingTime,
         duration: row.duration,
-        school: row.school,
+        school: normalizeSpellSchoolName(row.school),
+        ritual,
         range: row.range,
         components: row.components,
         classes: parseSpellClasses(row.classes, row.optionalVariantClasses, row.subclasses),

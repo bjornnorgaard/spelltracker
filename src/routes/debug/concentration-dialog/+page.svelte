@@ -12,9 +12,11 @@
         castingTime: "1 action",
         duration: "Concentration, up to 1 minute",
         school: "Enchantment",
+        ritual: false,
         range: "30 feet",
         components: "V, S, M (a sprinkling of holy water)",
         classes: ["Cleric", "Paladin"],
+        subclasses: "",
         text: "You bless up to three creatures of your choice within range.",
         atHigherLevels: "When you cast this spell using a spell slot of 2nd level or higher, you can target one additional creature for each slot level above 1st.",
     };
@@ -28,9 +30,11 @@
         castingTime: "1 action",
         duration: "Concentration, up to 1 minute",
         school: "Enchantment",
+        ritual: false,
         range: "60 feet",
         components: "V, S, M (a small, straight piece of iron)",
         classes: ["Bard", "Cleric", "Druid", "Sorcerer", "Warlock", "Wizard"],
+        subclasses: "",
         text: "Choose a humanoid that you can see within range. The target must succeed on a Wisdom saving throw or be paralyzed for the duration.",
         atHigherLevels: "When you cast this spell using a spell slot of 3rd level or higher, you can target one additional humanoid for each slot level above 2nd.",
     };

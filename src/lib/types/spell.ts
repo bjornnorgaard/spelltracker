@@ -7,6 +7,7 @@ export interface Spell {
     castingTime: string;
     duration: string;
     school: string;
+    ritual: boolean;
     range: string;
     components: string;
     classes: string[];
@@ -23,6 +24,7 @@ export interface SpellCsvRow {
     castingTime: string;
     duration: string;
     school: string;
+    ritual?: boolean;
     range: string;
     components: string;
     classes: string;
@@ -150,11 +152,23 @@ const _renderLevel = (level: number): string => {
 };
 
 const _renderSchool = (spell: _Spell): string => {
+    const SCHOOL_CODE_TO_NAME: Record<string, string> = {
+        A: "Abjuration",
+        C: "Conjuration",
+        D: "Divination",
+        E: "Enchantment",
+        V: "Evocation",
+        I: "Illusion",
+        N: "Necromancy",
+        T: "Transmutation",
+    };
+
+    const fullSchool = SCHOOL_CODE_TO_NAME[spell.school] ?? spell.school;
+
     return _joinNonEmpty([
-        spell.school,
+        fullSchool,
         spell.subschools?.length ? `(${spell.subschools.join(", ")})` : "",
-        spell.meta?.ritual ? "(R)" : "",
-        spell.meta?.technomagic ? "(T)" : "",
+        spell.meta?.technomagic ? "(Technomagic)" : "",
     ], " ").trim();
 };
 
@@ -284,6 +298,7 @@ const _spellToCsvRow = (spell: _Spell): SpellCsvRow => {
         castingTime: _renderCastingTime(spell.time || []),
         duration: _renderDuration(spell.duration || []),
         school: _renderSchool(spell),
+        ritual: Boolean(spell.meta?.ritual),
         range: _renderRange(spell.range),
         components: _renderComponents(spell.components),
         classes: _renderClassList(spell.classes, "fromClassList"),

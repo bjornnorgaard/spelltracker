@@ -1,4 +1,5 @@
 import type { Spell } from '$lib/types/spell';
+import { normalizeSpellSchoolName, parseSpellRitual } from '$lib/utils/spell-import';
 
 /**
  * CSV parsing result
@@ -47,6 +48,8 @@ function parseSpellRow(row: string[], headers: string[], rowIndex: number): Spel
             return null; // Skip rows without names
         }
 
+        const schoolRaw = getField('School');
+
         const spell: Spell = {
             id: crypto.randomUUID(),
             name,
@@ -55,10 +58,12 @@ function parseSpellRow(row: string[], headers: string[], rowIndex: number): Spel
             level: parseSpellLevel(getField('Level')),
             castingTime: getField('Casting Time'),
             duration: getField('Duration'),
-            school: getField('School'),
+            school: normalizeSpellSchoolName(schoolRaw),
+            ritual: parseSpellRitual(schoolRaw),
             range: getField('Range'),
             components: getField('Components'),
             classes: splitCSVValue(getField('Classes')),
+            subclasses: getField('Subclasses'),
             text: getField('Text'),
             atHigherLevels: getField('At Higher Levels')
         };

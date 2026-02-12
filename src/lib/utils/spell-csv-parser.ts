@@ -1,4 +1,5 @@
 import type { Spell } from '$lib/types/spell';
+import { normalizeSpellSchoolName, parseSpellRitual } from '$lib/utils/spell-import';
 
 /**
  * Parse CSV spell data into Spell objects
@@ -144,6 +145,8 @@ function parseSpellFromValues(headers: string[], values: string[]): Spell {
         .map((c) => c.trim())
         .filter((c) => c.length > 0);
 
+    const schoolRaw = getValueByHeader('School');
+
     return {
         id: crypto.randomUUID(),
         name,
@@ -152,10 +155,12 @@ function parseSpellFromValues(headers: string[], values: string[]): Spell {
         level,
         castingTime: getValueByHeader('Casting Time'),
         duration: getValueByHeader('Duration'),
-        school: getValueByHeader('School'),
+        school: normalizeSpellSchoolName(schoolRaw),
+        ritual: parseSpellRitual(schoolRaw),
         range: getValueByHeader('Range'),
         components: getValueByHeader('Components'),
         classes,
+        subclasses: subclasses.join(', '),
         text: getValueByHeader('Text'),
         atHigherLevels: getValueByHeader('At Higher Levels')
     };

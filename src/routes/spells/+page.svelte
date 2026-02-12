@@ -5,6 +5,7 @@
     import type { Spell } from "$lib/types/spell";
     import { DND_CLASSES, SPELL_LEVELS, SPELL_SCHOOLS } from "$lib/utils/constants";
     import { formatSpellLevelLong } from "$lib/utils/spell-formatter";
+    import { makeSpellId } from "$lib/utils/spell-import";
 
     let search = $state("");
     let selectedLevel = $state<string>("all");
@@ -16,7 +17,7 @@
     let allSpells = $derived.by<Spell[]>(() => (Array.isArray(spells.current) ? (spells.current as Spell[]) : []));
 
     function getExpectedId(spell: Spell): string {
-        return `${spell.name}|${spell.source}`.toLowerCase();
+        return makeSpellId(spell.name, spell.source);
     }
 
     function getSpellIssues(spell: Spell): string[] {

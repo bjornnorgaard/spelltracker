@@ -4,6 +4,7 @@ import {
     buildSpellFromCsvRow,
     createSourceEntries,
     normalizeClassName,
+    makeSpellId,
     parseSpellClasses,
     enrichSpellsWithLookupClasses,
     getSpellIndexUrlFromRepositoryUrl,
@@ -137,7 +138,7 @@ describe("buildSpellFromCsvRow", () => {
             atHigherLevels: "Damage increases by 1d6.",
         });
 
-        expect(spell.id).toBe("fireball|xphb");
+        expect(spell.id).toBe("fireball-xphb");
         expect(spell.level).toBe(3);
         expect(spell.classes).toEqual(["Wizard", "Sorcerer"]);
         expect(spell.subclasses).toBe("");
@@ -162,6 +163,16 @@ describe("buildSpellFromCsvRow", () => {
         });
 
         expect(spell.classes).toEqual(["Cleric", "Wizard", "Artificer"]);
+    });
+});
+
+describe("makeSpellId", () => {
+    it("creates a URL-safe id with source suffix", () => {
+        expect(makeSpellId("Fireball", "XPHB")).toBe("fireball-xphb");
+    });
+
+    it("replaces spaces with dashes and strips non-url-safe characters", () => {
+        expect(makeSpellId("Abi-Dalzim's Horrid Wilting", "PHB'24")).toBe("abi-dalzims-horrid-wilting-phb24");
     });
 });
 
@@ -256,7 +267,7 @@ describe("lookup class enrichment", () => {
         };
 
         const baseSpell: Spell = {
-            id: "acid splash|phb",
+            id: "acid-splash-phb",
             name: "Acid Splash",
             source: "PHB",
             page: "211",
@@ -292,7 +303,7 @@ describe("lookup class enrichment", () => {
         };
 
         const baseSpell: Spell = {
-            id: "control flames|xge",
+            id: "control-flames-xge",
             name: "Control Flames",
             source: "XGE",
             page: "152",
@@ -339,7 +350,7 @@ describe("source selection helpers", () => {
 });
 
 describe("upsertSpellsByNameSource", () => {
-    it("updates existing spells and rewrites id to deterministic name|source", () => {
+    it("updates existing spells and rewrites id to deterministic url-safe name-source", () => {
         const existing: Spell[] = [
             {
                 id: "0f4f857d-50de-4d9d-9f7d-0672bf7b88f2",
@@ -361,7 +372,7 @@ describe("upsertSpellsByNameSource", () => {
 
         const incoming: Spell[] = [
             {
-                id: "fireball|xphb",
+                id: "fireball-xphb",
                 name: "Fireball",
                 source: "XPHB",
                 page: "241",
@@ -383,7 +394,7 @@ describe("upsertSpellsByNameSource", () => {
         expect(result.added).toBe(0);
         expect(result.updated).toBe(1);
         expect(result.spells).toHaveLength(1);
-        expect(result.spells[0].id).toBe("fireball|xphb");
+        expect(result.spells[0].id).toBe("fireball-xphb");
         expect(result.spells[0].classes).toEqual(["Wizard", "Sorcerer"]);
     });
 
@@ -391,7 +402,7 @@ describe("upsertSpellsByNameSource", () => {
         const existing: Spell[] = [];
         const incoming: Spell[] = [
             {
-                id: "shield|xphb",
+                id: "shield-xphb",
                 name: "Shield",
                 source: "XPHB",
                 page: "275",
@@ -413,6 +424,6 @@ describe("upsertSpellsByNameSource", () => {
         expect(result.added).toBe(1);
         expect(result.updated).toBe(0);
         expect(result.spells).toHaveLength(1);
-        expect(result.spells[0].id).toBe("shield|xphb");
+        expect(result.spells[0].id).toBe("shield-xphb");
     });
 });

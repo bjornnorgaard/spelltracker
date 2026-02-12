@@ -170,9 +170,27 @@ export function parseSpellClasses(
     return [...new Set(allClassValues)];
 }
 
+function slugifyIdPart(value: string): string {
+    return value
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+    .replace(/['’]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .replace(/-+/g, "-");
+}
+
+export function makeSpellId(name: string, source: string): string {
+    const namePart = slugifyIdPart(name) || "spell";
+    const sourcePart = slugifyIdPart(source);
+
+    return sourcePart ? `${namePart}-${sourcePart}` : namePart;
+}
+
 export function buildSpellFromCsvRow(row: SpellCsvRow): Spell {
     return {
-        id: `${row.name}|${row.source}`.toLowerCase(),
+        id: makeSpellId(row.name, row.source),
         name: row.name,
         source: row.source,
         page: row.page,

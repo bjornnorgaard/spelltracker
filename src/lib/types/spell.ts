@@ -1,5 +1,5 @@
 export interface Spell {
-    id: string; // lower(name + "|" + source)
+    id: string; // url-safe lower(name + "-" + source)
     name: string;
     source: string;
     page: string;

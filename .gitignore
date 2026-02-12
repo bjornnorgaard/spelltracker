@@ -24,6 +24,3 @@ vite.config.ts.timestamp-*
 
 # Editor
 .idea
-
-# Inspiration App
-/5etools-src/

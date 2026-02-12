@@ -88,6 +88,10 @@
         return (character?.alwaysPreparedSpellIds ?? []).includes(spellId);
     }
 
+    function showSelectedBadge(spellId: string) {
+        return isSelected(spellId) && !isPrepared(spellId) && !isAlwaysPrepared(spellId);
+    }
+
     function toggleSelected(spellId: string) {
         if (!character) return;
 
@@ -308,7 +312,7 @@
                                 <div class="font-semibold">{spell.name}</div>
                                 <div class="text-xs opacity-70">{formatSpellLevelLong(spell.level)}</div>
                                 <div class="flex flex-wrap items-center gap-1 text-xs">
-                                    {#if isSelected(spell.id)}
+                                    {#if showSelectedBadge(spell.id)}
                                         <span class="badge preset-filled-primary-500">Selected</span>
                                     {/if}
                                     {#if isPrepared(spell.id)}

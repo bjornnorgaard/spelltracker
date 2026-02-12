@@ -81,7 +81,7 @@
             return;
         }
 
-        let currentSpells: Spell[] = Array.isArray(spells.current) ? [...(spells.current as Spell[])] : [];
+        let currentSpells: Spell[] = [];
 
         isImportingSources = true;
 
@@ -109,7 +109,7 @@
 
             spells.current = currentSpells;
 
-            importSummary = `Imported ${filesProcessed} source files. Added ${spellsAdded} spells and updated ${spellsUpdated}.`;
+            importSummary = `Imported ${filesProcessed} source files and replaced local spells with ${currentSpells.length} entries (${spellsAdded} added, ${spellsUpdated} merged duplicates).`;
         } catch (error) {
             importError = error instanceof Error ? error.message : "Import failed.";
         } finally {

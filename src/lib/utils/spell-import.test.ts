@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
     buildSpellFromCsvRow,
     createSourceEntries,
+    normalizeClassName,
+    parseSpellClasses,
     selectAllSources,
     selectRecommendedSources,
     sourceFileToUrl,
@@ -95,6 +97,43 @@ describe("buildSpellFromCsvRow", () => {
         expect(spell.level).toBe(3);
         expect(spell.classes).toEqual(["Wizard", "Sorcerer"]);
         expect(spell.subclasses).toBe("");
+    });
+
+    it("normalizes classes and includes optional variant classes", () => {
+        const spell = buildSpellFromCsvRow({
+            name: "Detect Magic",
+            source: "XPHB",
+            page: "262",
+            level: "1st",
+            castingTime: "1 action",
+            duration: "Concentration, up to 10 minutes",
+            school: "Divination",
+            range: "Self",
+            components: "V, S",
+            classes: "Cleric (PHB'24), Wizard (PHB'24)",
+            optionalVariantClasses: "Wizard (PHB'24), Artificer (EFA)",
+            subclasses: "",
+            text: "For the duration...",
+            atHigherLevels: "",
+        });
+
+        expect(spell.classes).toEqual(["Cleric", "Wizard", "Artificer"]);
+    });
+});
+
+describe("class parsing helpers", () => {
+    it("normalizeClassName removes trailing source parentheses", () => {
+        expect(normalizeClassName("Wizard (PHB'24)")).toBe("Wizard");
+        expect(normalizeClassName("Sorcerer")).toBe("Sorcerer");
+    });
+
+    it("parseSpellClasses merges, normalizes, and deduplicates", () => {
+        const result = parseSpellClasses(
+            "Wizard (PHB'24), Sorcerer (PHB'24)",
+            "Wizard (PHB'24), Artificer (EFA)",
+        );
+
+        expect(result).toEqual(["Wizard", "Sorcerer", "Artificer"]);
     });
 });
 

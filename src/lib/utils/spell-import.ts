@@ -44,6 +44,21 @@ export function splitCommaValues(value: string): string[] {
         .filter((part) => part.length > 0);
 }
 
+export function normalizeClassName(value: string): string {
+    return value.replace(/\s*\([^)]*\)\s*$/g, "").trim();
+}
+
+export function parseSpellClasses(classes: string, optionalVariantClasses: string): string[] {
+    const allClassValues = [
+        ...splitCommaValues(classes),
+        ...splitCommaValues(optionalVariantClasses),
+    ]
+        .map(normalizeClassName)
+        .filter((value) => value.length > 0);
+
+    return [...new Set(allClassValues)];
+}
+
 export function buildSpellFromCsvRow(row: SpellCsvRow): Spell {
     return {
         id: `${row.name}|${row.source}`.toLowerCase(),
@@ -56,7 +71,7 @@ export function buildSpellFromCsvRow(row: SpellCsvRow): Spell {
         school: row.school,
         range: row.range,
         components: row.components,
-        classes: splitCommaValues(row.classes),
+        classes: parseSpellClasses(row.classes, row.optionalVariantClasses),
         subclasses: row.subclasses,
         text: row.text,
         atHigherLevels: row.atHigherLevels,

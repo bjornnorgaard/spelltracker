@@ -2,7 +2,6 @@
     import { onMount } from "svelte";
     import { characters, spells } from "$lib/stores/stores";
 
-    const LEGACY_STORAGE_KEY = "spelltracker";
     const SPELLS_STORAGE_KEY = "spelltracker:spells";
     const CHARACTERS_STORAGE_KEY = "spelltracker:characters";
 
@@ -20,25 +19,16 @@
         const rawSpells = localStorage.getItem(SPELLS_STORAGE_KEY);
         const rawCharacters = localStorage.getItem(CHARACTERS_STORAGE_KEY);
 
-        if (rawSpells !== null || rawCharacters !== null) {
+        if (rawSpells !== null && rawCharacters !== null) {
             return {
                 spells: rawSpells ? JSON.parse(rawSpells) : [],
                 characters: rawCharacters ? JSON.parse(rawCharacters) : [],
             };
         }
 
-        const rawLegacy = localStorage.getItem(LEGACY_STORAGE_KEY);
-        if (!rawLegacy) {
-            return {
-                spells: spells.current ?? [],
-                characters: characters.current ?? [],
-            };
-        }
-
-        const legacy = JSON.parse(rawLegacy) as { spells?: unknown[]; characters?: unknown[] };
         return {
-            spells: Array.isArray(legacy?.spells) ? legacy.spells : [],
-            characters: Array.isArray(legacy?.characters) ? legacy.characters : [],
+            spells: spells.current ?? [],
+            characters: characters.current ?? [],
         };
     }
 

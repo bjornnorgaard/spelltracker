@@ -213,13 +213,7 @@
 
         <label class="label">
             <span class="label-text">Search spells</span>
-            <input
-                class="input preset-tonal"
-                type="text"
-                bind:value={search}
-                placeholder="Find a spell by name..."
-                autocomplete="off"
-                onkeydown={selectFirstSearchResult} />
+            <input class="input preset-tonal" type="text" bind:value={search} placeholder="Find a spell by name..." autocomplete="off" onkeydown={selectFirstSearchResult} />
         </label>
         <p class="text-xs opacity-70">Use Select to include a spell on the character page. Prepared/Always/Free-cast settings are stored per character.</p>
         {#if spells.length === 0}

@@ -9,6 +9,7 @@ export interface Character {
     level: number;
     spellSlots: SpellSlot[];
     spellNotes: SpellNote[];
+    selectedSpellIds: string[];
     preparedSpellIds: string[];
     preparedSpellsLimit: number;
     alwaysPreparedSpellIds: string[];

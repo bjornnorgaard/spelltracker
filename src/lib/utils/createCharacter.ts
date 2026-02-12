@@ -9,6 +9,7 @@ export function createCharacter(): Character {
         level: 1,
         spellSlots: [],
         spellNotes: [],
+        selectedSpellIds: [],
         preparedSpellsLimit: 1,
         preparedSpellIds: [],
         alwaysPreparedSpellIds: [],

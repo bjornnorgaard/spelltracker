@@ -9,6 +9,9 @@
 
     function normalizeCharacter(input: Partial<Character>): Character {
         const preparedSpellsLimit = Number((input as any)?.preparedSpellsLimit ?? (input as any)?.preparedLimit ?? 1);
+        const legacySpellIds = Array.isArray((input as any)?.spellIds) ? ((input as any).spellIds as string[]) : [];
+        const preparedSpellIds = Array.isArray(input?.preparedSpellIds) ? input.preparedSpellIds : [];
+        const alwaysPreparedSpellIds = Array.isArray(input?.alwaysPreparedSpellIds) ? input.alwaysPreparedSpellIds : [];
         const freePerLongRestSpells = Array.isArray((input as any)?.freePerLongRestSpells)
             ? (input as any).freePerLongRestSpells.map((entry: any) => ({
                   spellId: String(entry?.spellId ?? ""),
@@ -25,6 +28,17 @@
                   why: String(entry?.why ?? ""),
               }))
             : [];
+        const spellNotes = Array.isArray(input?.spellNotes) ? input.spellNotes : [];
+        const derivedSelectedSpellIds = [
+            ...legacySpellIds,
+            ...preparedSpellIds,
+            ...alwaysPreparedSpellIds,
+            ...freePerLongRestSpells.map((entry: any) => entry.spellId),
+            ...freePerShortRestSpells.map((entry: any) => entry.spellId),
+            ...spellNotes.map((entry: any) => entry.spellId),
+            ...(input?.concentrationSpellId ? [input.concentrationSpellId] : []),
+        ].filter(Boolean);
+        const selectedSpellIds = Array.isArray((input as any)?.selectedSpellIds) ? ((input as any).selectedSpellIds as string[]) : derivedSelectedSpellIds;
 
         return {
             id: String(input?.id ?? crypto.randomUUID()),
@@ -32,10 +46,11 @@
             class: String(input?.class ?? DND_CLASSES[0]),
             level: Number(input?.level ?? 1),
             spellSlots: Array.isArray(input?.spellSlots) ? input.spellSlots : [],
-            spellNotes: Array.isArray(input?.spellNotes) ? input.spellNotes : [],
-            preparedSpellIds: Array.isArray(input?.preparedSpellIds) ? input.preparedSpellIds : [],
+            spellNotes,
+            selectedSpellIds: [...new Set(selectedSpellIds)],
+            preparedSpellIds: [...new Set(preparedSpellIds)],
             preparedSpellsLimit: Number.isFinite(preparedSpellsLimit) ? preparedSpellsLimit : 1,
-            alwaysPreparedSpellIds: Array.isArray(input?.alwaysPreparedSpellIds) ? input.alwaysPreparedSpellIds : [],
+            alwaysPreparedSpellIds: [...new Set(alwaysPreparedSpellIds)],
             concentrationSpellId: input?.concentrationSpellId === undefined || input?.concentrationSpellId === "" ? null : input.concentrationSpellId,
             freePerLongRestSpells,
             freePerShortRestSpells,

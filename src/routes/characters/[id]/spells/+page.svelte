@@ -3,7 +3,7 @@
     import SectionHeader from "$lib/components/SectionHeader.svelte";
     import CharacterCard from "$lib/components/CharacterCard.svelte";
     import { formatSpellLevelLong } from "$lib/utils/spell-formatter";
-    import { ArrowLeft, ArrowRight } from "@lucide/svelte";
+    import { ArrowLeft, ArrowRight, Check, Circle, CircleCheckBig, Star } from "@lucide/svelte";
     import { Accordion } from "@skeletonlabs/skeleton-svelte";
     import { slide } from "svelte/transition";
     import type { Character } from "$lib/types/character";
@@ -19,19 +19,79 @@
 
     let spells = $derived.by(() => {
         if (!character) return [];
-        const referencedSpellIds = new Set<string>([
-            ...(character.preparedSpellIds ?? []),
-            ...(character.alwaysPreparedSpellIds ?? []),
-            ...(character.freePerLongRestSpells ?? []).map((entry) => entry.spellId),
-            ...(character.freePerShortRestSpells ?? []).map((entry) => entry.spellId),
-            ...(character.spellNotes ?? []).map((entry) => entry.spellId),
-            ...(character.concentrationSpellId ? [character.concentrationSpellId] : []),
-        ]);
-        const allSpells = spellsStore.current.filter((spell: Spell) => spell.classes?.includes(character.class) || referencedSpellIds.has(spell.id));
+        const selectedSpellIds = new Set(character.selectedSpellIds ?? []);
+        const allSpells = spellsStore.current.filter((spell: Spell) => spell.classes?.includes(character.class) || selectedSpellIds.has(spell.id));
         const term = search.trim().toLowerCase();
         const filtered = term ? allSpells.filter((spell: Spell) => spell.name.toLowerCase().includes(term)) : allSpells;
         return filtered.sort((a: Spell, b: Spell) => a.level - b.level || a.name.localeCompare(b.name));
     });
+
+    const selectedCount = $derived((character?.selectedSpellIds ?? []).length);
+    const alwaysPreparedCount = $derived((character?.alwaysPreparedSpellIds ?? []).length);
+    const preparedCount = $derived((character?.preparedSpellIds ?? []).length);
+
+    function uniqueIds(values: string[]) {
+        return values.filter((value, index) => values.indexOf(value) === index);
+    }
+
+    function isSelected(spellId: string) {
+        return (character?.selectedSpellIds ?? []).includes(spellId);
+    }
+
+    function isPrepared(spellId: string) {
+        return (character?.preparedSpellIds ?? []).includes(spellId);
+    }
+
+    function isAlwaysPrepared(spellId: string) {
+        return (character?.alwaysPreparedSpellIds ?? []).includes(spellId);
+    }
+
+    function toggleSelected(spellId: string) {
+        if (!character) return;
+
+        const selected = character.selectedSpellIds ?? [];
+        if (selected.includes(spellId)) {
+            character.preparedSpellIds = (character.preparedSpellIds ?? []).filter((id) => id !== spellId);
+            character.alwaysPreparedSpellIds = (character.alwaysPreparedSpellIds ?? []).filter((id) => id !== spellId);
+            character.freePerLongRestSpells = (character.freePerLongRestSpells ?? []).filter((entry) => entry.spellId !== spellId);
+            character.freePerShortRestSpells = (character.freePerShortRestSpells ?? []).filter((entry) => entry.spellId !== spellId);
+            character.spellNotes = (character.spellNotes ?? []).filter((entry) => entry.spellId !== spellId);
+            if (character.concentrationSpellId === spellId) {
+                character.concentrationSpellId = null;
+            }
+            character.selectedSpellIds = selected.filter((id) => id !== spellId);
+        } else {
+            character.selectedSpellIds = uniqueIds([...selected, spellId]);
+        }
+    }
+
+    function togglePrepared(spellId: string) {
+        if (!character) return;
+
+        if (!isSelected(spellId)) {
+            character.selectedSpellIds = uniqueIds([...(character.selectedSpellIds ?? []), spellId]);
+        }
+
+        if (isPrepared(spellId)) {
+            character.preparedSpellIds = (character.preparedSpellIds ?? []).filter((id) => id !== spellId);
+        } else {
+            character.preparedSpellIds = uniqueIds([...(character.preparedSpellIds ?? []), spellId]);
+        }
+    }
+
+    function toggleAlwaysPrepared(spellId: string) {
+        if (!character) return;
+
+        if (!isSelected(spellId)) {
+            character.selectedSpellIds = uniqueIds([...(character.selectedSpellIds ?? []), spellId]);
+        }
+
+        if (isAlwaysPrepared(spellId)) {
+            character.alwaysPreparedSpellIds = (character.alwaysPreparedSpellIds ?? []).filter((id) => id !== spellId);
+        } else {
+            character.alwaysPreparedSpellIds = uniqueIds([...(character.alwaysPreparedSpellIds ?? []), spellId]);
+        }
+    }
 
     function getCount(list: FreeCastSpell[], spellId: string) {
         return list?.find((entry: FreeCastSpell) => entry.spellId === spellId)?.total ?? 0;
@@ -43,6 +103,11 @@
 
     function setCount(kind: "long" | "short", spellId: string, next: number) {
         if (!character) return;
+
+        if (!isSelected(spellId)) {
+            character.selectedSpellIds = uniqueIds([...(character.selectedSpellIds ?? []), spellId]);
+        }
+
         const listKey = kind === "long" ? "freePerLongRestSpells" : "freePerShortRestSpells";
         const list = character[listKey] ?? [];
         const count = Math.max(0, Math.min(99, Math.floor(Number(next) || 0)));
@@ -66,6 +131,11 @@
 
     function setNote(spellId: string, next: string) {
         if (!character) return;
+
+        if (!isSelected(spellId) && String(next ?? "").trim()) {
+            character.selectedSpellIds = uniqueIds([...(character.selectedSpellIds ?? []), spellId]);
+        }
+
         const list = character.spellNotes ?? [];
         const note = String(next ?? "").trim();
         const index = list.findIndex((entry: SpellNote) => entry.spellId === spellId);
@@ -109,20 +179,28 @@
                 <ArrowLeft />
                 Back
             </button>
-            <button class="flex gap-2 items-center" onclick={() => (window.location.href = `/characters/${character.id}/edit`)}>
-                Edit
+            <button class="flex gap-2 items-center" onclick={() => (window.location.href = `/characters/${character.id}`)}>
+                View
                 <ArrowRight />
             </button>
         </div>
 
         <CharacterCard {character} />
 
-        <SectionHeader title="Free Casts" subtitle="Set how many times each spell can be cast for free per rest." />
+        <div class="card preset-filled-surface-100-900 p-4 space-y-2">
+            <SectionHeader title="Spellbook Manager" subtitle="Select spells for this character, then configure prepared/always prepared/free casts." />
+            <div class="flex flex-wrap gap-2 text-xs">
+                <span class="badge preset-filled-surface-500">Selected {selectedCount}</span>
+                <span class="badge preset-filled-surface-500">Prepared {preparedCount}/{character.preparedSpellsLimit}</span>
+                <span class="badge preset-filled-surface-500">Always Prepared {alwaysPreparedCount}</span>
+            </div>
+        </div>
+
         <label class="label">
             <span class="label-text">Search spells</span>
-            <input class="input preset-tonal" type="text" bind:value={search} placeholder="Find a spell..." autocomplete="off" />
+            <input class="input preset-tonal" type="text" bind:value={search} placeholder="Find a spell by name..." autocomplete="off" />
         </label>
-        <p class="text-xs opacity-70">Use 0 to remove a spell from free casts.</p>
+        <p class="text-xs opacity-70">Use Select to include a spell on the character page. Prepared/Always/Free-cast settings are stored per character.</p>
         {#if spells.length === 0}
             <p class="text-center opacity-70">No spells match this search.</p>
         {:else}
@@ -136,6 +214,15 @@
                             </div>
                             <Accordion.ItemIndicator class="group">
                                 <div class="flex items-center gap-2 text-xs">
+                                    {#if isSelected(spell.id)}
+                                        <span class="badge preset-filled-primary-500">Selected</span>
+                                    {/if}
+                                    {#if isPrepared(spell.id)}
+                                        <span class="badge preset-filled-secondary-500">Prepared</span>
+                                    {/if}
+                                    {#if isAlwaysPrepared(spell.id)}
+                                        <span class="badge preset-filled-tertiary-500">Always</span>
+                                    {/if}
                                     <span class="badge preset-filled-surface-500">Long {getCount(character.freePerLongRestSpells, spell.id)}</span>
                                     <span class="badge preset-filled-surface-500">Short {getCount(character.freePerShortRestSpells, spell.id)}</span>
                                 </div>
@@ -145,6 +232,48 @@
                             {#snippet element(attributes)}
                                 {#if !attributes.hidden}
                                     <div {...attributes} class="mt-3 grid gap-3 p-3" transition:slide={{ duration: 200 }}>
+                                        <div class="grid gap-2 md:grid-cols-3">
+                                            <button
+                                                class="btn"
+                                                class:preset-filled-primary-500={isSelected(spell.id)}
+                                                class:preset-tonal={!isSelected(spell.id)}
+                                                onclick={() => toggleSelected(spell.id)}>
+                                                {#if isSelected(spell.id)}
+                                                    Selected
+                                                    <Check />
+                                                {:else}
+                                                    Select
+                                                    <Circle />
+                                                {/if}
+                                            </button>
+                                            <button
+                                                class="btn"
+                                                class:preset-filled-secondary-500={isPrepared(spell.id)}
+                                                class:preset-tonal={!isPrepared(spell.id)}
+                                                onclick={() => togglePrepared(spell.id)}>
+                                                {#if isPrepared(spell.id)}
+                                                    Prepared
+                                                    <CircleCheckBig />
+                                                {:else}
+                                                    Mark Prepared
+                                                    <Circle />
+                                                {/if}
+                                            </button>
+                                            <button
+                                                class="btn"
+                                                class:preset-filled-tertiary-500={isAlwaysPrepared(spell.id)}
+                                                class:preset-tonal={!isAlwaysPrepared(spell.id)}
+                                                onclick={() => toggleAlwaysPrepared(spell.id)}>
+                                                {#if isAlwaysPrepared(spell.id)}
+                                                    Always Prepared
+                                                    <Star />
+                                                {:else}
+                                                    Mark Always
+                                                    <Circle />
+                                                {/if}
+                                            </button>
+                                        </div>
+
                                         <div class="flex gap-4">
                                             <div class="grow">
                                                 <p class="text-xs uppercase tracking-wide opacity-70">Long Rest</p>

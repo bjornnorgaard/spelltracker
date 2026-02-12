@@ -75,7 +75,7 @@
             }
         }
 
-        character.preparedSpellIds = [...new Set([...(character.preparedSpellIds ?? []), ...importedIds])];
+        character.selectedSpellIds = [...new Set([...(character.selectedSpellIds ?? []), ...importedIds])];
     }
 </script>
 
@@ -159,8 +159,8 @@
         </div>
 
         <div class="card preset-filled-surface-100-900 p-4 space-y-4">
-            <SectionHeader title="Free Casts" subtitle="Set which spells can be cast for free per short or long rest." />
-            <a class="btn preset-filled-primary-200-800" href={`/characters/${character.id}/spells`}>Edit Free Casts</a>
+            <SectionHeader title="Spellbook" subtitle="Select character spells, prepared spells, always prepared, and free casts." />
+            <button class="btn preset-filled-primary-200-800" onclick={() => (window.location.href = `/characters/${character.id}/spells`)}>Manage Spellbook</button>
         </div>
 
         <SectionHeader title="Danger Zone" subtitle="Careful. This will delete all your character data. This action is permanent." />

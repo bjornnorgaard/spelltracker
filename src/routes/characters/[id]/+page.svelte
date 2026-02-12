@@ -32,17 +32,9 @@
 
     let spells = $derived.by(() => {
         if (!character) return [];
+        const selectedSpellIds = new Set<string>(character.selectedSpellIds ?? []);
 
-        const referencedSpellIds = new Set<string>([
-            ...(character.preparedSpellIds ?? []),
-            ...(character.alwaysPreparedSpellIds ?? []),
-            ...(character.freePerLongRestSpells ?? []).map((entry) => entry.spellId),
-            ...(character.freePerShortRestSpells ?? []).map((entry) => entry.spellId),
-            ...(character.spellNotes ?? []).map((entry) => entry.spellId),
-            ...(character.concentrationSpellId ? [character.concentrationSpellId] : []),
-        ]);
-
-        return (spellsStore.current ?? []).filter((spell: Spell) => spell.classes?.includes(character.class) || referencedSpellIds.has(spell.id)).sort((a: Spell, b: Spell) => a.level - b.level);
+        return (spellsStore.current ?? []).filter((spell: Spell) => selectedSpellIds.has(spell.id)).sort((a: Spell, b: Spell) => a.level - b.level);
     });
     let filteredSpells = $derived.by(() => {
         if (!spells) return [];
@@ -231,6 +223,9 @@
     }
 
     function togglePrepared(spell: Spell) {
+        if (!(character.selectedSpellIds ?? []).includes(spell.id)) {
+            return;
+        }
         const index = character.preparedSpellIds?.findIndex((id: string) => id === spell.id);
         if (index === -1) {
             character.preparedSpellIds = [...(character.preparedSpellIds ?? []), spell.id];
@@ -255,8 +250,8 @@
             <ArrowLeft />
             Back
         </button>
-        <button class="flex gap-2 items-center" onclick={() => (window.location.href = `/characters/${character.id}/edit`)}
-            >Edit
+        <button class="flex gap-2 items-center" onclick={() => (window.location.href = `/characters/${character.id}/spells`)}
+            >Spellbook
             <ArrowRight />
         </button>
     </div>
@@ -264,7 +259,7 @@
     <CharacterCard {character} />
 
     <div class="card preset-filled-surface-100-900 p-4 space-y-4">
-        <SectionHeader title="Spell Slots" subtitle={`Use and restore spell slots`} />
+        <SectionHeader title="Spell Slots" subtitle="Use and restore spell slots" />
         <div class="flex gap-2">
             {#each character.spellSlots as slot (slot.level)}
                 {#if slot.total > 0}
@@ -329,7 +324,7 @@
 
         <div class="flex flex-col justify-end gap-2">
             <button onclick={() => (window.location.href = `/characters/${character.id}/edit`)} class="btn preset-tonal"
-                >Edit Slots
+                >Edit Character
                 <SquarePen />
             </button>
             <div class="flex gap-2">
@@ -346,7 +341,7 @@
     </div>
 
     <div class="card preset-filled-surface-100-900 p-4 space-y-4">
-        <SectionHeader title="Quick Filters" subtitle={`Use the filters to quickly find what you need.`} />
+        <SectionHeader title="Quick Filters" subtitle="Use the filters to quickly find what you need." />
         <div class="space-y-1">
             <div class="flex flex-wrap gap-1">
                 <button class="btn grow" class:preset-filled-tertiary-200-800={selectedLevels.includes(0)} class:preset-tonal={!selectedLevels.includes(0)} onclick={() => toggleLevel(0)}>
@@ -412,7 +407,7 @@
 
     <ConcentrationCard spell={concentratingSpell} onDrop={dropConcentration} />
 
-    <SectionHeader title={`Spells (${spells.length})`} subtitle={`These are the spell currently known to ${character.name}.`} />
+    <SectionHeader title={`Spells (${spells.length})`} subtitle={`These are the spells selected for ${character.name}.`} />
     <Accordion collapsible value={openSpellId} onValueChange={(details) => (openSpellId = details.value)}>
         {#each filteredSpells as s (s.id)}
             <Accordion.Item value={s.id} class="preset-tonal border-l-4 border-l-primary-500 rounded-r-2xl" style={`filter: hue-rotate(${s.level * 90}deg)`}>

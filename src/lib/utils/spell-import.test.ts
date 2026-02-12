@@ -8,7 +8,9 @@ import {
     sourceFileToUrl,
     splitCommaValues,
     type SourceEntry,
+    upsertSpellsByNameSource,
 } from "$lib/utils/spell-import";
+import type { Spell } from "$lib/types/spell";
 
 describe("sourceFileToUrl", () => {
     it("resolves source file paths relative to the index URL", () => {
@@ -117,5 +119,84 @@ describe("source selection helpers", () => {
         expect(selected.find((entry) => entry.source === "TCE")?.selected).toBe(true);
         expect(selected.find((entry) => entry.source === "xphb")?.selected).toBe(true);
         expect(selected.find((entry) => entry.source === "PHB")?.selected).toBe(false);
+    });
+});
+
+describe("upsertSpellsByNameSource", () => {
+    it("updates existing spells and rewrites id to deterministic name|source", () => {
+        const existing: Spell[] = [
+            {
+                id: "0f4f857d-50de-4d9d-9f7d-0672bf7b88f2",
+                name: "Fireball",
+                source: "XPHB",
+                page: "1",
+                level: 3,
+                castingTime: "1 action",
+                duration: "Instantaneous",
+                school: "Evocation",
+                range: "150 feet",
+                components: "V, S, M",
+                classes: ["Wizard"],
+                subclasses: "",
+                text: "old",
+                atHigherLevels: "",
+            },
+        ];
+
+        const incoming: Spell[] = [
+            {
+                id: "fireball|xphb",
+                name: "Fireball",
+                source: "XPHB",
+                page: "241",
+                level: 3,
+                castingTime: "1 action",
+                duration: "Instantaneous",
+                school: "Evocation",
+                range: "150 feet",
+                components: "V, S, M",
+                classes: ["Wizard", "Sorcerer"],
+                subclasses: "",
+                text: "new",
+                atHigherLevels: "more",
+            },
+        ];
+
+        const result = upsertSpellsByNameSource(existing, incoming);
+
+        expect(result.added).toBe(0);
+        expect(result.updated).toBe(1);
+        expect(result.spells).toHaveLength(1);
+        expect(result.spells[0].id).toBe("fireball|xphb");
+        expect(result.spells[0].classes).toEqual(["Wizard", "Sorcerer"]);
+    });
+
+    it("adds new spells when no match exists", () => {
+        const existing: Spell[] = [];
+        const incoming: Spell[] = [
+            {
+                id: "shield|xphb",
+                name: "Shield",
+                source: "XPHB",
+                page: "275",
+                level: 1,
+                castingTime: "1 reaction",
+                duration: "1 round",
+                school: "Abjuration",
+                range: "Self",
+                components: "V, S",
+                classes: ["Wizard"],
+                subclasses: "",
+                text: "A barrier of magical force appears...",
+                atHigherLevels: "",
+            },
+        ];
+
+        const result = upsertSpellsByNameSource(existing, incoming);
+
+        expect(result.added).toBe(1);
+        expect(result.updated).toBe(0);
+        expect(result.spells).toHaveLength(1);
+        expect(result.spells[0].id).toBe("shield|xphb");
     });
 });

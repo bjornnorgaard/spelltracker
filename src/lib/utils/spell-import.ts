@@ -63,6 +63,41 @@ export function buildSpellFromCsvRow(row: SpellCsvRow): Spell {
     };
 }
 
+export function upsertSpellsByNameSource(existingSpells: Spell[], incomingSpells: Spell[]): {
+    spells: Spell[];
+    added: number;
+    updated: number;
+} {
+    const merged = [...existingSpells];
+    let added = 0;
+    let updated = 0;
+
+    for (const incomingSpell of incomingSpells) {
+        const existingIndex = merged.findIndex(
+            (existingSpell) =>
+                existingSpell.name === incomingSpell.name && existingSpell.source === incomingSpell.source,
+        );
+
+        if (existingIndex >= 0) {
+            merged[existingIndex] = {
+                ...merged[existingIndex],
+                ...incomingSpell,
+                id: incomingSpell.id,
+            };
+            updated += 1;
+        } else {
+            merged.push(incomingSpell);
+            added += 1;
+        }
+    }
+
+    return {
+        spells: merged,
+        added,
+        updated,
+    };
+}
+
 export function selectAllSources(entries: SourceEntry[], selected: boolean): SourceEntry[] {
     return entries.map((entry) => ({
         ...entry,

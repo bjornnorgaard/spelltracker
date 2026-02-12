@@ -2,10 +2,17 @@
     import PageHeader from "$lib/components/PageHeader.svelte";
     import SectionHeader from "$lib/components/SectionHeader.svelte";
     import { convertToRawLink } from "$lib/utils/convertToRawLink";
-    import { app } from "$lib/stores/app.svelte";
+    import { spells } from "$lib/stores/stores";
     import { convertSpellCsvRows } from "$lib/types/spell";
     import type { Spell } from "$lib/types/spell";
-    import { buildSpellFromCsvRow, createSourceEntries, type SourceEntry, selectAllSources, selectRecommendedSources } from "$lib/utils/spell-import";
+    import {
+        buildSpellFromCsvRow,
+        createSourceEntries,
+        type SourceEntry,
+        selectAllSources,
+        selectRecommendedSources,
+        upsertSpellsByNameSource,
+    } from "$lib/utils/spell-import";
 
     /*
      * The user is expected to provide this specific URL: https://github.com/5etools-mirror-3/5etools-src/blob/main/data/spells/index.json
@@ -74,9 +81,7 @@
             return;
         }
 
-        if (!Array.isArray(app.current.spells)) {
-            app.current.spells = [];
-        }
+        let currentSpells: Spell[] = Array.isArray(spells.current) ? [...(spells.current as Spell[])] : [];
 
         isImportingSources = true;
 
@@ -93,26 +98,16 @@
 
                 const sourcePayload = await response.json();
                 const rows = convertSpellCsvRows(sourcePayload);
-                const spells = rows.map(buildSpellFromCsvRow);
-
-                for (const spell of spells) {
-                    const existingIndex = app.current.spells.findIndex((existing: Spell) => existing.name === spell.name && existing.source === spell.source);
-
-                    if (existingIndex >= 0) {
-                        app.current.spells[existingIndex] = {
-                            ...app.current.spells[existingIndex],
-                            ...spell,
-                            id: app.current.spells[existingIndex].id || spell.id,
-                        };
-                        spellsUpdated += 1;
-                    } else {
-                        app.current.spells.push(spell);
-                        spellsAdded += 1;
-                    }
-                }
+                const incomingSpells = rows.map(buildSpellFromCsvRow);
+                const mergeResult = upsertSpellsByNameSource(currentSpells, incomingSpells);
+                currentSpells = mergeResult.spells;
+                spellsAdded += mergeResult.added;
+                spellsUpdated += mergeResult.updated;
 
                 filesProcessed += 1;
             }
+
+            spells.current = currentSpells;
 
             importSummary = `Imported ${filesProcessed} source files. Added ${spellsAdded} spells and updated ${spellsUpdated}.`;
         } catch (error) {

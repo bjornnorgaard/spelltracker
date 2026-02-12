@@ -1,10 +1,10 @@
 <script lang="ts">
     import "./layout.css";
-    import {app} from "$lib/stores/app.svelte";
-    import {onMount} from "svelte";
-    import {DND_CLASSES} from "$lib/utils/constants";
+    import { app } from "$lib/stores/app.svelte";
+    import { onMount } from "svelte";
+    import { DND_CLASSES } from "$lib/utils/constants";
 
-    let {children} = $props();
+    let { children } = $props();
 
     onMount(() => {
         // Cheap version of migration.
@@ -29,9 +29,9 @@
 
 <div class="min-h-screen flex flex-col">
     <header class="p-4">
-        <a href="/">
+        <button class="anchor text-left" onclick={() => (window.location.href = "/")}>
             <p class="preset-typo-headline">Spelltracker <span class="opacity-25 font-serif font-thin ml-1">by Bear</span></p>
-        </a>
+        </button>
     </header>
 
     <main class="mx-auto max-w-xl p-4 flex-1 w-full">
@@ -45,23 +45,31 @@
                 <p class="preset-typo-caption">Manage spells and spell-slots.</p>
             </div>
 
-            <div class="flex gap-4 justify-between sm:justify-start sm:gap-16 md:gap-32 my-8">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 my-8">
                 <div class="space-y-2">
-                    <p class="uppercase text-xs tracking-widest">Links</p>
+                    <p class="uppercase text-xs tracking-widest">General</p>
                     <ul class="space-y-1">
-                        <li><a class="anchor" href="/">Home</a></li>
-                        <li><a class="anchor" href="/backup">Backup</a></li>
-                        <li><a class="anchor" href="/spells">Spells</a></li>
-                        <li><a class="anchor" href="/settings">Settings</a></li>
-                        <li><a class="anchor" href="/debug">Debug</a></li>
+                        <li><button class="anchor" onclick={() => (window.location.href = "/")}>Home</button></li>
+                        <li><button class="anchor" onclick={() => (window.location.href = "/backup")}>Backup</button></li>
+                        <li><button class="anchor" onclick={() => (window.location.href = "/settings")}>Settings</button></li>
+                        <li><button class="anchor" onclick={() => (window.location.href = "/debug")}>Debug</button></li>
                     </ul>
                 </div>
+
+                <div class="space-y-2">
+                    <p class="uppercase text-xs tracking-widest">Spells</p>
+                    <ul class="space-y-1">
+                        <li><button class="anchor" onclick={() => (window.location.href = "/spells")}>Browse &amp; Filter</button></li>
+                        <li><button class="anchor" onclick={() => (window.location.href = "/spells/import")}>Import Spells</button></li>
+                    </ul>
+                </div>
+
                 <div class="space-y-2">
                     <p class="uppercase tracking-widest text-xs">Characters</p>
                     <ul class="space-y-1">
                         {#if (app.current.characters ?? []).length > 0}
-                            {#each app.current.characters ?? [] as c}
-                                <li><a class="anchor" href={`/characters/${c.id}`}>{c.name}</a></li>
+                            {#each app.current.characters ?? [] as c (c.id)}
+                                <li><button class="anchor" onclick={() => (window.location.href = `/characters/${c.id}`)}>{c.name}</button></li>
                             {/each}
                         {:else}
                             <li class="text-surface-500-200">No characters yet</li>

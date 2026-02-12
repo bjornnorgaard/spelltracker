@@ -1,5 +1,5 @@
-import type {Character} from "$lib/types/character";
-import {DND_CLASSES, SPELL_LEVELS} from "$lib/utils/constants";
+import type { Character } from "$lib/types/character";
+import { DND_CLASSES, SPELL_LEVELS } from "$lib/utils/constants";
 
 export function createCharacter(): Character {
     const newCharacter: Character = {
@@ -8,9 +8,13 @@ export function createCharacter(): Character {
         class: DND_CLASSES[Math.floor(Math.random() * DND_CLASSES.length)],
         level: 1,
         spellSlots: [],
-        spellIds: [],
+        spellNotes: [],
         preparedSpellsLimit: 1,
-        preparedSpellIds: []
+        preparedSpellIds: [],
+        alwaysPreparedSpellIds: [],
+        concentrationSpellId: null,
+        freePerLongRestSpells: [],
+        freePerShortRestSpells: []
     };
 
     for (const spellLevel of SPELL_LEVELS) {

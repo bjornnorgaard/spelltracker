@@ -1,29 +1,62 @@
 <script lang="ts">
     import "./layout.css";
-    import { app } from "$lib/stores/app.svelte";
+    import { characters, spells } from "$lib/stores/stores";
     import { onMount } from "svelte";
     import { DND_CLASSES } from "$lib/utils/constants";
+    import type { Character } from "$lib/types/character";
 
     let { children } = $props();
 
+    function normalizeCharacter(input: Partial<Character>): Character {
+        const preparedSpellsLimit = Number((input as any)?.preparedSpellsLimit ?? (input as any)?.preparedLimit ?? 1);
+        const freePerLongRestSpells = Array.isArray((input as any)?.freePerLongRestSpells)
+            ? (input as any).freePerLongRestSpells.map((entry: any) => ({
+                  spellId: String(entry?.spellId ?? ""),
+                  total: Number(entry?.total ?? entry?.count ?? 0),
+                  used: Number(entry?.used ?? 0),
+                  why: String(entry?.why ?? ""),
+              }))
+            : [];
+        const freePerShortRestSpells = Array.isArray((input as any)?.freePerShortRestSpells)
+            ? (input as any).freePerShortRestSpells.map((entry: any) => ({
+                  spellId: String(entry?.spellId ?? ""),
+                  total: Number(entry?.total ?? entry?.count ?? 0),
+                  used: Number(entry?.used ?? 0),
+                  why: String(entry?.why ?? ""),
+              }))
+            : [];
+
+        return {
+            id: String(input?.id ?? crypto.randomUUID()),
+            name: String(input?.name ?? "John Doe"),
+            class: String(input?.class ?? DND_CLASSES[0]),
+            level: Number(input?.level ?? 1),
+            spellSlots: Array.isArray(input?.spellSlots) ? input.spellSlots : [],
+            spellNotes: Array.isArray(input?.spellNotes) ? input.spellNotes : [],
+            preparedSpellIds: Array.isArray(input?.preparedSpellIds) ? input.preparedSpellIds : [],
+            preparedSpellsLimit: Number.isFinite(preparedSpellsLimit) ? preparedSpellsLimit : 1,
+            alwaysPreparedSpellIds: Array.isArray(input?.alwaysPreparedSpellIds) ? input.alwaysPreparedSpellIds : [],
+            concentrationSpellId: input?.concentrationSpellId === undefined || input?.concentrationSpellId === "" ? null : input.concentrationSpellId,
+            freePerLongRestSpells,
+            freePerShortRestSpells,
+        };
+    }
+
     onMount(() => {
-        // Cheap version of migration.
-        // If the field was introduced after character creation, it will be added with an empty value.
-        // Every field on the character type should have a default value.
-        for (let c of app.current.characters) {
-            if (!c.id) c.id = crypto.randomUUID();
-            if (!c.name) c.name = "John Doe";
-            if (!c.class) c.class = DND_CLASSES[0];
-            if (!c.level) c.level = 1;
-            if (!c.spellIds) c.spellIds = [];
-            if (!c.spellSlots) c.spellSlots = [];
-            if (!c.spellNotes) c.spellNotes = [];
-            if (!c.preparedLimit) c.preparedLimit = 42;
-            if (!c.preparedSpellIds) c.preparedSpellIds = [];
-            if (!c.concentrationSpellId) c.concentrationSpellId = null;
-            if (!c.freePerLongRestSpells) c.freePerLongRestSpells = [];
-            if (!c.freePerShortRestSpells) c.freePerShortRestSpells = [];
+        const rawLegacy = localStorage.getItem("spelltracker");
+        if (rawLegacy) {
+            try {
+                const legacy = JSON.parse(rawLegacy) as { spells?: unknown[]; characters?: Partial<Character>[] };
+                if ((spells.current?.length ?? 0) === 0 && Array.isArray(legacy?.spells)) {
+                    spells.current = legacy.spells as any;
+                }
+                if ((characters.current?.length ?? 0) === 0 && Array.isArray(legacy?.characters)) {
+                    characters.current = legacy.characters.map(normalizeCharacter);
+                }
+            } catch {}
         }
+
+        characters.current = (characters.current ?? []).map((character: Partial<Character>) => normalizeCharacter(character));
     });
 </script>
 
@@ -67,8 +100,8 @@
                 <div class="space-y-2">
                     <p class="uppercase tracking-widest text-xs">Characters</p>
                     <ul class="space-y-1">
-                        {#if (app.current.characters ?? []).length > 0}
-                            {#each app.current.characters ?? [] as c (c.id)}
+                        {#if (characters.current ?? []).length > 0}
+                            {#each characters.current ?? [] as c (c.id)}
                                 <li><button class="anchor" onclick={() => (window.location.href = `/characters/${c.id}`)}>{c.name}</button></li>
                             {/each}
                         {:else}

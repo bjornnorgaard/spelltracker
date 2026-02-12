@@ -133,8 +133,95 @@ const _joinNonEmpty = (parts: (string | undefined | null)[], sep = ", "): string
         .join(sep);
 };
 
+const _SCHOOL_CODE_TO_NAME: Record<string, string> = {
+    A: "Abjuration",
+    C: "Conjuration",
+    D: "Divination",
+    E: "Enchantment",
+    V: "Evocation",
+    I: "Illusion",
+    N: "Necromancy",
+    T: "Transmutation",
+};
+
+const _toTextContent = (raw: string): string => {
+    if (!raw) return "";
+
+    return raw
+        .replace(/<[^>]+>/g, "")
+        .replace(/\r/g, "")
+        .trim()
+        .split("\n")
+        .map(it => it.replace(/ +/g, " ").trim())
+        .join("\n")
+        .replace(/\n\n+/g, "\n\n");
+};
+
+const _renderInlineTag = (tagName: string, rawBody: string): string => {
+    const body = String(rawBody ?? "").trim();
+    if (!body) return "";
+
+    const parts = body.split("|").map(it => it.trim());
+    const first = parts[0] ?? "";
+
+    switch (tagName.toLowerCase()) {
+        case "h":
+        case "help":
+            return parts[1] || first;
+        default:
+            return first;
+    }
+};
+
+const _renderInlineTagsToText = (raw: string): string => {
+    if (!raw) return "";
+
+    let out = raw;
+    const inlineTagRegex = /\{@([a-zA-Z][\w-]*)\s+([^{}]+?)\}/g;
+
+    for (let i = 0; i < 8; i++) {
+        const next = out.replace(inlineTagRegex, (_match, tagName: string, body: string) => _renderInlineTag(tagName, body));
+        if (next === out) break;
+        out = next;
+    }
+
+    return out.replace(/\{@|\}/g, "");
+};
+
 const _renderEntry = (entry: _Entry): string => {
-    if (typeof entry === "string") return entry;
+    if (typeof entry === "string") return _renderInlineTagsToText(entry);
+
+    if (Array.isArray(entry)) {
+        return entry.map(_renderEntry).filter(Boolean).join("\n\n");
+    }
+
+    const rec = entry as Record<string, unknown>;
+
+    if (typeof rec.entry === "string") return _renderInlineTagsToText(rec.entry);
+    if (typeof rec.text === "string") return _renderInlineTagsToText(rec.text);
+
+    if (Array.isArray(rec.entry)) {
+        return rec.entry.map(it => _renderEntry(it as _Entry)).filter(Boolean).join("\n\n");
+    }
+
+    if (Array.isArray(rec.entries)) {
+        const body = rec.entries.map(it => _renderEntry(it as _Entry)).filter(Boolean).join("\n\n");
+        if (typeof rec.name === "string" && rec.name.trim()) {
+            return `${rec.name.trim()}. ${body}`.trim();
+        }
+        return body;
+    }
+
+    if (Array.isArray(rec.items)) {
+        return rec.items.map(it => _renderEntry(it as _Entry)).filter(Boolean).join("\n");
+    }
+
+    if (Array.isArray(rec.rows)) {
+        return rec.rows
+            .map(row => Array.isArray(row) ? row.map(cell => _renderEntry(cell as _Entry)).join(" | ") : _renderEntry(row as _Entry))
+            .join("\n");
+    }
+
     return JSON.stringify(entry);
 };
 
@@ -152,23 +239,15 @@ const _renderLevel = (level: number): string => {
 };
 
 const _renderSchool = (spell: _Spell): string => {
-    const SCHOOL_CODE_TO_NAME: Record<string, string> = {
-        A: "Abjuration",
-        C: "Conjuration",
-        D: "Divination",
-        E: "Enchantment",
-        V: "Evocation",
-        I: "Illusion",
-        N: "Necromancy",
-        T: "Transmutation",
-    };
-
-    const fullSchool = SCHOOL_CODE_TO_NAME[spell.school] ?? spell.school;
+    const fullSchool = _SCHOOL_CODE_TO_NAME[spell.school] ?? spell.school;
+    const metaFlags = Object.entries(spell.meta ?? {})
+        .filter(([, value]) => value === true)
+        .map(([key]) => key);
 
     return _joinNonEmpty([
         fullSchool,
         spell.subschools?.length ? `(${spell.subschools.join(", ")})` : "",
-        spell.meta?.technomagic ? "(Technomagic)" : "",
+        metaFlags.length ? `(${metaFlags.join(", ")})` : "",
     ], " ").trim();
 };
 
@@ -290,6 +369,10 @@ const _renderSubclasses = (subclasses: _SpellSubclassRef[] | undefined): string 
 };
 
 const _spellToCsvRow = (spell: _Spell): SpellCsvRow => {
+    const school = _toTextContent(_renderSchool(spell));
+    const text = _toTextContent(_renderEntries(spell.entries));
+    const atHigherLevels = _toTextContent(_renderEntries(spell.entriesHigherLevel));
+
     return {
         name: spell.name ?? "",
         source: spell.source ?? "",
@@ -297,15 +380,15 @@ const _spellToCsvRow = (spell: _Spell): SpellCsvRow => {
         level: _renderLevel(spell.level),
         castingTime: _renderCastingTime(spell.time || []),
         duration: _renderDuration(spell.duration || []),
-        school: _renderSchool(spell),
+        school,
         ritual: Boolean(spell.meta?.ritual),
         range: _renderRange(spell.range),
         components: _renderComponents(spell.components),
         classes: _renderClassList(spell.classes, "fromClassList"),
         optionalVariantClasses: _renderClassList(spell.classes, "fromClassListVariant"),
         subclasses: _renderSubclasses(spell.classes?.fromSubclass),
-        text: _renderEntries(spell.entries),
-        atHigherLevels: _renderEntries(spell.entriesHigherLevel),
+        text,
+        atHigherLevels,
     };
 };
 

@@ -224,6 +224,7 @@ describe("example-data import smoke", () => {
                     page: 262,
                     level: 1,
                     school: "D",
+                    meta: { ritual: true },
                     time: [{ number: 1, unit: "action" }],
                     range: { type: "point", distance: { type: "self" } },
                     components: { v: true, s: true },
@@ -232,6 +233,23 @@ describe("example-data import smoke", () => {
                         fromClassList: [{ name: "Cleric", source: "PHB'24" }, { name: "Wizard", source: "PHB'24" }],
                     },
                     entries: ["For the duration, you sense the presence of magic."],
+                },
+                {
+                    name: "Haste",
+                    source: "XPHB",
+                    page: 288,
+                    level: 3,
+                    school: "T",
+                    time: [{ number: 1, unit: "action" }],
+                    range: { type: "point", distance: { type: "feet", amount: 30 } },
+                    components: { v: true, s: true, m: "a shaving of licorice root" },
+                    duration: [{ type: "timed", concentration: true, duration: { type: "minute", amount: 1 } }],
+                    classes: {
+                        fromClassList: [{ name: "Sorcerer", source: "PHB'24" }, { name: "Wizard", source: "PHB'24" }],
+                    },
+                    entries: [
+                        "Choose a willing creature that you can see within range. Until the spell ends, the target's {@variantrule Speed|XPHB} is doubled, it gains a +2 bonus to {@variantrule Armor Class|XPHB}, it has {@variantrule Advantage|XPHB} on Dexterity saving throws, and it gains an additional action on each of its turns. That action can be used to take only the {@action Attack|XPHB} (one attack only), {@action Dash|XPHB}, {@action Disengage|XPHB}, {@action Hide|XPHB}, or {@action Utilize|XPHB} action. When the spell ends, the target is {@condition Incapacitated|XPHB} and has a {@variantrule Speed|XPHB} of 0 until the end of its next turn, as a wave of lethargy washes over it.",
+                    ],
                 },
             ],
         });
@@ -245,6 +263,20 @@ describe("example-data import smoke", () => {
             expect(typeof spell.classes).toBe("object");
             expect(spell.classes.every((className) => typeof className === "string")).toBe(true);
         }
+
+        const acidSplash = converted.find((spell) => spell.name === "Acid Splash");
+        const detectMagic = converted.find((spell) => spell.name === "Detect Magic");
+        const haste = converted.find((spell) => spell.name === "Haste");
+
+        expect(acidSplash?.school).toBe("Conjuration");
+        expect(acidSplash?.ritual).toBe(false);
+        expect(detectMagic?.school).toBe("Divination");
+        expect(detectMagic?.ritual).toBe(true);
+        expect(haste?.school).toBe("Transmutation");
+        expect(haste?.text).toContain("Disengage");
+        expect(haste?.text).toContain("Incapacitated");
+        expect(haste?.text).not.toContain("{@");
+        expect(haste?.text).not.toContain("|XPHB");
     });
 });
 

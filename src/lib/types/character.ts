@@ -1,5 +1,5 @@
 import type { SpellSlot } from "$lib/types/spellSlot";
-import type { FreeCast } from "$lib/types/freeCast";
+import type { FreeCastSpell } from "$lib/types/freeCastSpell";
 import type { SpellNote } from "$lib/types/spellNote";
 
 /**
@@ -16,6 +16,6 @@ export interface Character {
     preparedLimit: number;
     preparedSpellIds: string[];
     concentrationSpellId: string | null;
-    freePerLongRestSpells: FreeCast[];
-    freePerShortRestSpells: FreeCast[];
+    freePerLongRestSpells: FreeCastSpell[];
+    freePerShortRestSpells: FreeCastSpell[];
 }

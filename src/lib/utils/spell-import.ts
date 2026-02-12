@@ -174,7 +174,7 @@ function slugifyIdPart(value: string): string {
     return value
         .normalize("NFKD")
         .replace(/[\u0300-\u036f]/g, "")
-    .replace(/['’]/g, "")
+        .replace(/['’]/g, "")
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "")

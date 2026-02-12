@@ -7,7 +7,7 @@
     import {Accordion} from "@skeletonlabs/skeleton-svelte";
     import {slide} from "svelte/transition";
     import type {Character} from "$lib/types/character";
-    import type {FreeCast} from "$lib/types/freeCast";
+    import type {FreeCastSpell} from "$lib/types/freeCastSpell";
     import type {SpellNote} from "$lib/types/spellNote";
     import type {Spell} from "$lib/types/spell";
 
@@ -25,8 +25,8 @@
         return filtered.sort((a: Spell, b: Spell) => a.level - b.level || a.name.localeCompare(b.name));
     });
 
-    function getCount(list: FreeCast[], spellId: string) {
-        return list?.find((entry: FreeCast) => entry.spellId === spellId)?.count ?? 0;
+    function getCount(list: FreeCastSpell[], spellId: string) {
+        return list?.find((entry: FreeCastSpell) => entry.spellId === spellId)?.total ?? 0;
     }
 
     function getNote(list: SpellNote[], spellId: string) {
@@ -38,18 +38,18 @@
         const listKey = kind === "long" ? "freePerLongRestSpells" : "freePerShortRestSpells";
         const list = character[listKey] ?? [];
         const count = Math.max(0, Math.min(99, Math.floor(Number(next) || 0)));
-        const index = list.findIndex((entry: FreeCast) => entry.spellId === spellId);
+        const index = list.findIndex((entry: FreeCastSpell) => entry.spellId === spellId);
 
-        let nextList: FreeCast[];
+        let nextList: FreeCastSpell[];
         if (count === 0) {
-            nextList = index === -1 ? list : list.filter((entry: FreeCast) => entry.spellId !== spellId);
+            nextList = index === -1 ? list : list.filter((entry: FreeCastSpell) => entry.spellId !== spellId);
         } else if (index === -1) {
-            nextList = [...list, {spellId, count, used: 0}];
+            nextList = [...list, {spellId, total: count, used: 0}];
         } else {
-            nextList = list.map((entry: FreeCast) => {
+            nextList = list.map((entry: FreeCastSpell) => {
                 if (entry.spellId !== spellId) return entry;
                 const nextUsed = Math.min(entry.used ?? 0, count);
-                return {...entry, count, used: nextUsed};
+                return {...entry, total: count, used: nextUsed};
             });
         }
 

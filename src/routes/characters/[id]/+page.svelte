@@ -7,7 +7,7 @@
     import {SPELL_LEVELS} from "$lib/utils/constants";
     import type {Spell} from "$lib/types/spell";
     import type {SpellSlot} from "$lib/types/spellSlot";
-    import type {FreeCast} from "$lib/types/freeCast";
+    import type {FreeCastSpell} from "$lib/types/freeCastSpell";
     import CharacterCard from "$lib/components/CharacterCard.svelte";
     import ConcentrationWarningDialog from "$lib/components/ConcentrationWarningDialog.svelte";
     import ConcentrationFloatingAlert from "$lib/components/ConcentrationFloatingAlert.svelte";
@@ -91,13 +91,13 @@
 
     function longRest() {
         character.spellSlots.forEach((slot: SpellSlot) => (slot.used = 0));
-        character.freePerLongRestSpells?.forEach((entry: FreeCast) => (entry.used = 0));
-        character.freePerShortRestSpells?.forEach((entry: FreeCast) => (entry.used = 0));
+        character.freePerLongRestSpells?.forEach((entry: FreeCastSpell) => (entry.used = 0));
+        character.freePerShortRestSpells?.forEach((entry: FreeCastSpell) => (entry.used = 0));
         dropConcentration();
     }
 
     function shortRest() {
-        character.freePerShortRestSpells?.forEach((entry: FreeCast) => (entry.used = 0));
+        character.freePerShortRestSpells?.forEach((entry: FreeCastSpell) => (entry.used = 0));
     }
 
     function dropConcentration() {
@@ -175,18 +175,18 @@
         }
     }
 
-    function getFreeCast(list: FreeCast[], spellId: string) {
-        return list?.find((entry: FreeCast) => entry.spellId === spellId);
+    function getFreeCast(list: FreeCastSpell[], spellId: string) {
+        return list?.find((entry: FreeCastSpell) => entry.spellId === spellId);
     }
 
-    function getFreeCastCount(list: FreeCast[], spellId: string) {
-        return getFreeCast(list, spellId)?.count ?? 0;
+    function getFreeCastCount(list: FreeCastSpell[], spellId: string) {
+        return getFreeCast(list, spellId)?.total ?? 0;
     }
 
-    function getFreeCastRemaining(list: FreeCast[], spellId: string) {
+    function getFreeCastRemaining(list: FreeCastSpell[], spellId: string) {
         const entry = getFreeCast(list, spellId);
         if (!entry) return 0;
-        return Math.max(entry.count - (entry.used ?? 0), 0);
+        return Math.max(entry.total - (entry.used ?? 0), 0);
     }
 
     function castFree(kind: "long" | "short", spellId: string) {
@@ -288,8 +288,8 @@
         </div>
 
         {#if character.freePerLongRestSpells?.length || character.freePerShortRestSpells?.length}
-            {@const longFree = character.freePerLongRestSpells?.filter((entry) => entry.count > 0) ?? []}
-            {@const shortFree = character.freePerShortRestSpells?.filter((entry) => entry.count > 0) ?? []}
+            {@const longFree = character.freePerLongRestSpells?.filter((entry) => entry.total > 0) ?? []}
+            {@const shortFree = character.freePerShortRestSpells?.filter((entry) => entry.total > 0) ?? []}
             {#if longFree.length || shortFree.length}
                 <div class="space-y-4">
                     <SectionHeader title="Free Casts" subtitle="Cast without expending a spell slot"/>

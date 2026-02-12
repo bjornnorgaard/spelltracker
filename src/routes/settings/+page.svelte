@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
     import { characters, spells } from "$lib/stores/stores";
     import type { Character } from "$lib/types/character";
 
@@ -33,15 +34,17 @@
         }
     });
 
-    function resetLocalData() {
+    async function resetLocalData() {
         if (!confirm("Reset local data? This clears spells and characters saved on this device.")) {
             return;
         }
+        localStorage.clear();
         spells.reset();
         characters.reset();
         characterEdits = {};
         editStatus = {};
         resetStatus = "Local data reset to defaults.";
+        await goto("/");
     }
 
     function saveCharacter(id: string) {

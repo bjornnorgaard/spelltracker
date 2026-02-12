@@ -12,7 +12,7 @@
     import ConcentrationWarningDialog from "$lib/components/ConcentrationWarningDialog.svelte";
     import ConcentrationFloatingAlert from "$lib/components/ConcentrationFloatingAlert.svelte";
     import ConcentrationCard from "$lib/components/ConcentrationCard.svelte";
-    import { ArrowLeft, ArrowRight, Brain, Circle, CircleCheckBig, FlameKindling, Heart, RotateCcw, SquarePen, Sun, X, Zap } from "@lucide/svelte";
+    import { ArrowLeft, ArrowRight, Brain, FlameKindling, Heart, RotateCcw, SquarePen, Sun, X, Zap } from "@lucide/svelte";
     import type { Character } from "$lib/types/character";
 
     const { data } = $props();
@@ -222,17 +222,6 @@
         return spellsStore.current.find((spell: Spell) => spell.id === spellId)?.name ?? "Unknown spell";
     }
 
-    function togglePrepared(spell: Spell) {
-        if (!(character.selectedSpellIds ?? []).includes(spell.id)) {
-            return;
-        }
-        const index = character.preparedSpellIds?.findIndex((id: string) => id === spell.id);
-        if (index === -1) {
-            character.preparedSpellIds = [...(character.preparedSpellIds ?? []), spell.id];
-        } else {
-            character.preparedSpellIds = character.preparedSpellIds?.filter((id: string) => id !== spell.id);
-        }
-    }
 </script>
 
 <ConcentrationFloatingAlert spell={concentratingSpell} ondrop={() => dropConcentration()} />
@@ -414,14 +403,14 @@
                 <Accordion.ItemTrigger class="font-bold flex justify-between">
                     <div class="flex gap-4 items-center">
                         {formatSpellLevelLong(s.level)}
-                        {#if character.preparedSpellIds?.includes(s.id)}
-                            <CircleCheckBig />
-                        {/if}
                         {#if s.duration.includes("Concentration")}
                             <Brain />
                         {/if}
                         {#if s.school.includes("(ritual)")}
-                            <FlameKindling />
+                            <span class="badge preset-filled-surface-500 flex items-center gap-1">
+                                Ritual
+                                <FlameKindling size="14" />
+                            </span>
                         {/if}
                     </div>
                     <Accordion.ItemIndicator class="group">
@@ -461,25 +450,6 @@
                                     <p><strong>At higher levels:</strong> {s.atHigherLevels}</p>
                                 {/if}
                                 <p>{s.source} p{s.page}</p>
-
-                                <button
-                                    class="btn grow"
-                                    onclick={() => togglePrepared(s)}
-                                    class:preset-filled-primary-500={character.preparedSpellIds?.includes(s.id)}
-                                    class:preset-tonal-surface={!character.preparedSpellIds?.includes(s.id)}>
-                                    {#snippet preparedStatus()}
-                                        ({character.preparedSpellIds?.length ?? 0}/{character.preparedSpellsLimit})
-                                    {/snippet}
-                                    {#if character.preparedSpellIds?.includes(s.id)}
-                                        Prepared
-                                        <CircleCheckBig />
-                                        {@render preparedStatus()}
-                                    {:else}
-                                        Prepare
-                                        <Circle />
-                                        {@render preparedStatus()}
-                                    {/if}
-                                </button>
                                 {#if character.concentrationSpellId === s.id}
                                     <button class="btn w-full preset-filled-error-500" onclick={dropConcentration}>
                                         Drop Concentration

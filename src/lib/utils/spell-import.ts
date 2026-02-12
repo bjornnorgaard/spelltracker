@@ -150,20 +150,24 @@ function getClassesFromLookup(lookup: SpellSourceLookup, spellSource: string, sp
         return [];
     }
 
-    const classTree = lookupEntry.class as Record<string, unknown> | undefined;
-    if (!classTree || typeof classTree !== "object") {
-        return [];
-    }
-
     const classNames = new Set<string>();
 
-    for (const sourceVersionMap of Object.values(classTree)) {
-        if (!sourceVersionMap || typeof sourceVersionMap !== "object") continue;
+    const classTrees = [
+        lookupEntry.class as Record<string, unknown> | undefined,
+        lookupEntry.classVariant as Record<string, unknown> | undefined,
+    ];
 
-        for (const [className, enabled] of Object.entries(sourceVersionMap as Record<string, unknown>)) {
-            if (!enabled) continue;
-            const normalized = normalizeClassName(className);
-            if (normalized) classNames.add(normalized);
+    for (const classTree of classTrees) {
+        if (!classTree || typeof classTree !== "object") continue;
+
+        for (const sourceVersionMap of Object.values(classTree)) {
+            if (!sourceVersionMap || typeof sourceVersionMap !== "object") continue;
+
+            for (const [className, enabled] of Object.entries(sourceVersionMap as Record<string, unknown>)) {
+                if (!enabled) continue;
+                const normalized = normalizeClassName(className);
+                if (normalized) classNames.add(normalized);
+            }
         }
     }
 

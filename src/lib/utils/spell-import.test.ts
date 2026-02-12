@@ -246,6 +246,42 @@ describe("lookup class enrichment", () => {
 
         expect(result[0].classes).toEqual(["Wizard", "Sorcerer"]);
     });
+
+    it("enriches classes from classVariant when class is missing (Control Flames case)", () => {
+        const lookupPayload = {
+            xge: {
+                "control flames": {
+                    classVariant: {
+                        XPHB: {
+                            Sorcerer: true,
+                            Wizard: true,
+                        },
+                    },
+                },
+            },
+        };
+
+        const baseSpell: Spell = {
+            id: "control flames|xge",
+            name: "Control Flames",
+            source: "XGE",
+            page: "152",
+            level: 0,
+            castingTime: "1 action",
+            duration: "Instantaneous",
+            school: "Transmutation",
+            range: "60 feet",
+            components: "S",
+            classes: [],
+            subclasses: "",
+            text: "You choose nonmagical flame that you can see.",
+            atHigherLevels: "",
+        };
+
+        const result = enrichSpellsWithLookupClasses([baseSpell], lookupPayload);
+
+        expect(result[0].classes).toEqual(["Sorcerer", "Wizard"]);
+    });
 });
 
 describe("source selection helpers", () => {

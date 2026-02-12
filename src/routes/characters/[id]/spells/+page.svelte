@@ -209,6 +209,12 @@
         setNote(spellId, input.value);
     }
 
+    function togglePreparedFromHeader(spellId: string, event: MouseEvent) {
+        event.preventDefault();
+        event.stopPropagation();
+        togglePrepared(spellId);
+    }
+
     function selectFirstSearchResult(event: KeyboardEvent) {
         if (event.key !== "Enter") return;
         if (!character) return;
@@ -290,7 +296,7 @@
                 <button class="btn btn-sm preset-tonal" onclick={clearFilters}>Clear filters</button>
             </div>
         </div>
-        <p class="text-xs opacity-70">Use Select to include a spell on the character page. Prepared/Always/Free-cast settings are stored per character.</p>
+        <p class="text-xs opacity-70">Use Prepared in the header for quick toggles. Expand only for Select/Always/Free-casts/Notes.</p>
         {#if spells.length === 0}
             <p class="text-center opacity-70">No spells match this search.</p>
         {:else}
@@ -302,27 +308,42 @@
                                 <div class="font-semibold">{spell.name}</div>
                                 <div class="text-xs opacity-70">{formatSpellLevelLong(spell.level)}</div>
                             </div>
-                            <Accordion.ItemIndicator class="group">
-                                <div class="flex items-center gap-2 text-xs">
-                                    {#if isSelected(spell.id)}
-                                        <span class="badge preset-filled-primary-500">Selected</span>
-                                    {/if}
+                            <div class="flex items-center gap-2">
+                                <button
+                                    class="btn btn-sm"
+                                    class:preset-filled-secondary-500={isPrepared(spell.id)}
+                                    class:preset-tonal={!isPrepared(spell.id)}
+                                    onclick={(event) => togglePreparedFromHeader(spell.id, event)}>
                                     {#if isPrepared(spell.id)}
-                                        <span class="badge preset-filled-secondary-500">Prepared</span>
+                                        Prepared
+                                        <CircleCheckBig />
+                                    {:else}
+                                        Mark Prepared
+                                        <Circle />
                                     {/if}
-                                    {#if isAlwaysPrepared(spell.id)}
-                                        <span class="badge preset-filled-tertiary-500">Always</span>
-                                    {/if}
-                                    <span class="badge preset-filled-surface-500">Long {getCount(character.freePerLongRestSpells, spell.id)}</span>
-                                    <span class="badge preset-filled-surface-500">Short {getCount(character.freePerShortRestSpells, spell.id)}</span>
-                                </div>
-                            </Accordion.ItemIndicator>
+                                </button>
+                                <Accordion.ItemIndicator class="group">
+                                    <div class="flex items-center gap-2 text-xs">
+                                        {#if isSelected(spell.id)}
+                                            <span class="badge preset-filled-primary-500">Selected</span>
+                                        {/if}
+                                        {#if isPrepared(spell.id)}
+                                            <span class="badge preset-filled-secondary-500">Prepared</span>
+                                        {/if}
+                                        {#if isAlwaysPrepared(spell.id)}
+                                            <span class="badge preset-filled-tertiary-500">Always</span>
+                                        {/if}
+                                        <span class="badge preset-filled-surface-500">Long {getCount(character.freePerLongRestSpells, spell.id)}</span>
+                                        <span class="badge preset-filled-surface-500">Short {getCount(character.freePerShortRestSpells, spell.id)}</span>
+                                    </div>
+                                </Accordion.ItemIndicator>
+                            </div>
                         </Accordion.ItemTrigger>
                         <Accordion.ItemContent>
                             {#snippet element(attributes)}
                                 {#if !attributes.hidden}
                                     <div {...attributes} class="mt-3 grid gap-3 p-3" transition:slide={{ duration: 200 }}>
-                                        <div class="grid gap-2 md:grid-cols-3">
+                                        <div class="grid gap-2 md:grid-cols-2">
                                             <button
                                                 class="btn"
                                                 class:preset-filled-primary-500={isSelected(spell.id)}
@@ -338,27 +359,13 @@
                                             </button>
                                             <button
                                                 class="btn"
-                                                class:preset-filled-secondary-500={isPrepared(spell.id)}
-                                                class:preset-tonal={!isPrepared(spell.id)}
-                                                onclick={() => togglePrepared(spell.id)}>
-                                                {#if isPrepared(spell.id)}
-                                                    Prepared
-                                                    <CircleCheckBig />
-                                                {:else}
-                                                    Mark Prepared
-                                                    <Circle />
-                                                {/if}
-                                            </button>
-                                            <button
-                                                class="btn"
                                                 class:preset-filled-tertiary-500={isAlwaysPrepared(spell.id)}
                                                 class:preset-tonal={!isAlwaysPrepared(spell.id)}
                                                 onclick={() => toggleAlwaysPrepared(spell.id)}>
+                                                Always Prepared
                                                 {#if isAlwaysPrepared(spell.id)}
-                                                    Always Prepared
                                                     <Star />
                                                 {:else}
-                                                    Mark Always
                                                     <Circle />
                                                 {/if}
                                             </button>
@@ -369,7 +376,8 @@
                                                 <p class="text-xs uppercase tracking-wide opacity-70">Long Rest</p>
                                                 <div class="flex items-center gap-2">
                                                     <button class="btn btn-sm" onclick={() => stepCount("long", spell.id, -1)} disabled={getCount(character.freePerLongRestSpells, spell.id) <= 0}
-                                                        >-</button>
+                                                        >-
+                                                    </button>
                                                     <input
                                                         type="number"
                                                         min={0}
@@ -384,7 +392,8 @@
                                                 <p class="text-xs uppercase tracking-wide opacity-70">Short Rest</p>
                                                 <div class="flex items-center gap-2">
                                                     <button class="btn btn-sm" onclick={() => stepCount("short", spell.id, -1)} disabled={getCount(character.freePerShortRestSpells, spell.id) <= 0}
-                                                        >-</button>
+                                                        >-
+                                                    </button>
                                                     <input
                                                         type="number"
                                                         min={0}

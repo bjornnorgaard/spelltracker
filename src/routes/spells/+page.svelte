@@ -54,17 +54,7 @@
                 if (normalizedSource && !spell.source.toLowerCase().includes(normalizedSource)) return false;
 
                 if (normalizedSearch) {
-                    const haystack = [
-                        spell.name,
-                        spell.source,
-                        spell.text,
-                        spell.range,
-                        spell.duration,
-                        spell.components,
-                        spell.classes.join(" "),
-                    ]
-                        .join(" ")
-                        .toLowerCase();
+                    const haystack = [spell.name, spell.source, spell.text, spell.range, spell.duration, spell.components, spell.classes.join(" ")].join(" ").toLowerCase();
 
                     if (!haystack.includes(normalizedSearch)) return false;
                 }

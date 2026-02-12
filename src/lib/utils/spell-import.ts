@@ -44,14 +44,48 @@ export function splitCommaValues(value: string): string[] {
         .filter((part) => part.length > 0);
 }
 
+function toStringArray(value: unknown): string[] {
+    if (Array.isArray(value)) {
+        return value
+            .map((part) => (typeof part === "string" ? part : String(part ?? "")))
+            .map((part) => part.trim())
+            .filter((part) => part.length > 0);
+    }
+
+    if (typeof value === "string") {
+        return splitCommaValues(value);
+    }
+
+    return [];
+}
+
 export function normalizeClassName(value: string): string {
     return value.replace(/\s*\([^)]*\)\s*$/g, "").trim();
 }
 
-export function parseSpellClasses(classes: string, optionalVariantClasses: string): string[] {
+function parseClassesFromSubclasses(subclasses: unknown): string[] {
+    if (typeof subclasses !== "string" || !subclasses.trim()) {
+        return [];
+    }
+
+    return subclasses
+        .split(";")
+        .map((part) => part.trim())
+        .filter((part) => part.length > 0)
+        .map((part) => part.split(":")[0]?.trim() ?? "")
+        .map(normalizeClassName)
+        .filter((part) => part.length > 0);
+}
+
+export function parseSpellClasses(
+    classes: unknown,
+    optionalVariantClasses: unknown,
+    subclasses?: unknown,
+): string[] {
     const allClassValues = [
-        ...splitCommaValues(classes),
-        ...splitCommaValues(optionalVariantClasses),
+        ...toStringArray(classes),
+        ...toStringArray(optionalVariantClasses),
+        ...parseClassesFromSubclasses(subclasses),
     ]
         .map(normalizeClassName)
         .filter((value) => value.length > 0);
@@ -71,7 +105,7 @@ export function buildSpellFromCsvRow(row: SpellCsvRow): Spell {
         school: row.school,
         range: row.range,
         components: row.components,
-        classes: parseSpellClasses(row.classes, row.optionalVariantClasses),
+        classes: parseSpellClasses(row.classes, row.optionalVariantClasses, row.subclasses),
         subclasses: row.subclasses,
         text: row.text,
         atHigherLevels: row.atHigherLevels,

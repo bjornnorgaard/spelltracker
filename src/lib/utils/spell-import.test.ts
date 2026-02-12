@@ -13,6 +13,7 @@ import {
     upsertSpellsByNameSource,
 } from "$lib/utils/spell-import";
 import type { Spell } from "$lib/types/spell";
+import { convertSpellCsvRows } from "$lib/types/spell";
 
 describe("sourceFileToUrl", () => {
     it("resolves source file paths relative to the index URL", () => {
@@ -134,6 +135,62 @@ describe("class parsing helpers", () => {
         );
 
         expect(result).toEqual(["Wizard", "Sorcerer", "Artificer"]);
+    });
+
+    it("parseSpellClasses handles array-like inputs and subclass fallback", () => {
+        const result = parseSpellClasses(
+            ["Wizard (PHB'24)", "Sorcerer (PHB'24)"],
+            null,
+            "Cleric (PHB'24): Life Domain (PHB'24); Wizard (PHB'24): Bladesinging (TCE)",
+        );
+
+        expect(result).toEqual(["Wizard", "Sorcerer", "Cleric"]);
+    });
+});
+
+describe("example-data import smoke", () => {
+    it("converts example-data-shaped source rows into spells with classes as string arrays", () => {
+        const fixtureJson = JSON.stringify({
+            spell: [
+                {
+                    name: "Acid Splash",
+                    source: "PHB",
+                    page: 211,
+                    level: 0,
+                    school: "C",
+                    time: [{ number: 1, unit: "action" }],
+                    range: { type: "point", distance: { type: "feet", amount: 60 } },
+                    components: { v: true, s: true },
+                    duration: [{ type: "instant" }],
+                    entries: ["You hurl a bubble of acid."],
+                },
+                {
+                    name: "Detect Magic",
+                    source: "XPHB",
+                    page: 262,
+                    level: 1,
+                    school: "D",
+                    time: [{ number: 1, unit: "action" }],
+                    range: { type: "point", distance: { type: "self" } },
+                    components: { v: true, s: true },
+                    duration: [{ type: "timed", concentration: true, duration: { type: "minute", amount: 10 } }],
+                    classes: {
+                        fromClassList: [{ name: "Cleric", source: "PHB'24" }, { name: "Wizard", source: "PHB'24" }],
+                    },
+                    entries: ["For the duration, you sense the presence of magic."],
+                },
+            ],
+        });
+
+        const rows = convertSpellCsvRows(fixtureJson);
+        const converted = rows.slice(0, 25).map(buildSpellFromCsvRow);
+
+        expect(converted.length).toBeGreaterThan(0);
+        for (const spell of converted) {
+            expect(Array.isArray(spell.classes)).toBe(true);
+            expect(typeof spell.classes).toBe("object");
+            expect(spell.classes.every((className) => typeof className === "string")).toBe(true);
+        }
     });
 });
 

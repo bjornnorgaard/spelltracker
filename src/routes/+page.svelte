@@ -29,8 +29,8 @@
 
     <Section title="Spells" subtitle="Here are your spells.">
         {#if spells.current.length}
-            <div class="grid grid-cols-1 gap-4">
-                <div></div>
+            <div class="grid grid-cols-2 card preset-tonal p-4">
+                <span>Total Spells</span> <p class="text-right font-bold">{spells.current.length}</p>
             </div>
         {:else}
             <aside class="card preset-filled-warning-500 p-4">

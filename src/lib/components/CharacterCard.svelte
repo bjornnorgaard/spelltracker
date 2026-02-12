@@ -8,9 +8,9 @@
     <p class="preset-typo-title">{character.name}</p>
     <p class="preset-typo-subtitle">{formatSpellLevel(character.level)} Level {character.class}</p>
     <div class="flex justify-between">
-        <span>{character.preparedSpellIds?.length ?? 0}/{character.preparedSpellsLimit ?? 0} prepared</span>
+        <span>{character.preparedSpellsLimit} prepared</span>
         {#if showLink}
-            <span class="anchor">View character</span>
+            <a href={`/characters/${character.id}`} class="anchor">View character</a>
         {/if}
     </div>
 </div>

@@ -1,31 +1,9 @@
 <script lang="ts">
-    import PageHeader from "$lib/components/PageHeader.svelte";
-    import SectionHeader from "$lib/components/SectionHeader.svelte";
-    import { spells } from "$lib/stores/stores";
-    import { convertSpellCsvRows } from "$lib/types/spell";
-    import type { Spell } from "$lib/types/spell";
-    import {
-        buildSpellFromCsvRow,
-        createSourceEntries,
-        enrichSpellsWithLookupClasses,
-        getSpellIndexUrlFromRepositoryUrl,
-        getSpellSourceLookupUrl,
-        type SpellSourceLookup,
-        type SourceEntry,
-        selectAllSources,
-        selectRecommendedSources,
-        upsertSpellsByNameSource,
-    } from "$lib/utils/spell-import";
-
-    /*
-     * The user is expected to provide this specific URL: https://github.com/5etools-mirror-3/5etools-src/blob/main/data/spells/index.json
-     * Note that the app cannot contain this URL due to legal reasons. Therefore, the user must supply it manually on their own.
-     *
-     * Then the app must convert the link to the raw version e.g.: https://raw.githubusercontent.com/5etools-mirror-3/5etools-src/refs/heads/main/data/spells/index.json
-     * The contents of this raw file will be fetched and used for the next steps of the import.
-     *
-     * The JSON contents of the file are then parsed and converted to an array of spells and stored locally on the client, in localStorage.
-     * */
+    import {spells} from "$lib/stores/stores";
+    import type {Spell} from "$lib/types/spell";
+    import {convertSpellCsvRows} from "$lib/types/spell";
+    import {buildSpellFromCsvRow, createSourceEntries, enrichSpellsWithLookupClasses, getSpellIndexUrlFromRepositoryUrl, getSpellSourceLookupUrl, selectAllSources, selectRecommendedSources, type SourceEntry, type SpellSourceLookup, upsertSpellsByNameSource,} from "$lib/utils/spell-import";
+    import Section from "$lib/components/Section.svelte";
 
     let repositoryUrl = $state<string>("");
     let indexUrl = $state<string>("");
@@ -64,7 +42,8 @@
 
             const response = await fetch(indexUrl);
             if (!response.ok) {
-                throw new Error(`Failed to load index file (${response.status}).`);
+                loadError = `Failed to load index file (${response.status}).`;
+                return;
             }
 
             const payload = await response.json();
@@ -98,14 +77,16 @@
             const lookupUrl = getSpellSourceLookupUrl(indexUrl);
             const lookupResponse = await fetch(lookupUrl);
             if (!lookupResponse.ok) {
-                throw new Error(`Failed to fetch spell class lookup (${lookupResponse.status}).`);
+                importError = `Failed to fetch spell class lookup (${lookupResponse.status}).`;
+                return;
             }
             const lookupPayload = (await lookupResponse.json()) as SpellSourceLookup;
 
             for (const entry of selectedSources) {
                 const response = await fetch(entry.url);
                 if (!response.ok) {
-                    throw new Error(`Failed to fetch ${entry.source} (${response.status}).`);
+                    importError = `Failed to fetch ${entry.source} (${response.status}).`;
+                    return;
                 }
 
                 const sourcePayload = await response.json();
@@ -130,63 +111,61 @@
     }
 </script>
 
-<PageHeader title="Import Spells" subtitle="Bootstrap and update your local data" />
-
-<div class="space-y-4">
-    <div class="card preset-tonal p-4 space-y-4">
-        <label class="label">
-            <span class="label-text">Repository URL</span>
-            <input type="url" class="input" placeholder="https://github.com/owner/repository" bind:value={repositoryUrl} />
-            <span class="label-text">Index URL: {indexUrl || "(derived when loading sources)"}</span>
-        </label>
-
-        <div class="flex gap-3">
-            <button class="btn preset-filled-primary-500" onclick={loadSources} disabled={isLoadingSources}>
-                {isLoadingSources ? "Loading sources..." : "Load Sources"}
-            </button>
-        </div>
-
-        {#if loadError}
-            <p class="text-error-500">{loadError}</p>
-        {/if}
-    </div>
-
-    {#if sourceEntries.length > 0}
-        <div class="card preset-filled-surface-100-900 p-4 space-y-4">
-            <SectionHeader title="Source Files" subtitle="Select which sources to import" />
-
-            <p class="text-sm opacity-80">{sourceEntries.length} sources found, {selectedCount} selected.</p>
-            <div class="flex items-center justify-between gap-3">
-                <div class="flex gap-2">
-                    <button class="btn btn-sm preset-tonal" onclick={setRecommendedSelected}>Recommended</button>
-                    <button class="btn btn-sm preset-tonal" onclick={() => setAllSelected(true)}>Select all</button>
-                    <button class="btn btn-sm preset-tonal" onclick={() => setAllSelected(false)}>Select none</button>
+<div class="space-y-8">
+    {#if !sourceEntries.length}
+        <Section title="Import Spells" subtitle="Bootstrap and update your local data">
+            <div class="space-y-4 card preset-tonal p-4">
+                <label class="label">
+                    <span class="label-text">Repository</span>
+                    <input type="url" class="input" placeholder="owner/repository" bind:value={repositoryUrl}/>
+                </label>
+                <div class="flex gap-4">
+                    <button class="btn preset-filled-primary-500" onclick={loadSources} disabled={isLoadingSources}>
+                        {isLoadingSources ? "Loading sources..." : "Load Sources"}
+                    </button>
                 </div>
+                {#if loadError}
+                    <p class="text-error-500">{loadError}</p>
+                {/if}
             </div>
+        </Section>
+    {:else}
+        <Section title="Source Selection" subtitle="Choose which sources to import">
+            <div class="card p-4 preset-tonal space-y-4">
+                <p class="text-sm opacity-80">{sourceEntries.length} sources found, {selectedCount} selected.</p>
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex gap-2 flex-wrap">
+                        <button class="btn grow preset-tonal" onclick={() => setAllSelected(true)}>Select all</button>
+                        <button class="btn grow preset-tonal" onclick={() => setAllSelected(false)}>Select none</button>
+                        <button class="btn grow preset-tonal" onclick={() => setRecommendedSelected()}>Recommended</button>
+                    </div>
+                </div>
 
-            <div class="space-y-3">
-                {#each sourceEntries as entry (entry.source)}
-                    <label class="flex items-start gap-3">
-                        <input class="checkbox" type="checkbox" bind:checked={entry.selected} />
-                        <span class="font-medium">{entry.source}</span>
-                        <span class="block text-sm opacity-80">{entry.fileName}</span>
-                    </label>
-                {/each}
+                <div class="space-y-3">
+                    {#each sourceEntries as entry (entry.source)}
+                        <label class="flex items-start gap-3">
+                            <input class="checkbox" type="checkbox" bind:checked={entry.selected}/>
+                            <span class="font-medium">{entry.source}</span>
+                            <span class="block text-sm opacity-80">{entry.fileName}</span>
+                        </label>
+                    {/each}
+                </div>
+
+                <div class="flex gap-3">
+                    <button class="btn preset-filled-primary-500" onclick={importSelectedSources} disabled={isImportingSources}>
+                        {isImportingSources ? "Importing..." : "Import Selected Sources"}
+                    </button>
+                </div>
+
+                {#if importError}
+                    <p class="text-error-500">{importError}</p>
+                {/if}
+
+                {#if importSummary}
+                    <p class="text-success-500">{importSummary}</p>
+                    <a href="/" class="w-full btn preset-filled-primary-500">Go Back Home</a>
+                {/if}
             </div>
-
-            <div class="flex gap-3">
-                <button class="btn preset-filled-primary-500" onclick={importSelectedSources} disabled={isImportingSources}>
-                    {isImportingSources ? "Importing..." : "Import Selected Sources"}
-                </button>
-            </div>
-
-            {#if importError}
-                <p class="text-error-500">{importError}</p>
-            {/if}
-
-            {#if importSummary}
-                <p class="text-success-500">{importSummary}</p>
-            {/if}
-        </div>
+        </Section>
     {/if}
 </div>

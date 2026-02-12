@@ -15,14 +15,30 @@
     let character: Character = $derived.by(() => characters.current.find((c: any) => c.id === data.characterId));
 
     let search = $state("");
+    let levelFilters = $state<number[]>([]);
+    let classFilters = $state<string[]>([]);
     let openSpellId = $state<string[]>([]);
+
+    const spellLevels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+    let availableClasses: string[] = $derived.by(() => {
+        const classes: string[] = spellsStore.current.flatMap((spell: Spell) => spell.classes ?? []);
+        return [...new Set<string>(classes)].sort((a: string, b: string) => a.localeCompare(b));
+    });
 
     let spells = $derived.by(() => {
         if (!character) return [];
-        const selectedSpellIds = new Set(character.selectedSpellIds ?? []);
-        const allSpells = spellsStore.current.filter((spell: Spell) => spell.classes?.includes(character.class) || selectedSpellIds.has(spell.id));
+
+        const allSpells = spellsStore.current;
         const term = search.trim().toLowerCase();
-        const filtered = term ? allSpells.filter((spell: Spell) => spell.name.toLowerCase().includes(term)) : allSpells;
+
+        const filtered = allSpells.filter((spell: Spell) => {
+            const matchesSearch = term ? spell.name.toLowerCase().includes(term) : true;
+            const matchesLevel = levelFilters.length > 0 ? levelFilters.includes(spell.level) : true;
+            const matchesClass = classFilters.length > 0 ? classFilters.some((className) => (spell.classes ?? []).includes(className)) : true;
+            return matchesSearch && matchesLevel && matchesClass;
+        });
+
         return filtered.sort((a: Spell, b: Spell) => a.level - b.level || a.name.localeCompare(b.name));
     });
 
@@ -32,6 +48,32 @@
 
     function uniqueIds(values: string[]) {
         return values.filter((value, index) => values.indexOf(value) === index);
+    }
+
+    function levelLabel(level: number) {
+        if (level === 0) return "Cantrip";
+        return `${level}`;
+    }
+
+    function toggleLevelFilter(level: number) {
+        if (levelFilters.includes(level)) {
+            levelFilters = levelFilters.filter((current) => current !== level);
+        } else {
+            levelFilters = [...levelFilters, level].sort((a, b) => a - b);
+        }
+    }
+
+    function toggleClassFilter(className: string) {
+        if (classFilters.includes(className)) {
+            classFilters = classFilters.filter((current) => current !== className);
+        } else {
+            classFilters = [...classFilters, className].sort((a, b) => a.localeCompare(b));
+        }
+    }
+
+    function clearFilters() {
+        levelFilters = [];
+        classFilters = [];
     }
 
     function isSelected(spellId: string) {
@@ -215,6 +257,35 @@
             <span class="label-text">Search spells</span>
             <input class="input preset-tonal" type="text" bind:value={search} placeholder="Find a spell by name..." autocomplete="off" onkeydown={selectFirstSearchResult} />
         </label>
+        <div class="card p-3 preset-tonal space-y-3">
+            <div class="space-y-1">
+                <p class="text-xs uppercase tracking-wide opacity-70">Filter by level</p>
+                <div class="flex flex-wrap gap-2">
+                    {#each spellLevels as level (level)}
+                        <button class="btn btn-sm" class:preset-filled-primary-500={levelFilters.includes(level)} class:preset-tonal={!levelFilters.includes(level)} onclick={() => toggleLevelFilter(level)}>
+                            {levelLabel(level)}
+                        </button>
+                    {/each}
+                </div>
+            </div>
+            <div class="space-y-1">
+                <p class="text-xs uppercase tracking-wide opacity-70">Filter by class</p>
+                <div class="flex flex-wrap gap-2">
+                    {#each availableClasses as className (className)}
+                        <button
+                            class="btn btn-sm"
+                            class:preset-filled-secondary-500={classFilters.includes(className)}
+                            class:preset-tonal={!classFilters.includes(className)}
+                            onclick={() => toggleClassFilter(className)}>
+                            {className}
+                        </button>
+                    {/each}
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-sm preset-tonal" onclick={clearFilters}>Clear filters</button>
+            </div>
+        </div>
         <p class="text-xs opacity-70">Use Select to include a spell on the character page. Prepared/Always/Free-cast settings are stored per character.</p>
         {#if spells.length === 0}
             <p class="text-center opacity-70">No spells match this search.</p>

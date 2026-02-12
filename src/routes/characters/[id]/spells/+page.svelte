@@ -167,6 +167,21 @@
         setNote(spellId, input.value);
     }
 
+    function selectFirstSearchResult(event: KeyboardEvent) {
+        if (event.key !== "Enter") return;
+        if (!character) return;
+
+        const firstSpell = spells[0];
+        if (!firstSpell) return;
+
+        event.preventDefault();
+        if (!isSelected(firstSpell.id)) {
+            character.selectedSpellIds = uniqueIds([...(character.selectedSpellIds ?? []), firstSpell.id]);
+        }
+
+        search = "";
+    }
+
     function goBack() {
         history.back();
     }
@@ -198,7 +213,13 @@
 
         <label class="label">
             <span class="label-text">Search spells</span>
-            <input class="input preset-tonal" type="text" bind:value={search} placeholder="Find a spell by name..." autocomplete="off" />
+            <input
+                class="input preset-tonal"
+                type="text"
+                bind:value={search}
+                placeholder="Find a spell by name..."
+                autocomplete="off"
+                onkeydown={selectFirstSearchResult} />
         </label>
         <p class="text-xs opacity-70">Use Select to include a spell on the character page. Prepared/Always/Free-cast settings are stored per character.</p>
         {#if spells.length === 0}

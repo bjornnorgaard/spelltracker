@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {characters, spells} from "$lib/stores/stores";
+    import { characters, spells } from "$lib/stores/stores";
     import { createCharacter } from "$lib/utils/createCharacter";
     import SectionHeader from "$lib/components/SectionHeader.svelte";
     import CharacterCard from "$lib/components/CharacterCard.svelte";
@@ -30,5 +30,4 @@
             <a class="btn preset-filled-secondary-500 w-full sm:w-auto" href="/spells/import">Open Spell Importer</a>
         </div>
     {/if}
-
 </div>

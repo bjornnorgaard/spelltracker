@@ -160,11 +160,8 @@
                 {#each sourceEntries as entry (entry.source)}
                     <label class="flex items-start gap-3">
                         <input class="checkbox" type="checkbox" bind:checked={entry.selected} />
-                        <span class="flex-1">
-                            <span class="font-medium">{entry.source}</span>
-                            <span class="block text-sm opacity-80">{entry.fileName}</span>
-                            <span class="block text-xs opacity-70 break-all">{entry.url}</span>
-                        </span>
+                        <span class="font-medium">{entry.source}</span>
+                        <span class="block text-sm opacity-80">{entry.fileName}</span>
                     </label>
                 {/each}
             </div>

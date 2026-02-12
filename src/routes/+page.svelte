@@ -5,7 +5,7 @@
     import CharacterCard from "$lib/components/CharacterCard.svelte";
 
     function createNewCharacter() {
-        let character = createCharacter();
+        const character = createCharacter();
         characters.current.push(character);
         window.location.href = `/characters/${character.id}/edit`;
     }

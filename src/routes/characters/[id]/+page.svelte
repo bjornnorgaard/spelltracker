@@ -510,7 +510,8 @@
                                             class:preset-filled-surface-500={remaining === 0 && s.level !== 0}
                                             class:disabled={remaining === 0 && s.level !== 0}
                                             disabled={remaining === 0 && s.level !== 0}>
-                                            Cast as {s.castingTime.slice(0, 10)} at {formatSpellLevel(s.level)} ({remaining}/{total})
+                                            <span>Cast as {s.castingTime.slice(0, 10)}</span>
+                                            <span class:hidden={s.level === 0}>at {formatSpellLevel(s.level)} ({remaining}/{total})</span>
                                         </button>
                                         <button
                                             class="btn"

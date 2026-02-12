@@ -77,7 +77,7 @@
 
 <div class="min-h-screen flex flex-col">
     <header class="p-4">
-        <button class="anchor text-left" onclick={() => (window.location.href = "/")}>
+        <button class="text-left" onclick={() => (window.location.href = "/")}>
             <p class="preset-typo-headline">Spelltracker <span class="opacity-25 font-serif font-thin ml-1">by Bear</span></p>
         </button>
     </header>

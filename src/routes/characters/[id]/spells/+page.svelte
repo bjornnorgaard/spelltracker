@@ -348,7 +348,7 @@
                                     class:preset-tonal={!isPrepared(spell.id)}
                                     onclick={(event) => togglePreparedFromHeader(spell.id, event)}>
                                     {#if isPrepared(spell.id)}
-                                        Ready
+                                        Prepared
                                         <CircleCheckBig />
                                     {:else}
                                         Prepare

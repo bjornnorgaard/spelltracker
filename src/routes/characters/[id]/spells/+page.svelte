@@ -88,6 +88,13 @@
         return (character?.alwaysPreparedSpellIds ?? []).includes(spellId);
     }
 
+    function getSelectionMode(spellId: string): "none" | "selected" | "prepared" | "always" {
+        if (isAlwaysPrepared(spellId)) return "always";
+        if (isPrepared(spellId)) return "prepared";
+        if (isSelected(spellId)) return "selected";
+        return "none";
+    }
+
     function showSelectedBadge(spellId: string) {
         return isSelected(spellId) && !isPrepared(spellId) && !isAlwaysPrepared(spellId);
     }
@@ -111,32 +118,43 @@
         }
     }
 
+    function applySelectionMode(spellId: string, mode: "none" | "selected" | "prepared" | "always") {
+        if (!character) return;
+
+        if (mode === "none") {
+            const hasSelected = (character.selectedSpellIds ?? []).includes(spellId);
+            character.preparedSpellIds = (character.preparedSpellIds ?? []).filter((id) => id !== spellId);
+            character.alwaysPreparedSpellIds = (character.alwaysPreparedSpellIds ?? []).filter((id) => id !== spellId);
+            if (hasSelected) {
+                toggleSelected(spellId);
+            }
+            return;
+        }
+
+        const selected = uniqueIds([...(character.selectedSpellIds ?? []), spellId]);
+        const preparedBase = (character.preparedSpellIds ?? []).filter((id) => id !== spellId);
+        const alwaysBase = (character.alwaysPreparedSpellIds ?? []).filter((id) => id !== spellId);
+
+        character.selectedSpellIds = selected;
+        character.preparedSpellIds = mode === "prepared" ? uniqueIds([...preparedBase, spellId]) : preparedBase;
+        character.alwaysPreparedSpellIds = mode === "always" ? uniqueIds([...alwaysBase, spellId]) : alwaysBase;
+    }
+
+    function toggleSelectionMode(spellId: string, mode: "selected" | "prepared" | "always") {
+        const current = getSelectionMode(spellId);
+        applySelectionMode(spellId, current === mode ? "none" : mode);
+    }
+
     function togglePrepared(spellId: string) {
         if (!character) return;
 
-        if (!isSelected(spellId)) {
-            character.selectedSpellIds = uniqueIds([...(character.selectedSpellIds ?? []), spellId]);
-        }
-
-        if (isPrepared(spellId)) {
-            character.preparedSpellIds = (character.preparedSpellIds ?? []).filter((id) => id !== spellId);
-        } else {
-            character.preparedSpellIds = uniqueIds([...(character.preparedSpellIds ?? []), spellId]);
-        }
+        toggleSelectionMode(spellId, "prepared");
     }
 
     function toggleAlwaysPrepared(spellId: string) {
         if (!character) return;
 
-        if (!isSelected(spellId)) {
-            character.selectedSpellIds = uniqueIds([...(character.selectedSpellIds ?? []), spellId]);
-        }
-
-        if (isAlwaysPrepared(spellId)) {
-            character.alwaysPreparedSpellIds = (character.alwaysPreparedSpellIds ?? []).filter((id) => id !== spellId);
-        } else {
-            character.alwaysPreparedSpellIds = uniqueIds([...(character.alwaysPreparedSpellIds ?? []), spellId]);
-        }
+        toggleSelectionMode(spellId, "always");
     }
 
     function getCount(list: FreeCastSpell[], spellId: string) {
@@ -300,7 +318,7 @@
                 <button class="btn btn-sm preset-tonal" onclick={clearFilters}>Clear filters</button>
             </div>
         </div>
-        <p class="text-xs opacity-70">Use Prepare in the header for quick toggles. Expand for Select/Always/Free-casts/Notes.</p>
+        <p class="text-xs opacity-70">Use Prepare in the header for quick toggles. Expand for Select state, Free-casts, and Notes.</p>
         {#if spells.length === 0}
             <p class="text-center opacity-70">No spells match this search.</p>
         {:else}
@@ -344,32 +362,36 @@
                             {#snippet element(attributes)}
                                 {#if !attributes.hidden}
                                     <div {...attributes} class="mt-3 grid gap-3 p-3" transition:slide={{ duration: 200 }}>
-                                        <div class="grid gap-2 md:grid-cols-2">
-                                            <button
-                                                class="btn"
-                                                class:preset-filled-primary-500={isSelected(spell.id)}
-                                                class:preset-tonal={!isSelected(spell.id)}
-                                                onclick={() => toggleSelected(spell.id)}>
-                                                {#if isSelected(spell.id)}
-                                                    Selected
-                                                    <Check />
-                                                {:else}
+                                        <div class="grid gap-2 md:grid-cols-3">
+                                            {#if getSelectionMode(spell.id) === "none"}
+                                                <button class="btn preset-tonal" onclick={() => toggleSelectionMode(spell.id, "selected")}>
                                                     Select
                                                     <Circle />
-                                                {/if}
-                                            </button>
-                                            <button
-                                                class="btn"
-                                                class:preset-filled-tertiary-500={isAlwaysPrepared(spell.id)}
-                                                class:preset-tonal={!isAlwaysPrepared(spell.id)}
-                                                onclick={() => toggleAlwaysPrepared(spell.id)}>
-                                                Always Prepared
-                                                {#if isAlwaysPrepared(spell.id)}
-                                                    <Star />
-                                                {:else}
+                                                </button>
+                                                <button class="btn preset-tonal" onclick={() => toggleSelectionMode(spell.id, "prepared")}>
+                                                    Prepare
                                                     <Circle />
-                                                {/if}
-                                            </button>
+                                                </button>
+                                                <button class="btn preset-tonal" onclick={() => toggleSelectionMode(spell.id, "always")}>
+                                                    Always Prepared
+                                                    <Circle />
+                                                </button>
+                                            {:else if getSelectionMode(spell.id) === "selected"}
+                                                <button class="btn preset-filled-primary-500 md:col-span-3" onclick={() => toggleSelectionMode(spell.id, "selected")}>
+                                                    Selected
+                                                    <Check />
+                                                </button>
+                                            {:else if getSelectionMode(spell.id) === "prepared"}
+                                                <button class="btn preset-filled-secondary-500 md:col-span-3" onclick={() => toggleSelectionMode(spell.id, "prepared")}>
+                                                    Prepared
+                                                    <CircleCheckBig />
+                                                </button>
+                                            {:else}
+                                                <button class="btn preset-filled-tertiary-500 md:col-span-3" onclick={() => toggleSelectionMode(spell.id, "always")}>
+                                                    Always Prepared
+                                                    <Star />
+                                                </button>
+                                            {/if}
                                         </div>
 
                                         <div class="flex gap-4">

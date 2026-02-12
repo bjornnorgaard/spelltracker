@@ -236,8 +236,6 @@
         onCancel={cancelConcentrationCast}/>
 
 <div class="space-y-8">
-    <PageHeader title={character.name} subtitle={`Your ${formatSpellLevel(character.level)} level ${character.class}`}/>
-
     <Section title="Actions" subtitle="Rest and edit your character">
         <div class="flex flex-col gap-2">
             <button onclick={() => (window.location.href = `/characters/${character.id}/edit`)} class="btn preset-tonal">

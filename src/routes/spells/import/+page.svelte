@@ -130,7 +130,6 @@
         <label class="label">
             <span class="label-text">Data Index URL</span>
             <input type="url" class="input" placeholder="https://example.com/data/spells/index.json" bind:value={originalUrl} />
-            <span class="label-text">Raw URL: {converted || "—"}</span>
         </label>
 
         <div class="flex gap-3">

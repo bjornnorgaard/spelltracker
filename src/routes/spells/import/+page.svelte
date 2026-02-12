@@ -147,11 +147,11 @@
         <div class="card preset-filled-surface-100-900 p-4 space-y-4">
             <SectionHeader title="Source Files" subtitle="Select which sources to import" />
 
+            <p class="text-sm opacity-80">{sourceEntries.length} sources found, {selectedCount} selected.</p>
             <div class="flex items-center justify-between gap-3">
-                <p class="text-sm opacity-80">{sourceEntries.length} sources found, {selectedCount} selected.</p>
                 <div class="flex gap-2">
-                    <button class="btn btn-sm preset-tonal" onclick={() => setAllSelected(true)}>Select all</button>
                     <button class="btn btn-sm preset-tonal" onclick={setRecommendedSelected}>Recommended</button>
+                    <button class="btn btn-sm preset-tonal" onclick={() => setAllSelected(true)}>Select all</button>
                     <button class="btn btn-sm preset-tonal" onclick={() => setAllSelected(false)}>Select none</button>
                 </div>
             </div>

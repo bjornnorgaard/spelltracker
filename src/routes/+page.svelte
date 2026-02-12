@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { characters } from "$lib/stores/stores";
+    import {characters, spells} from "$lib/stores/stores";
     import { createCharacter } from "$lib/utils/createCharacter";
     import SectionHeader from "$lib/components/SectionHeader.svelte";
     import CharacterCard from "$lib/components/CharacterCard.svelte";
@@ -22,4 +22,9 @@
     </div>
 
     <button onclick={createNewCharacter} class="btn w-full preset-filled-primary-500">Create New Character</button>
+
+    {#if !spells.current.length}
+        Go to the <a href="/spells/import">Spells</a> page to add some spells./
+    {/if}
+
 </div>

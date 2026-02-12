@@ -348,23 +348,23 @@
             <div class="flex flex-row gap-1">
                 <button
                     class="btn basis-1/3"
-                    class:preset-filled-primary-200-800={selectedCastingTimes.includes("Action")}
-                    class:preset-tonal={!selectedCastingTimes.includes("Action")}
-                    onclick={() => toggleCastingTime("Action")}>
+                    class:preset-filled-primary-200-800={selectedCastingTimes.includes("action")}
+                    class:preset-tonal={!selectedCastingTimes.includes("action")}
+                    onclick={() => toggleCastingTime("action")}>
                     Action
                 </button>
                 <button
                     class="btn basis-1/3"
-                    class:preset-filled-primary-200-800={selectedCastingTimes.includes("Bonus")}
-                    class:preset-tonal={!selectedCastingTimes.includes("Bonus")}
-                    onclick={() => toggleCastingTime("Bonus")}>
+                    class:preset-filled-primary-200-800={selectedCastingTimes.includes("bonus")}
+                    class:preset-tonal={!selectedCastingTimes.includes("bonus")}
+                    onclick={() => toggleCastingTime("bonus")}>
                     Bonus
                 </button>
                 <button
                     class="btn basis-1/3"
-                    class:preset-filled-primary-200-800={selectedCastingTimes.includes("Reaction")}
-                    class:preset-tonal={!selectedCastingTimes.includes("Reaction")}
-                    onclick={() => toggleCastingTime("Reaction")}>
+                    class:preset-filled-primary-200-800={selectedCastingTimes.includes("reaction")}
+                    class:preset-tonal={!selectedCastingTimes.includes("reaction")}
+                    onclick={() => toggleCastingTime("reaction")}>
                     Reaction
                 </button>
                 <button class="btn basis-1/3" class:preset-filled-primary-200-800={requireRitual} class:preset-tonal={!requireRitual} onclick={toggleRituals}> Rit.</button>

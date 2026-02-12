@@ -1,8 +1,7 @@
 <script lang="ts">
-    import {characters, spells as spellsStore} from "$lib/stores/stores";
-    import SectionHeader from "$lib/components/SectionHeader.svelte";
-    import {formatSpellLevelLong} from "$lib/utils/spell-formatter";
-    import {Check, Circle, CircleCheckBig, Star} from "@lucide/svelte";
+    import {characters, spells} from "$lib/stores/stores";
+    import {formatSpellLevel, formatSpellLevelLong} from "$lib/utils/spell-formatter";
+    import {Circle, CircleCheckBig, CircleMinus, CirclePlus, Star} from "@lucide/svelte";
     import {Accordion} from "@skeletonlabs/skeleton-svelte";
     import {slide} from "svelte/transition";
     import type {Character} from "$lib/types/character";
@@ -10,6 +9,7 @@
     import type {SpellNote} from "$lib/types/spellNote";
     import type {Spell} from "$lib/types/spell";
     import Section from "$lib/components/Section.svelte";
+    import {DND_CLASSES} from "$lib/utils/constants";
 
     const {data} = $props();
     let character: Character = $derived.by(() => characters.current.find((c: any) => c.id === data.characterId));
@@ -22,14 +22,14 @@
     const spellLevels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     let availableClasses: string[] = $derived.by(() => {
-        const classes: string[] = spellsStore.current.flatMap((spell: Spell) => spell.classes ?? []);
+        const classes: string[] = spells.current.flatMap((spell: Spell) => spell.classes ?? []);
         return [...new Set<string>(classes)].sort((a: string, b: string) => a.localeCompare(b));
     });
 
-    let spells = $derived.by(() => {
+    let filteredSpells = $derived.by(() => {
         if (!character) return [];
 
-        const allSpells = spellsStore.current;
+        const allSpells = spells.current;
         const term = search.trim().toLowerCase();
 
         const filtered = allSpells.filter((spell: Spell) => {
@@ -39,7 +39,7 @@
             return matchesSearch && matchesLevel && matchesClass;
         });
 
-        return filtered.sort((a: Spell, b: Spell) => a.level - b.level || a.name.localeCompare(b.name));
+        return filtered.sort((a: Spell, b: Spell) => a.level - b.level || a.name.localeCompare(b.name)).slice(0, 100);
     });
 
     const selectedCount = $derived((character?.selectedSpellIds ?? []).length);
@@ -241,7 +241,7 @@
         if (event.key !== "Enter") return;
         if (!character) return;
 
-        const firstSpell = spells[0];
+        const firstSpell = filteredSpells[0];
         if (!firstSpell) return;
 
         event.preventDefault();
@@ -266,46 +266,28 @@
         </div>
     </Section>
 
+    <Section title="Filters" subtitle="Find spells and verify key fields quickly">
+        <div class="card p-4 preset-tonal space-y-4">
+            <p class="uppercase tracking-wide opacity-70">Filter by Name</p>
+            <label class="label">
+                <input class="input preset-tonal" type="search" bind:value={search}
+                       placeholder="Find a spell by name..." autocomplete="off"/>
+            </label>
 
-    {#each [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] as _}
-        <br>
-    {/each}
-
-
-    <div class="card preset-filled-surface-100-900 p-4 space-y-2">
-        <SectionHeader title="Spellbook Manager" subtitle="Select spells for this character, then configure prepared/always prepared/free casts."/>
-        <div class="flex flex-wrap gap-2 text-xs">
-            <span class="badge preset-filled-surface-500">Selected {selectedCount}</span>
-            <span class="badge preset-filled-surface-500">Prepared {preparedCount}/{character.preparedSpellsLimit}</span>
-            <span class="badge preset-filled-surface-500">Always Prepared {alwaysPreparedCount}</span>
-        </div>
-    </div>
-
-    <label class="label">
-        <span class="label-text">Search spells</span>
-        <input class="input preset-tonal" type="text" bind:value={search} placeholder="Find a spell by name..." autocomplete="off" onkeydown={selectFirstSearchResult}/>
-    </label>
-    <div class="card p-3 preset-tonal space-y-3">
-        <div class="space-y-1">
-            <p class="text-xs uppercase tracking-wide opacity-70">Filter by level</p>
+            <p class="uppercase tracking-wide opacity-70">Filter by level</p>
             <div class="flex flex-wrap gap-2">
-                {#each spellLevels as level (level)}
-                    <button
-                            class="btn btn-sm"
-                            class:preset-filled-primary-500={levelFilters.includes(level)}
-                            class:preset-tonal={!levelFilters.includes(level)}
-                            onclick={() => toggleLevelFilter(level)}>
-                        {levelLabel(level)}
+                {#each character.spellSlots as slot (slot.level)}
+                    <button class="btn btn-sm grow" onclick={() => toggleLevelFilter(slot.level)}
+                            class:preset-filled-primary-500={levelFilters.includes(slot.level)}
+                            class:preset-tonal={!levelFilters.includes(slot.level)}>
+                        {formatSpellLevel(slot.level)}
                     </button>
                 {/each}
             </div>
-        </div>
-        <div class="space-y-1">
-            <p class="text-xs uppercase tracking-wide opacity-70">Filter by class</p>
+            <p class="uppercase tracking-wide opacity-70">Filter by class</p>
             <div class="flex flex-wrap gap-2">
-                {#each availableClasses as className (className)}
-                    <button
-                            class="btn btn-sm"
+                {#each DND_CLASSES as className (className)}
+                    <button class="btn btn-sm grow"
                             class:preset-filled-secondary-500={classFilters.includes(className)}
                             class:preset-tonal={!classFilters.includes(className)}
                             onclick={() => toggleClassFilter(className)}>
@@ -313,136 +295,117 @@
                     </button>
                 {/each}
             </div>
+            <p class="uppercase tracking-wide opacity-70">Actions</p>
+            <button class="btn w-full preset-tonal-primary" onclick={clearFilters}>Clear filters</button>
         </div>
-        <div>
-            <button class="btn btn-sm preset-tonal" onclick={clearFilters}>Clear filters</button>
-        </div>
-    </div>
-    <p class="text-xs opacity-70">Use Prepare in the header for quick toggles. Expand for Select state, Free-casts, and Notes.</p>
-    {#if spells.length === 0}
-        <p class="text-center opacity-70">No spells match this search.</p>
-    {:else}
-        <Accordion collapsible value={openSpellId} onValueChange={(details) => (openSpellId = details.value)}>
-            {#each spells as spell (spell.id)}
-                <Accordion.Item value={spell.id} class="preset-tonal border-l-2 border-l-primary-500 rounded-r-xl" style={`filter: hue-rotate(${spell.level * 90}deg)`}>
-                    <Accordion.ItemTrigger class="font-bold flex items-start justify-between gap-3">
-                        <div class="space-y-1">
-                            <div class="font-semibold">{spell.name}</div>
-                            <div class="text-xs opacity-70">{formatSpellLevelLong(spell.level)}</div>
-                            <div class="flex flex-wrap items-center gap-1 text-xs">
-                                {#if showSelectedBadge(spell.id)}
-                                    <span class="badge preset-filled-primary-500">Selected</span>
-                                {/if}
-                                {#if isPrepared(spell.id)}
-                                    <span class="badge preset-filled-secondary-500">Prepared</span>
-                                {/if}
-                                {#if isAlwaysPrepared(spell.id)}
-                                    <span class="badge preset-filled-tertiary-500">Always</span>
-                                {/if}
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button
-                                    class="btn btn-sm px-2"
-                                    class:preset-filled-secondary-500={isPrepared(spell.id)}
-                                    class:preset-tonal={!isPrepared(spell.id)}
-                                    onclick={(event) => togglePreparedFromHeader(spell.id, event)}>
-                                {#if isPrepared(spell.id)}
-                                    Prepared
-                                    <CircleCheckBig/>
-                                {:else}
-                                    Prepare
-                                    <Circle/>
-                                {/if}
-                            </button>
-                            <Accordion.ItemIndicator class="group"/>
-                        </div>
-                    </Accordion.ItemTrigger>
-                    <Accordion.ItemContent>
-                        {#snippet element(attributes)}
-                            {#if !attributes.hidden}
-                                <div {...attributes} class="mt-3 grid gap-3 p-3" transition:slide={{ duration: 200 }}>
-                                    <div class="grid gap-2 md:grid-cols-3">
-                                        {#if getSelectionMode(spell.id) === "none"}
-                                            <button class="btn preset-tonal" onclick={() => toggleSelectionMode(spell.id, "selected")}>
-                                                Select
-                                                <Circle/>
-                                            </button>
-                                            <button class="btn preset-tonal" onclick={() => toggleSelectionMode(spell.id, "prepared")}>
-                                                Prepare
-                                                <Circle/>
-                                            </button>
-                                            <button class="btn preset-tonal" onclick={() => toggleSelectionMode(spell.id, "always")}>
-                                                Always Prepared
-                                                <Circle/>
-                                            </button>
-                                        {:else if getSelectionMode(spell.id) === "selected"}
-                                            <button class="btn preset-filled-primary-500 md:col-span-3" onclick={() => toggleSelectionMode(spell.id, "selected")}>
-                                                Selected
-                                                <Check/>
-                                            </button>
-                                        {:else if getSelectionMode(spell.id) === "prepared"}
-                                            <button class="btn preset-filled-secondary-500 md:col-span-3" onclick={() => toggleSelectionMode(spell.id, "prepared")}>
-                                                Prepared
-                                                <CircleCheckBig/>
-                                            </button>
-                                        {:else}
-                                            <button class="btn preset-filled-tertiary-500 md:col-span-3" onclick={() => toggleSelectionMode(spell.id, "always")}>
-                                                Always Prepared
-                                                <Star/>
-                                            </button>
-                                        {/if}
-                                    </div>
+    </Section>
 
-                                    <div class="flex gap-4">
-                                        <div class="grow">
-                                            <p class="text-xs uppercase tracking-wide opacity-70">Long Rest</p>
-                                            <div class="flex items-center gap-2">
-                                                <button class="btn btn-sm" onclick={() => stepCount("long", spell.id, -1)} disabled={getCount(character.freePerLongRestSpells, spell.id) <= 0}
-                                                >-
-                                                </button>
-                                                <input
-                                                        type="number"
-                                                        min={0}
-                                                        max={99}
-                                                        class="input preset-tonal w-16 text-center"
-                                                        value={getCount(character.freePerLongRestSpells, spell.id)}
-                                                        oninput={(event) => handleCountInput("long", spell.id, event)}/>
-                                                <button class="btn btn-sm" onclick={() => stepCount("long", spell.id, 1)}>+</button>
-                                            </div>
-                                        </div>
-                                        <div class="grow">
-                                            <p class="text-xs uppercase tracking-wide opacity-70">Short Rest</p>
-                                            <div class="flex items-center gap-2">
-                                                <button class="btn btn-sm" onclick={() => stepCount("short", spell.id, -1)} disabled={getCount(character.freePerShortRestSpells, spell.id) <= 0}
-                                                >-
-                                                </button>
-                                                <input
-                                                        type="number"
-                                                        min={0}
-                                                        max={99}
-                                                        class="input preset-tonal w-16 text-center"
-                                                        value={getCount(character.freePerShortRestSpells, spell.id)}
-                                                        oninput={(event) => handleCountInput("short", spell.id, event)}/>
-                                                <button class="btn btn-sm" onclick={() => stepCount("short", spell.id, 1)}>+</button>
-                                            </div>
-                                        </div>
+    <Accordion collapsible value={openSpellId} onValueChange={(details) => (openSpellId = details.value)}>
+        {#each filteredSpells as spell (spell.id)}
+            <Accordion.Item value={spell.id}
+                            class="preset-tonal border-l-2 border-l-primary-500 rounded-r-xl"
+                            style={`filter: hue-rotate(${spell.level * 90}deg)`}>
+                <Accordion.ItemTrigger class="font-bold flex items-start justify-between gap-3">
+                    <div class="w-full">
+                        <div class="text-xs opacity-70">{formatSpellLevelLong(spell.level)}</div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold">{spell.name}</span>
+                            {#if isPrepared(spell.id)}
+                                <button class="badge preset-filled-primary-500" onclick={(event) => togglePreparedFromHeader(spell.id, event)}>
+                                    Prepared
+                                    <CircleCheckBig size="20"/>
+                                </button>
+                            {:else if isAlwaysPrepared(spell.id) || showSelectedBadge(spell.id)}
+                                <span class="badge preset-filled-secondary-500">Always Prepared</span>
+                            {:else}
+                                <button class="badge" onclick={(event) => togglePreparedFromHeader(spell.id, event)}>
+                                    Prepare
+                                    <Circle size="20"/>
+                                </button>
+                            {/if}
+                        </div>
+                    </div>
+                </Accordion.ItemTrigger>
+                <Accordion.ItemContent>
+                    {#snippet element(attributes)}
+                        {#if !attributes.hidden}
+                            <div {...attributes} class="space-y-4 p-4 card preset-filled-surface-100-900" transition:slide={{ duration: 200 }}>
+                                <p class="preset-typo-headline tracking-wide">{spell.name}</p>
+                                <div>
+                                    <p><strong>School:</strong> {spell.school}</p>
+                                    <p><strong>Casting time:</strong> {spell.castingTime}</p>
+                                    <p><strong>Range:</strong> {spell.range}</p>
+                                    <p><strong>Duration:</strong> {spell.duration}</p>
+                                    <p><strong>Components:</strong> {spell.components}</p>
+                                </div>
+                                <div>
+                                    <i>{spell.text}</i>
+                                </div>
+                                {#if spell.atHigherLevels}
+                                    <p><strong>At higher levels:</strong> {spell.atHigherLevels}</p>
+                                {/if}
+                                <p>{spell.source} p{spell.page}</p>
+
+                                <label class="label">
+                                    <span class="label-text">Notes - will appear on spell card</span>
+                                    <textarea class="input preset-tonal min-h-24" rows="3"
+                                              placeholder="Example: 'My ring doubles the range' or 'This feat allows me to ignore components'"
+                                              oninput={(event) => handleNoteInput(spell.id, event)}>{getNote(character.spellNotes, spell.id)}</textarea>
+                                </label>
+
+                                <p class="preset-typo-headline tracking-wide">Preparation</p>
+
+                                <div class="flex flex-col gap-2">
+                                    {#if getSelectionMode(spell.id) === "none"}
+                                        <button class="btn preset-filled-primary-500" onclick={() => toggleSelectionMode(spell.id, "prepared")}>
+                                            Prepare {spell.name}
+                                        </button>
+                                        <button class="btn preset-tonal" onclick={() => toggleSelectionMode(spell.id, "always")}>
+                                            Mark as Always Prepared
+                                        </button>
+                                    {:else if getSelectionMode(spell.id) === "prepared"}
+                                        <button class="btn preset-filled-primary-500" onclick={() => toggleSelectionMode(spell.id, "prepared")}>
+                                            Prepared
+                                            <CircleCheckBig size={20}/>
+                                        </button>
+                                    {:else}
+                                        <button class="btn preset-filled-secondary-500" onclick={() => toggleSelectionMode(spell.id, "always")}>
+                                            Remove Always Prepared
+                                            <Star/>
+                                        </button>
+                                    {/if}
+                                </div>
+
+                                <p class="preset-typo-headline tracking-wide">Free Casts</p>
+                                <div class="flex justify-evenly">
+                                    <div class="flex flex-col gap-2">
+                                        <button class="btn" onclick={() => stepCount("long", spell.id, 1)}>
+                                            <CirclePlus/>
+                                        </button>
+                                        <span class="badge uppercase tracking-wide opacity-70">
+                                            {getCount(character.freePerLongRestSpells, spell.id)} per short rest
+                                        </span>
+                                        <button class="btn" onclick={() => stepCount("long", spell.id, -1)}>
+                                            <CircleMinus/>
+                                        </button>
                                     </div>
-                                    <div class="space-y-1">
-                                        <p class="text-xs uppercase tracking-wide opacity-70">Notes</p>
-                                        <textarea
-                                                class="input preset-tonal min-h-24"
-                                                rows="3"
-                                                placeholder="Add custom notes for this spell..."
-                                                value={getNote(character.spellNotes, spell.id)}
-                                                oninput={(event) => handleNoteInput(spell.id, event)}></textarea>
+                                    <div class="flex flex-col gap-2">
+                                        <button class="btn" onclick={() => stepCount("short", spell.id, 1)}>
+                                            <CirclePlus/>
+                                        </button>
+                                        <span class="badge uppercase tracking-wide opacity-70">
+                                            {getCount(character.freePerShortRestSpells, spell.id)} per long rest
+                                        </span>
+                                        <button class="btn" onclick={() => stepCount("short", spell.id, -1)}>
+                                            <CircleMinus/>
+                                        </button>
                                     </div>
                                 </div>
-                            {/if}
-                        {/snippet}
-                    </Accordion.ItemContent>
-                </Accordion.Item>
-            {/each}
-        </Accordion>
-    {/if}
+                            </div>
+                        {/if}
+                    {/snippet}
+                </Accordion.ItemContent>
+            </Accordion.Item>
+        {/each}
+    </Accordion>
 </div>

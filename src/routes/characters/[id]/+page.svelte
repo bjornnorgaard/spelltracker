@@ -271,7 +271,6 @@
                     </div>
                 {/each}
             </div>
-
         {:else}
             <aside class="card preset-filled-warning-500 p-4">
                 <strong class="text-xl">No Configured Slots</strong>
@@ -280,6 +279,69 @@
             <a href={`/characters/${data.characterId}/edit`} class="btn w-full preset-filled-primary-500">Edit Spell Slots</a>
         {/if}
     </Section>
+
+    {#if character.freePerLongRestSpells.length || character.freePerShortRestSpells.length}
+        <Section title="Free Casts" subtitle="Spells you can cast without a slot">
+            {#if character.freePerLongRestSpells.length}
+                <p class="text-xs opacity-75">Free casts per <span class="font-bold uppercase">Long Rest</span></p>
+                <div class="flex items-center gap-4">
+                    {#each character.freePerLongRestSpells as fs}
+                        {@const s = spells.current.find(spell => spell.id === fs.spellId)}
+                        <div class="flex justify-between items-center w-full card preset-tonal py-2 px-4">
+                            <span>{s.name}</span>
+                            <div class="flex gap-2">
+                                <div class="flex gap-1 mr-2">
+                                    {#each Array(fs.total) as _, i}
+                                        <div class="badge w-8 h-8  rounded-full font-bold text-xl"
+                                             class:preset-filled-primary-500={i >= fs.used}
+                                             class:preset-filled-surface-500={i < fs.used}
+                                             class:disabled={i < fs.used}>
+                                            {fs.total - (i)}
+                                        </div>
+                                    {/each}
+                                </div>
+                                <button class="text-success-900-100" onclick={() => undoFree("long", fs.spellId)}>
+                                    <HeartPlus/>
+                                </button>
+                                <button class="text-secondary-900-100" onclick={() => castFree("long", fs.spellId)}>
+                                    <Zap/>
+                                </button>
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+            {/if}
+            {#if character.freePerShortRestSpells.length}
+                <p class="text-xs opacity-75">Free casts per <span class="font-bold uppercase">Short Rest</span></p>
+                <div class="flex items-center gap-4">
+                    {#each character.freePerShortRestSpells as fs}
+                        {@const s = spells.current.find(spell => spell.id === fs.spellId)}
+                        <div class="flex justify-between items-center w-full card preset-tonal py-2 px-4">
+                            <span>{s.name}</span>
+                            <div class="flex gap-2">
+                                <div class="flex gap-1 mr-2">
+                                    {#each Array(fs.total) as _, i}
+                                        <div class="badge w-8 h-8  rounded-full font-bold text-xl"
+                                             class:preset-filled-primary-500={i >= fs.used}
+                                             class:preset-filled-surface-500={i < fs.used}
+                                             class:disabled={i < fs.used}>
+                                            {fs.total - (i)}
+                                        </div>
+                                    {/each}
+                                </div>
+                                <button class="text-success-900-100" onclick={() => undoFree("short", fs.spellId)}>
+                                    <HeartPlus/>
+                                </button>
+                                <button class="text-secondary-900-100" onclick={() => castFree("short", fs.spellId)}>
+                                    <Zap/>
+                                </button>
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+            {/if}
+        </Section>
+    {/if}
 
     <Section title="Quick Filters" subtitle="Use the filters to quickly find what you need">
         <div class="space-y-1">

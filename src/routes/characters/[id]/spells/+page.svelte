@@ -383,7 +383,7 @@
                                             <CirclePlus/>
                                         </button>
                                         <span class="badge uppercase tracking-wide opacity-70">
-                                            {getCount(character.freePerLongRestSpells, spell.id)} per short rest
+                                            {getCount(character.freePerLongRestSpells, spell.id)} per long rest
                                         </span>
                                         <button class="btn" onclick={() => stepCount("long", spell.id, -1)}>
                                             <CircleMinus/>
@@ -394,7 +394,7 @@
                                             <CirclePlus/>
                                         </button>
                                         <span class="badge uppercase tracking-wide opacity-70">
-                                            {getCount(character.freePerShortRestSpells, spell.id)} per long rest
+                                            {getCount(character.freePerShortRestSpells, spell.id)} per short rest
                                         </span>
                                         <button class="btn" onclick={() => stepCount("short", spell.id, -1)}>
                                             <CircleMinus/>

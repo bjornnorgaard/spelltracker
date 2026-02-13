@@ -1,11 +1,11 @@
 <script lang="ts">
     import "./layout.css";
-    import { characters, spells } from "$lib/stores/stores";
-    import { onMount } from "svelte";
-    import { DND_CLASSES } from "$lib/utils/constants";
-    import type { Character } from "$lib/types/character";
+    import {characters, spells} from "$lib/stores/stores";
+    import {onMount} from "svelte";
+    import {DND_CLASSES} from "$lib/utils/constants";
+    import type {Character} from "$lib/types/character";
 
-    let { children } = $props();
+    let {children} = $props();
 
     function normalizeCharacter(input: Partial<Character>): Character {
         const preparedSpellsLimit = Number((input as any)?.preparedSpellsLimit ?? (input as any)?.preparedLimit ?? 1);
@@ -14,19 +14,19 @@
         const alwaysPreparedSpellIds = Array.isArray(input?.alwaysPreparedSpellIds) ? input.alwaysPreparedSpellIds : [];
         const freePerLongRestSpells = Array.isArray((input as any)?.freePerLongRestSpells)
             ? (input as any).freePerLongRestSpells.map((entry: any) => ({
-                  spellId: String(entry?.spellId ?? ""),
-                  total: Number(entry?.total ?? entry?.count ?? 0),
-                  used: Number(entry?.used ?? 0),
-                  why: String(entry?.why ?? ""),
-              }))
+                spellId: String(entry?.spellId ?? ""),
+                total: Number(entry?.total ?? entry?.count ?? 0),
+                used: Number(entry?.used ?? 0),
+                why: String(entry?.why ?? ""),
+            }))
             : [];
         const freePerShortRestSpells = Array.isArray((input as any)?.freePerShortRestSpells)
             ? (input as any).freePerShortRestSpells.map((entry: any) => ({
-                  spellId: String(entry?.spellId ?? ""),
-                  total: Number(entry?.total ?? entry?.count ?? 0),
-                  used: Number(entry?.used ?? 0),
-                  why: String(entry?.why ?? ""),
-              }))
+                spellId: String(entry?.spellId ?? ""),
+                total: Number(entry?.total ?? entry?.count ?? 0),
+                used: Number(entry?.used ?? 0),
+                why: String(entry?.why ?? ""),
+            }))
             : [];
         const spellNotes = Array.isArray(input?.spellNotes) ? input.spellNotes : [];
         const derivedSelectedSpellIds = [
@@ -68,7 +68,8 @@
                 if ((characters.current?.length ?? 0) === 0 && Array.isArray(legacy?.characters)) {
                     characters.current = legacy.characters.map(normalizeCharacter);
                 }
-            } catch {}
+            } catch {
+            }
         }
 
         characters.current = (characters.current ?? []).map((character: Partial<Character>) => normalizeCharacter(character));
@@ -86,48 +87,36 @@
         {@render children()}
     </main>
 
-    <footer class="opacity-70 preset-filled-surface-100-900 pb-4 space-y-4">
-        <div class="p-4 sm:p-8 md:px-16 lg:max-w-7xl mx-auto">
-            <div>
-                <p class="preset-typo-body-2">Spelltracker by Bear</p>
-                <p class="preset-typo-caption">Manage spells and spell-slots.</p>
-            </div>
+    <footer class="flex flex-wrap justify-between p-4 mx-auto w-full max-w-xl">
+        <div class="space-y-2">
+            <p class="uppercase text-xs tracking-widest">General</p>
+            <ul class="space-y-1">
+                <li><a href="/" class="anchor">Home</a></li>
+                <li><a href="/backup" class="anchor">Backup</a></li>
+                <li><a href="/settings" class="anchor">Settings</a></li>
+                <li><a href="/debug" class="anchor">Debug</a></li>
+            </ul>
+        </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 my-8">
-                <div class="space-y-2">
-                    <p class="uppercase text-xs tracking-widest">General</p>
-                    <ul class="space-y-1">
-                        <li><button class="anchor" onclick={() => (window.location.href = "/")}>Home</button></li>
-                        <li><button class="anchor" onclick={() => (window.location.href = "/backup")}>Backup</button></li>
-                        <li><button class="anchor" onclick={() => (window.location.href = "/settings")}>Settings</button></li>
-                        <li><button class="anchor" onclick={() => (window.location.href = "/debug")}>Debug</button></li>
-                    </ul>
-                </div>
+        <div class="space-y-2">
+            <p class="uppercase text-xs tracking-widest">Spells</p>
+            <ul class="space-y-1">
+                <li><a href="/spells" class="anchor">Browse &amp; Filter</a></li>
+                <li><a href="/spells/import" class="anchor">Import Spells</a></li>
+            </ul>
+        </div>
 
-                <div class="space-y-2">
-                    <p class="uppercase text-xs tracking-widest">Spells</p>
-                    <ul class="space-y-1">
-                        <li><button class="anchor" onclick={() => (window.location.href = "/spells")}>Browse &amp; Filter</button></li>
-                        <li><button class="anchor" onclick={() => (window.location.href = "/spells/import")}>Import Spells</button></li>
-                    </ul>
-                </div>
-
-                <div class="space-y-2">
-                    <p class="uppercase tracking-widest text-xs">Characters</p>
-                    <ul class="space-y-1">
-                        {#if (characters.current ?? []).length > 0}
-                            {#each characters.current ?? [] as c (c.id)}
-                                <li><button class="anchor" onclick={() => (window.location.href = `/characters/${c.id}`)}>{c.name}</button></li>
-                            {/each}
-                        {:else}
-                            <li class="text-surface-500-200">No characters yet</li>
-                        {/if}
-                    </ul>
-                </div>
-            </div>
-            <div class="flex items-center justify-between preset-typo-caption">
-                <span>For D&D 5th Edition Spellcasters</span>
-            </div>
+        <div class="space-y-2">
+            <p class="uppercase text-xs tracking-widest">Characters</p>
+            <ul class="space-y-1">
+                {#if characters.current.length}
+                    {#each characters.current as c (c.id)}
+                        <li><a href={`/characters/${c.id}`} class="anchor">{c.name}</a></li>
+                    {/each}
+                {:else}
+                    <li class="text-surface-500-200">No characters yet</li>
+                {/if}
+            </ul>
         </div>
     </footer>
 </div>

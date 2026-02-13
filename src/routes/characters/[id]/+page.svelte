@@ -343,66 +343,7 @@
         </Section>
     {/if}
 
-    <Section title="Quick Filters" subtitle="Use the filters to quickly find what you need">
-        <div class="space-y-1">
-            <div class="flex flex-wrap gap-1">
-                <button class="btn grow" class:preset-filled-tertiary-200-800={selectedLevels.includes(0)} class:preset-tonal={!selectedLevels.includes(0)} onclick={() => toggleLevel(0)}>
-                    Cantrips
-                </button>
-                {#each character.spellSlots.filter(ss => ss.total > 0) as slot}
-                    <button class="btn grow" onclick={() => toggleLevel(slot.level)}
-                            class:preset-filled-tertiary-200-800={selectedLevels.includes(slot.level)}
-                            class:preset-tonal={!selectedLevels.includes(slot.level)}>
-                        {formatSpellLevel(slot.level)}
-                    </button>
-                {/each}
-            </div>
-
-            <div class="flex flex-row gap-1">
-                <button class="btn grow" onclick={() => toggleCastingTime("action")}
-                        class:preset-filled-primary-200-800={selectedCastingTimes.includes("action")}
-                        class:preset-tonal={!selectedCastingTimes.includes("action")}>
-                    Action
-                </button>
-                <button class="btn grow" onclick={() => toggleCastingTime("bonus")}
-                        class:preset-filled-primary-200-800={selectedCastingTimes.includes("bonus")}
-                        class:preset-tonal={!selectedCastingTimes.includes("bonus")}>
-                    Bonus
-                </button>
-                <button class="btn grow" onclick={() => toggleCastingTime("reaction")}
-                        class:preset-filled-primary-200-800={selectedCastingTimes.includes("reaction")}
-                        class:preset-tonal={!selectedCastingTimes.includes("reaction")}>
-                    Reaction
-                </button>
-                <button class="btn grow" onclick={toggleRituals}
-                        class:preset-filled-primary-200-800={requireRitual}
-                        class:preset-tonal={!requireRitual}>
-                    Rit.
-                </button>
-            </div>
-
-            <div class="flex flex-row gap-1">
-                <button class="btn grow" onclick={() => setConcentrationMode("conc")}
-                        class:preset-filled-secondary-200-800={concentrationMode === "conc"}
-                        class:preset-tonal={concentrationMode !== "conc"}>
-                    Conc.
-                </button>
-                <button class="btn grow preset-tonal" onclick={() => setConcentrationMode("both")}> Both</button>
-                <button class="btn grow" onclick={() => setConcentrationMode("no-conc")}
-                        class:preset-filled-secondary-200-800={concentrationMode === "no-conc"}
-                        class:preset-tonal={concentrationMode !== "no-conc"}>
-                    No Conc.
-                </button>
-            </div>
-
-            <button class="btn w-full preset-tonal" onclick={resetFilters}>
-                Reset Filters
-                <RotateCcw size="20"/>
-            </button>
-        </div>
-    </Section>
-
-    <Section title="Spellbook" subtitle="View your spellbook">
+    <Section title="Spellbook" subtitle="Your currently prepared spells. Use the filters to find what you need.">
         {#if !spells.current?.length}
             <aside class="card preset-filled-warning-500 p-4">
                 <strong class="text-xl">No imported spells</strong>
@@ -416,6 +357,63 @@
             </aside>
             <a href={"/characters/" + data.characterId + "/spells" } class="btn w-full preset-filled-primary-500">Edit Spells</a>
         {:else}
+            <div class="space-y-1 card preset-tonal">
+                <div class="flex flex-wrap gap-1">
+                    <button class="btn grow" class:preset-filled-tertiary-200-800={selectedLevels.includes(0)} class:preset-tonal={!selectedLevels.includes(0)} onclick={() => toggleLevel(0)}>
+                        Cantrips
+                    </button>
+                    {#each character.spellSlots.filter(ss => ss.total > 0) as slot}
+                        <button class="btn grow" onclick={() => toggleLevel(slot.level)}
+                                class:preset-filled-tertiary-200-800={selectedLevels.includes(slot.level)}
+                                class:preset-tonal={!selectedLevels.includes(slot.level)}>
+                            {formatSpellLevel(slot.level)}
+                        </button>
+                    {/each}
+                </div>
+
+                <div class="flex flex-row gap-1">
+                    <button class="btn grow" onclick={() => toggleCastingTime("action")}
+                            class:preset-filled-primary-200-800={selectedCastingTimes.includes("action")}
+                            class:preset-tonal={!selectedCastingTimes.includes("action")}>
+                        Action
+                    </button>
+                    <button class="btn grow" onclick={() => toggleCastingTime("bonus")}
+                            class:preset-filled-primary-200-800={selectedCastingTimes.includes("bonus")}
+                            class:preset-tonal={!selectedCastingTimes.includes("bonus")}>
+                        Bonus
+                    </button>
+                    <button class="btn grow" onclick={() => toggleCastingTime("reaction")}
+                            class:preset-filled-primary-200-800={selectedCastingTimes.includes("reaction")}
+                            class:preset-tonal={!selectedCastingTimes.includes("reaction")}>
+                        Reaction
+                    </button>
+                    <button class="btn grow" onclick={toggleRituals}
+                            class:preset-filled-primary-200-800={requireRitual}
+                            class:preset-tonal={!requireRitual}>
+                        Rit.
+                    </button>
+                </div>
+
+                <div class="flex flex-row gap-1">
+                    <button class="btn grow" onclick={() => setConcentrationMode("conc")}
+                            class:preset-filled-secondary-200-800={concentrationMode === "conc"}
+                            class:preset-tonal={concentrationMode !== "conc"}>
+                        Conc.
+                    </button>
+                    <button class="btn grow preset-tonal" onclick={() => setConcentrationMode("both")}> Both</button>
+                    <button class="btn grow" onclick={() => setConcentrationMode("no-conc")}
+                            class:preset-filled-secondary-200-800={concentrationMode === "no-conc"}
+                            class:preset-tonal={concentrationMode !== "no-conc"}>
+                        No Conc.
+                    </button>
+                </div>
+
+                <button class="btn w-full preset-tonal" onclick={resetFilters}>
+                    Reset Filters
+                    <RotateCcw size="20"/>
+                </button>
+            </div>
+
             <Accordion collapsible value={openSpellId} onValueChange={(details) => (openSpellId = details.value)}>
                 {#each filteredSpells as s (s.id)}
                     <Accordion.Item value={s.id} class="preset-tonal border-l-4 border-l-primary-500 rounded-r-2xl" style={`filter: hue-rotate(${s.level * 90}deg)`}>

@@ -3,16 +3,12 @@
     import {Accordion} from "@skeletonlabs/skeleton-svelte";
     import {formatSpellLevel, formatSpellLevelLong} from "$lib/utils/spell-formatter";
     import {slide} from "svelte/transition";
-    import SectionHeader from "$lib/components/SectionHeader.svelte";
-    import {SPELL_LEVELS} from "$lib/utils/constants";
     import type {Spell} from "$lib/types/spell";
     import type {SpellSlot} from "$lib/types/spellSlot";
     import type {FreeCastSpell} from "$lib/types/freeCastSpell";
-    import CharacterCard from "$lib/components/CharacterCard.svelte";
     import ConcentrationWarningDialog from "$lib/components/ConcentrationWarningDialog.svelte";
     import ConcentrationFloatingAlert from "$lib/components/ConcentrationFloatingAlert.svelte";
-    import ConcentrationCard from "$lib/components/ConcentrationCard.svelte";
-    import {ArrowLeft, ArrowRight, Brain, FlameKindling, Heart, HeartPlus, RotateCcw, SquarePen, Sun, X, Zap} from "@lucide/svelte";
+    import {Brain, FlameKindling, HeartPlus, ListTodo, RotateCcw, Sun, UserRoundPen, X, Zap} from "@lucide/svelte";
     import type {Character} from "$lib/types/character";
     import Section from "$lib/components/Section.svelte";
 
@@ -226,28 +222,28 @@
 
 <ConcentrationFloatingAlert spell={concentratingSpell} ondrop={() => dropConcentration()}/>
 
-<ConcentrationWarningDialog
-        bind:open={showConcentrationDialog}
-        currentSpell={concentratingSpell}
-        newSpell={pendingConcentrationSpell}
-        onConfirm={confirmConcentrationCast}
-        onCancel={cancelConcentrationCast}/>
+<ConcentrationWarningDialog bind:open={showConcentrationDialog}
+                            currentSpell={concentratingSpell} newSpell={pendingConcentrationSpell}
+                            onConfirm={confirmConcentrationCast} onCancel={cancelConcentrationCast}/>
 
 <div class="space-y-8">
     <Section title="Actions" subtitle="Rest and edit your character">
-        <div class="flex flex-col gap-2">
-            <button onclick={() => (window.location.href = `/characters/${character.id}/edit`)} class="btn preset-tonal">
+        <div class="grid grid-cols-2 gap-2">
+            <button onclick={() => (window.location.href = `/characters/${character.id}/edit`)} class="btn preset-tonal flex justify-between">
                 Edit Character
-                <SquarePen/>
+                <UserRoundPen size={20}/>
             </button>
-            <a href={"/characters/" + data.characterId + "/spells" } class="btn preset-tonal">Edit Spells</a>
-            <button class="btn grow preset-tonal" onclick={shortRest}>
+            <button class="btn preset-tonal flex justify-between" onclick={shortRest}>
                 Short Rest
-                <RotateCcw/>
+                <RotateCcw size={20}/>
             </button>
-            <button class="btn grow preset-tonal" onclick={longRest}>
+            <a href={"/characters/" + data.characterId + "/spells" } class="btn preset-tonal flex justify-between">
+                Edit Spells
+                <ListTodo size={20}/>
+            </a>
+            <button class="btn preset-tonal flex justify-between" onclick={longRest}>
                 Long Rest
-                <Sun/>
+                <Sun size={20}/>
             </button>
         </div>
     </Section>

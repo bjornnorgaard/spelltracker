@@ -24,6 +24,6 @@
             {spell.name}
         </p>
         <p class="font-bold text-sm mt-2">{spell.duration}</p>
-        <p class="text-xs opacity-75">Damage: Constitution save DC is half of the damage (rounded down), minimum of 10.</p>
+        <p class="text-xs opacity-75">Damage: Constitution save DC is half of the damage (rounded down), with a minimum of 10.</p>
     </div>
 {/if}

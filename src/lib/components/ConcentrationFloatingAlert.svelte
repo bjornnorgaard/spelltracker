@@ -1,32 +1,34 @@
 <script lang="ts">
-    import { Brain, X } from "@lucide/svelte";
-    import { fly } from "svelte/transition";
-    import type { Spell } from "$lib/types/spell";
+    import {Brain, X} from "@lucide/svelte";
+    import {fly} from "svelte/transition";
+    import type {Spell} from "$lib/types/spell";
 
     interface Props {
         spell?: Spell;
         ondrop: () => void;
     }
 
-    let { spell, ondrop }: Props = $props();
+    let {spell, ondrop}: Props = $props();
 </script>
 
 {#if spell}
-    <div class="fixed top-0 left-0 right-0 z-50 p-2" transition:fly={{ y: -100, duration: 300 }}>
-        <div class="preset-filled-secondary-500 border-2 border-secondary-200-800 p-4 card flex justify-between shadow-2xl">
-            <div></div>
-            <div class="flex flex-col items-center">
-                <p class="preset-typo-title flex text-center items-center gap-2">
-                    <Brain size={24} class="animate-pulse" />
-                    {spell.name}
-                </p>
-                <p class="font-bold text-sm">{spell.duration}</p>
-            </div>
-            <div class="">
-                <button class="btn" onclick={ondrop}>
-                    <X />
-                </button>
-            </div>
+    <div class="fixed preset-filled-secondary-500 px-4 py-2 border-b-4 border-b-secondary-300-700 shadow-2xl top-0 left-0 right-0 z-50" transition:fly={{ y: -100, duration: 300 }}>
+
+        <div class="flex justify-between opacity-75 items-center">
+            <p class="text-shadow-surface-200-800 font-bold uppercase tracking-widest">Currently Concentrating</p>
+            <button onclick={ondrop}>
+                <X/>
+            </button>
         </div>
+
+        <p class="preset-typo-headline flex gap-2 items-center">
+            <Brain class="animate-pulse"/>
+            {spell.name}
+        </p>
+
+        <p class="font-bold text-sm">{spell.duration}</p>
+
+        <p class="text-xs opacity-75">On Damage: Constitution save DC is half of the damage (rounded down), minimum of 10.</p>
+
     </div>
 {/if}

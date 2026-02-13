@@ -10,7 +10,7 @@
     <div class="flex justify-between">
         <span>{character.preparedSpellsLimit} prepared</span>
         {#if showLink}
-            <a href={`/characters/${character.id}`} class="anchor">View character</a>
+            <span class="anchor">View character</span>
         {/if}
     </div>
 </div>

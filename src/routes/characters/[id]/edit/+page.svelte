@@ -9,34 +9,35 @@
     const {data} = $props();
     let character: Character = $derived.by(() => characters.current.find((c: any) => c.id === data.characterId));
 
-    async function deleteCharacter() {
-        characters.current = characters.current?.filter((c: any) => c.id !== character.id);
-        window.location.href = "/";
-    }
 </script>
 
 <div class="space-y-8">
     <Section title="Character Info" subtitle="Edit basic character information">
-        <label class="label">
-            <span class="label-text">Name</span>
-            <input type="text" class="input preset-tonal" autocomplete="off" bind:value={character.name} required/>
-        </label>
-        <label class="label">
-            <span class="label-text">Level</span>
-            <input type="number" min={1} max={20} class="input preset-tonal" bind:value={character.level} required/>
-        </label>
-        <label class="label">
-            <span class="label-text">Class</span>
-            <select class="select preset-tonal" bind:value={character.class} required>
-                {#each DND_CLASSES as cla (cla)}
-                    <option value={cla}>{cla}</option>
-                {/each}
-            </select>
-        </label>
-        <label class="label">
-            <span class="label-text">Prepared Spells</span>
-            <input type="number" min={1} max={25} class="input preset-tonal" bind:value={character.preparedSpellsLimit} required/>
-        </label>
+        <div class="grid grid-cols-3 gap-4">
+            <label class="label col-span-3">
+                <span class="label-text">Name</span>
+                <input type="text" class="input preset-tonal" autocomplete="off" bind:value={character.name} required/>
+            </label>
+            <label class="label col-span-1">
+                <span class="label-text">Level</span>
+                <input type="number" min={1} max={20} class="input preset-tonal" bind:value={character.level} required/>
+            </label>
+            <label class="label col-span-1">
+                <span class="label-text">Class</span>
+                <select class="select preset-tonal" bind:value={character.class} required>
+                    {#each DND_CLASSES as cla (cla)}
+                        <option value={cla}>{cla}</option>
+                    {/each}
+                </select>
+            </label>
+            <label class="label col-span-1">
+                <span class="label-text">Prepared Spells</span>
+                <input type="number" min={1} max={25} class="input preset-tonal" bind:value={character.preparedSpellsLimit} required/>
+            </label>
+        </div>
+        <div class="flex justify-end">
+            <a href={"/characters/" + data.characterId + "/danger"} class="hover:anchor opacity-50">Go to Danger Zone</a>
+        </div>
     </Section>
 
     <Section title="Spell Slots" subtitle="Configure how many spells slots of each level your character has">
@@ -72,9 +73,5 @@
         {:else}
             <a href={"/characters/" + character.id + "/spells"} class="btn w-full preset-filled-primary-500">Prepare Spells</a>
         {/if}
-    </Section>
-
-    <Section title="Danger Zone" subtitle="Careful. This will delete all your character data. This action is permanent and cannot be undone">
-        <button class="btn preset-filled-error-500" onclick={() => deleteCharacter()}>Delete Character</button>
     </Section>
 </div>

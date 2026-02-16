@@ -8,7 +8,7 @@
     import type {FreeCastSpell} from "$lib/types/freeCastSpell";
     import ConcentrationWarningDialog from "$lib/components/ConcentrationWarningDialog.svelte";
     import ConcentrationFloatingAlert from "$lib/components/ConcentrationFloatingAlert.svelte";
-    import {Brain, FlameKindling, HeartPlus, ListTodo, RotateCcw, Sun, UserRoundPen, X, Zap} from "@lucide/svelte";
+    import {Brain, BookOpenText, HeartPlus, ListTodo, RotateCcw, Sun, UserRoundPen, X, Zap} from "@lucide/svelte";
     import type {Character} from "$lib/types/character";
     import Section from "$lib/components/Section.svelte";
 
@@ -424,7 +424,7 @@
                                     <Brain/>
                                 {/if}
                                 {#if s.ritual}
-                                    <FlameKindling/>
+                                    <BookOpenText/>
                                 {/if}
                             </div>
                             <Accordion.ItemIndicator class="group">

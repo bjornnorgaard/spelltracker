@@ -284,7 +284,7 @@
         <Section title="Free Casts" subtitle="Spells you can cast without a slot">
             {#if character.freePerLongRestSpells.length}
                 <p class="text-xs opacity-75">Free casts per <span class="font-bold uppercase">Long Rest</span></p>
-                <div class="flex items-center gap-4">
+                <div class="flex flex-col items-center gap-4">
                     {#each character.freePerLongRestSpells as fs}
                         {@const s = spells.current.find(spell => spell.id === fs.spellId)}
                         <div class="flex justify-between items-center w-full card preset-tonal py-2 px-4">
@@ -313,7 +313,7 @@
             {/if}
             {#if character.freePerShortRestSpells.length}
                 <p class="text-xs opacity-75">Free casts per <span class="font-bold uppercase">Short Rest</span></p>
-                <div class="flex items-center gap-4">
+                <div class="flex flex-col items-center gap-4">
                     {#each character.freePerShortRestSpells as fs}
                         {@const s = spells.current.find(spell => spell.id === fs.spellId)}
                         <div class="flex justify-between items-center w-full card preset-tonal py-2 px-4">

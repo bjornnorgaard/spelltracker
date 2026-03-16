@@ -234,7 +234,14 @@
     function togglePreparedFromHeader(spellId: string, event: MouseEvent) {
         event.preventDefault();
         event.stopPropagation();
-        togglePrepared(spellId);
+        // If this was a cantrip (level 0) and the user clicked the header 'Prepare' button
+        // treat it as 'always prepared' so it does not count against the prepared spells limit.
+        const spell = spells.current.find((s: Spell) => s.id === spellId);
+        if (spell && spell.level === 0) {
+            toggleSelectionMode(spellId, "always");
+        } else {
+            togglePrepared(spellId);
+        }
     }
 
     function selectFirstSearchResult(event: KeyboardEvent) {

@@ -14,7 +14,7 @@
 <div class="space-y-8">
     <Section title="Your Characters" subtitle="Here are your characters.">
         {#if characters.current.length}
-            <div class="space-y-4">
+            <div class="flex flex-col gap-4">
                 {#each characters.current as c, i (c.id)}
                     <a href={`/characters/${c.id}`}>
                         <CharacterCard character={c} index={i} showLink={true}/>

@@ -118,3 +118,25 @@ test("shows save hint for spells that require a saving throw", async ({ page }) 
     await expect(page.getByText("Save Hint: Dexterity save vs DC 11")).toBeVisible();
     await expect(page.getByText("Based on Intelligence 10 (+0)")).toBeVisible();
 });
+
+test("free cast spell name opens referenced spell entry", async ({ page }) => {
+    const detectMagicFreeCastCharacter = {
+        ...seededCharacter,
+        freePerLongRestSpells: [
+            { spellId: "detect-magic-phb", total: 1, used: 0, why: "feature" },
+        ],
+    };
+
+    await seedLocalStorage(
+        page,
+        localStorageSeed({
+            spells: testSpells,
+            characters: [detectMagicFreeCastCharacter],
+        }),
+    );
+    await page.goto("/characters/char-wizard-1");
+
+    await page.getByRole("button", { name: "Detect Magic" }).first().click();
+    await expect(page.locator("#spell-item-detect-magic-phb")).toContainText("Detect Magic");
+    await expect(page.getByText("School:", { exact: false })).toBeVisible();
+});

@@ -495,7 +495,10 @@
                                                         Use Spell Save DC {spellSaveDc}
                                                     {/if}
                                                 </p>
-                                                <p class="text-sm opacity-75">Based on {character.spellcastingAbility} ({spellcastingAbilityModifier >= 0 ? "+" : ""}{spellcastingAbilityModifier})</p>
+                                                <p class="text-sm opacity-75">
+                                                    Based on {character.spellcastingAbility} {spellcastingAbilityScore}
+                                                    ({spellcastingAbilityModifier >= 0 ? "+" : ""}{spellcastingAbilityModifier})
+                                                </p>
                                             </aside>
                                         {/if}
                                         {#if s.atHigherLevels}

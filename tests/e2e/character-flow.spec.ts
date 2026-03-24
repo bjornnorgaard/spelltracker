@@ -62,3 +62,20 @@ test("tracks concentration and rest flow on character page", async ({ page }) =>
     await page.getByRole("button", { name: "Long Rest" }).click();
     await expect(page.getByRole("button", { name: "Drop Concentration" })).toHaveCount(0);
 });
+
+test("shows spellcasting summary with spell save DC breakdown", async ({ page }) => {
+    await seedLocalStorage(
+        page,
+        localStorageSeed({
+            spells: testSpells,
+            characters: [seededCharacter],
+        }),
+    );
+    await page.goto("/characters/char-wizard-1");
+
+    await expect(page.getByRole("heading", { name: "Spellcasting" })).toBeVisible();
+    await expect(page.getByText("Spellcasting Ability: Intelligence")).toBeVisible();
+    await expect(page.getByText("Spellcasting Ability Score: 10")).toBeVisible();
+    await expect(page.getByText("Spell Save DC: 11")).toBeVisible();
+    await expect(page.getByText("Breakdown: 8 + 3 + 0 = 11")).toBeVisible();
+});

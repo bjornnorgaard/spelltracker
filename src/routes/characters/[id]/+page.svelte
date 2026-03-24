@@ -3,6 +3,8 @@
     import {Accordion} from "@skeletonlabs/skeleton-svelte";
     import {formatSpellLevel, formatSpellLevelLong} from "$lib/utils/spell-formatter";
     import {slide} from "svelte/transition";
+    import {DEFAULT_SPELLCASTING_ABILITY_SCORE} from "$lib/utils/constants";
+    import {calculateSpellSaveDc, getAbilityModifier, getProficiencyBonusForLevel} from "$lib/utils/spell-save-dc";
     import type {Spell} from "$lib/types/spell";
     import type {SpellSlot} from "$lib/types/spellSlot";
     import type {FreeCastSpell} from "$lib/types/freeCastSpell";
@@ -50,6 +52,16 @@
         if (!character?.concentrationSpellId) return null;
         return spells.current.find((s: Spell) => s.id === character.concentrationSpellId) ?? null;
     });
+    let proficiencyBonus = $derived.by(() => getProficiencyBonusForLevel(character?.level ?? 1));
+    let spellcastingAbilityScore = $derived.by(() => {
+        const score = character?.spellcastingAbilityScore;
+        return Number.isFinite(score) ? score : DEFAULT_SPELLCASTING_ABILITY_SCORE;
+    });
+    let spellcastingAbilityModifier = $derived.by(() => getAbilityModifier(spellcastingAbilityScore));
+    let spellSaveDc = $derived.by(() => calculateSpellSaveDc({
+        proficiencyBonus,
+        spellcastingAbilityModifier
+    }));
 
     function goBack() {
         history.back();
@@ -248,15 +260,25 @@
         </div>
     </Section>
 
+    <Section title="Spellcasting" subtitle="Current spellcasting stats">
+        <div class="card preset-tonal p-4 space-y-2">
+            <p><strong>Spellcasting Ability:</strong> {character.spellcastingAbility}</p>
+            <p><strong>Spellcasting Ability Score:</strong> {spellcastingAbilityScore}</p>
+            <p><strong>Spell Save DC:</strong> {spellSaveDc}</p>
+            <p class="text-sm opacity-75">Formula: 8 + proficiency bonus + spellcasting ability modifier</p>
+            <p class="text-sm opacity-75">Breakdown: 8 + {proficiencyBonus} + {spellcastingAbilityModifier} = {spellSaveDc}</p>
+        </div>
+    </Section>
+
     <Section title="Spell Slots" subtitle="Use and restore spell slots">
         {#if character.spellSlots.some(ss => ss.total > 0)}
             <div class="flex flex-col gap-2">
-                {#each character.spellSlots.filter(s => s.level > 0).filter(s => s.total > 0) as slot}
+                {#each character.spellSlots.filter(s => s.level > 0).filter(s => s.total > 0) as slot (slot.level)}
                     <div class="flex gap-2">
                         <button class="btn-icon preset-tonal-success" onclick={() => restoreSlot(slot.level)}>
                             <HeartPlus/>
                         </button>
-                        {#each Array(slot.total) as _, i}
+                        {#each Array(slot.total) as _, i (i)}
                             <button class="btn-icon grow"
                                     style={`filter: hue-rotate(${slot.level * 12}deg)`}
                                     class:preset-filled-primary-500={i >= slot.used}
@@ -285,13 +307,13 @@
             {#if character.freePerLongRestSpells.length}
                 <p class="text-xs opacity-75">Free casts per <span class="font-bold uppercase">Long Rest</span></p>
                 <div class="flex flex-col items-center gap-4">
-                    {#each character.freePerLongRestSpells as fs}
-                        {@const s = spells.current.find(spell => spell.id === fs.spellId)}
+                    {#each character.freePerLongRestSpells as fs (fs.spellId)}
+                        {@const s = spells.current.find((spell: Spell) => spell.id === fs.spellId)}
                         <div class="flex justify-between items-center w-full card preset-tonal py-2 px-4">
                             <span>{s.name}</span>
                             <div class="flex gap-2">
                                 <div class="flex gap-1 mr-2">
-                                    {#each Array(fs.total) as _, i}
+                                    {#each Array(fs.total) as _, i (i)}
                                         <div class="badge w-8 h-8  rounded-full font-bold text-xl"
                                              class:preset-filled-primary-500={i >= fs.used}
                                              class:preset-filled-surface-500={i < fs.used}
@@ -314,13 +336,13 @@
             {#if character.freePerShortRestSpells.length}
                 <p class="text-xs opacity-75">Free casts per <span class="font-bold uppercase">Short Rest</span></p>
                 <div class="flex flex-col items-center gap-4">
-                    {#each character.freePerShortRestSpells as fs}
-                        {@const s = spells.current.find(spell => spell.id === fs.spellId)}
+                    {#each character.freePerShortRestSpells as fs (fs.spellId)}
+                        {@const s = spells.current.find((spell: Spell) => spell.id === fs.spellId)}
                         <div class="flex justify-between items-center w-full card preset-tonal py-2 px-4">
                             <span>{s.name}</span>
                             <div class="flex gap-2">
                                 <div class="flex gap-1 mr-2">
-                                    {#each Array(fs.total) as _, i}
+                                    {#each Array(fs.total) as _, i (i)}
                                         <div class="badge w-8 h-8  rounded-full font-bold text-xl"
                                              class:preset-filled-primary-500={i >= fs.used}
                                              class:preset-filled-surface-500={i < fs.used}
@@ -362,7 +384,7 @@
                     <button class="btn grow" class:preset-filled-tertiary-200-800={selectedLevels.includes(0)} class:preset-tonal={!selectedLevels.includes(0)} onclick={() => toggleLevel(0)}>
                         Cantrips
                     </button>
-                    {#each character.spellSlots.filter(ss => ss.total > 0) as slot}
+                    {#each character.spellSlots.filter(ss => ss.total > 0) as slot (slot.level)}
                         <button class="btn grow" onclick={() => toggleLevel(slot.level)}
                                 class:preset-filled-tertiary-200-800={selectedLevels.includes(slot.level)}
                                 class:preset-tonal={!selectedLevels.includes(slot.level)}>

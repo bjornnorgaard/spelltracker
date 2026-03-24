@@ -67,6 +67,7 @@ export const seededCharacter = {
     concentrationSpellId: null,
     freePerLongRestSpells: [],
     freePerShortRestSpells: [],
+    customResources: [],
 };
 
 export function localStorageSeed(data: { spells?: unknown[]; characters?: unknown[] }) {

@@ -10,6 +10,7 @@
         type SpellcastingAbility
     } from "$lib/utils/constants";
     import type {Character} from "$lib/types/character";
+    import { applyClassResourcePresets } from "$lib/utils/custom-resource-presets";
 
     let {children} = $props();
 
@@ -35,6 +36,14 @@
             }))
             : [];
         const spellNotes = Array.isArray(input?.spellNotes) ? input.spellNotes : [];
+        const customResources = Array.isArray((input as any)?.customResources)
+            ? (input as any).customResources.map((resource: any) => ({
+                id: String(resource?.id ?? crypto.randomUUID()),
+                name: String(resource?.name ?? "").trim(),
+                current: Number.isFinite(Number(resource?.current)) ? Math.max(0, Math.floor(Number(resource.current))) : 0,
+                max: Number.isFinite(Number(resource?.max)) ? Math.max(0, Math.floor(Number(resource.max))) : 0,
+            }))
+            : [];
         const derivedSelectedSpellIds = [
             ...legacySpellIds,
             ...preparedSpellIds,
@@ -55,7 +64,7 @@
             ? Math.max(1, Math.min(30, Math.floor(spellcastingAbilityScoreInput)))
             : DEFAULT_SPELLCASTING_ABILITY_SCORE;
 
-        return {
+        const normalized: Character = {
             id: String(input?.id ?? crypto.randomUUID()),
             name: String(input?.name ?? "John Doe"),
             class: String(input?.class ?? DND_CLASSES[0]),
@@ -71,7 +80,9 @@
             concentrationSpellId: input?.concentrationSpellId === undefined || input?.concentrationSpellId === "" ? null : input.concentrationSpellId,
             freePerLongRestSpells,
             freePerShortRestSpells,
+            customResources,
         };
+        return applyClassResourcePresets(normalized);
     }
 
     onMount(() => {

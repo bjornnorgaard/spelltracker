@@ -5,6 +5,7 @@ import {
     DND_CLASSES,
     SPELL_LEVELS
 } from "$lib/utils/constants";
+import { applyClassResourcePresets } from "$lib/utils/custom-resource-presets";
 
 export function createCharacter(): Character {
     const newCharacter: Character = {
@@ -22,7 +23,8 @@ export function createCharacter(): Character {
         alwaysPreparedSpellIds: [],
         concentrationSpellId: null,
         freePerLongRestSpells: [],
-        freePerShortRestSpells: []
+        freePerShortRestSpells: [],
+        customResources: []
     };
 
     for (const spellLevel of SPELL_LEVELS) {
@@ -33,7 +35,7 @@ export function createCharacter(): Character {
         };
     }
 
-    return newCharacter;
+    return applyClassResourcePresets(newCharacter);
 }
 
 function randomName() {

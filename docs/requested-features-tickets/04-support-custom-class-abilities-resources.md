@@ -2,7 +2,7 @@
 
 ## Status
 
-In progress.
+Done.
 
 ## Progress
 
@@ -18,9 +18,11 @@ In progress.
   - Paladin: `Channel Divinity`
   - Artificer: `Flash of Genius` (available at level 7+, based on spellcasting modifier)
 
-## Remaining Class Presets
+## Ranger Preset Decision
 
-- Ranger
+- Reviewed Ranger (5e 2024 SRD): Ranger has multiple limited-use features (for example free `Hunter's Mark` casts and other feature-specific uses), but no single universal class pool equivalent to `Sorcery Points`.
+- Decision: no default Ranger custom-resource preset for now.
+- Rationale: avoid auto-injecting a misleading single resource; users can still add Ranger-specific tracking manually as needed.
 
 ## Feature Goal
 

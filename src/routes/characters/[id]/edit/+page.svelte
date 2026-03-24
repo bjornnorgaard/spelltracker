@@ -111,7 +111,7 @@
         </div>
     </Section>
 
-    <Section title="Custom Resources" subtitle="Track class-specific resources (for example sorcery points, channel divinity)">
+    <Section title="Custom Resources" subtitle="Track class-specific resources. Presets are auto-added from class/level; you can still add your own.">
         <div class="space-y-3">
             {#if !character.customResources?.length}
                 <aside class="card preset-tonal p-4">

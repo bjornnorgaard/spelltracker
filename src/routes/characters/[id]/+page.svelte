@@ -328,7 +328,7 @@
     </Section>
 
     {#if character.customResources?.length}
-        <Section title="Custom Resources" subtitle="Class-specific resources tracked for this character">
+        <Section title="Custom Resources" subtitle="Class-based presets are auto-managed from class/level, alongside your custom entries.">
             <div class="space-y-1.5">
                 {#each character.customResources as resource (resource.id)}
                     <div class="card preset-tonal px-3 py-2 flex items-center justify-between gap-3">

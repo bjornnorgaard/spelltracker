@@ -2,7 +2,12 @@
     import "./layout.css";
     import {characters, spells} from "$lib/stores/stores";
     import {onMount} from "svelte";
-    import {DND_CLASSES} from "$lib/utils/constants";
+    import {
+        DEFAULT_SPELLCASTING_ABILITY,
+        DND_CLASSES,
+        SPELLCASTING_ABILITIES,
+        type SpellcastingAbility
+    } from "$lib/utils/constants";
     import type {Character} from "$lib/types/character";
 
     let {children} = $props();
@@ -40,10 +45,16 @@
         ].filter(Boolean);
         const selectedSpellIds = Array.isArray((input as any)?.selectedSpellIds) ? ((input as any).selectedSpellIds as string[]) : derivedSelectedSpellIds;
 
+        const spellcastingAbilityInput = String((input as any)?.spellcastingAbility ?? DEFAULT_SPELLCASTING_ABILITY);
+        const spellcastingAbility = SPELLCASTING_ABILITIES.includes(spellcastingAbilityInput as SpellcastingAbility)
+            ? (spellcastingAbilityInput as SpellcastingAbility)
+            : DEFAULT_SPELLCASTING_ABILITY;
+
         return {
             id: String(input?.id ?? crypto.randomUUID()),
             name: String(input?.name ?? "John Doe"),
             class: String(input?.class ?? DND_CLASSES[0]),
+            spellcastingAbility,
             level: Number(input?.level ?? 1),
             spellSlots: Array.isArray(input?.spellSlots) ? input.spellSlots : [],
             spellNotes,

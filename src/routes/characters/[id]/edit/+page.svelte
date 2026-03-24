@@ -1,13 +1,20 @@
 <script lang="ts">
-    import {DND_CLASSES} from "$lib/utils/constants";
+    import {DEFAULT_SPELLCASTING_ABILITY, DND_CLASSES, SPELLCASTING_ABILITIES} from "$lib/utils/constants";
     import {characters, spells} from "$lib/stores/stores";
     import {formatSpellLevel} from "$lib/utils/spell-formatter";
     import type {Character} from "$lib/types/character";
     import Section from "$lib/components/Section.svelte";
     import {ArrowDown, ArrowUp} from "@lucide/svelte";
+    import {onMount} from "svelte";
 
     const {data} = $props();
     let character: Character = $derived.by(() => characters.current.find((c: any) => c.id === data.characterId));
+
+    onMount(() => {
+        if (character && !character.spellcastingAbility) {
+            character.spellcastingAbility = DEFAULT_SPELLCASTING_ABILITY;
+        }
+    });
 
 </script>
 
@@ -31,6 +38,14 @@
                 </select>
             </label>
             <label class="label col-span-1">
+                <span class="label-text">Spellcasting Ability</span>
+                <select class="select preset-tonal" bind:value={character.spellcastingAbility} required>
+                    {#each SPELLCASTING_ABILITIES as ability (ability)}
+                        <option value={ability}>{ability}</option>
+                    {/each}
+                </select>
+            </label>
+            <label class="label col-span-1">
                 <span class="label-text">Prepared Spells</span>
                 <input type="number" min={1} max={25} class="input preset-tonal" bind:value={character.preparedSpellsLimit} required/>
             </label>
@@ -42,7 +57,7 @@
 
     <Section title="Spell Slots" subtitle="Configure how many spells slots of each level your character has">
         <div class="flex justify-between">
-            {#each character.spellSlots.filter(ss => ss.level > 0) as slot}
+            {#each character.spellSlots.filter(ss => ss.level > 0) as slot (slot.level)}
                 <div class="flex gap-2 items-center flex-col" style={`filter: hue-rotate(${slot.level * 12}deg)`}>
                     <span>{formatSpellLevel(slot.level)}</span>
                     <button class="preset-tonal" onclick={() => slot.total++}>

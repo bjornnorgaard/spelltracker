@@ -1,5 +1,27 @@
 # Ticket: Support Custom Class Abilities/Resources
 
+## Status
+
+In progress.
+
+## Progress
+
+- Done: generic custom resource data model and character edit CRUD UI.
+- Done: Sorcerer preset auto-detection for `Sorcery Points`, with `max = character level`.
+- Done: Sorcerer preset sync in character normalization and edit flows.
+- Done: Added additional spellcaster presets:
+  - Wizard: `Arcane Recovery`
+  - Cleric: `Channel Divinity`
+  - Druid: `Wild Shape`
+  - Bard: `Bardic Inspiration` (scales with proficiency bonus)
+  - Warlock: `Pact Slots` (scales by level tier)
+  - Paladin: `Channel Divinity`
+  - Artificer: `Flash of Genius` (available at level 7+, based on spellcasting modifier)
+
+## Remaining Class Presets
+
+- Ranger
+
 ## Feature Goal
 
 Enable tracking of class-specific or custom abilities/resources per character (for example sorcery points, channel divinity, and similar class mechanics).

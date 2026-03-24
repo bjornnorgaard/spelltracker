@@ -5,6 +5,7 @@
     import {slide} from "svelte/transition";
     import {DEFAULT_SPELLCASTING_ABILITY_SCORE} from "$lib/utils/constants";
     import {calculateSpellSaveDc, getAbilityModifier, getProficiencyBonusForLevel} from "$lib/utils/spell-save-dc";
+    import {getSavingThrowAbility, spellRequiresSavingThrow} from "$lib/utils/spell-save-parser";
     import type {Spell} from "$lib/types/spell";
     import type {SpellSlot} from "$lib/types/spellSlot";
     import type {FreeCastSpell} from "$lib/types/freeCastSpell";
@@ -231,10 +232,6 @@
         return spells.current.find((spell: Spell) => spell.id === spellId)?.name ?? "Unknown spell";
     }
 
-    function spellRequiresSavingThrow(spell: Spell) {
-        const haystack = `${spell.text ?? ""} ${spell.atHigherLevels ?? ""}`;
-        return /saving throw/i.test(haystack);
-    }
 </script>
 
 <ConcentrationFloatingAlert spell={concentratingSpell} ondrop={() => dropConcentration()}/>
@@ -488,8 +485,16 @@
                                             <i>{s.text}</i>
                                         </div>
                                         {#if spellRequiresSavingThrow(s)}
+                                            {@const saveAbility = getSavingThrowAbility(s)}
                                             <aside class="card preset-tonal p-3">
-                                                <p><strong>Save Hint:</strong> Use Spell Save DC {spellSaveDc}</p>
+                                                <p>
+                                                    <strong>Save Hint:</strong>
+                                                    {#if saveAbility}
+                                                        {saveAbility} save vs Spell Save DC {spellSaveDc}
+                                                    {:else}
+                                                        Use Spell Save DC {spellSaveDc}
+                                                    {/if}
+                                                </p>
                                                 <p class="text-sm opacity-75">Based on {character.spellcastingAbility} ({spellcastingAbilityModifier >= 0 ? "+" : ""}{spellcastingAbilityModifier})</p>
                                             </aside>
                                         {/if}

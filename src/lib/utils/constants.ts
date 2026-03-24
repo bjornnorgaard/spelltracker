@@ -39,6 +39,7 @@ export type DnDClass = (typeof DND_CLASSES)[number];
 export const SPELLCASTING_ABILITIES = ['Intelligence', 'Wisdom', 'Charisma'] as const;
 export type SpellcastingAbility = (typeof SPELLCASTING_ABILITIES)[number];
 export const DEFAULT_SPELLCASTING_ABILITY: SpellcastingAbility = SPELLCASTING_ABILITIES[0];
+export const DEFAULT_SPELLCASTING_ABILITY_SCORE = 10;
 
 /**
  * Spell levels (0 = Cantrip, 1-9 = Spell levels)

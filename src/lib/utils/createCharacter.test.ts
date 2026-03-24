@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { createCharacter } from "$lib/utils/createCharacter";
-import { DEFAULT_SPELLCASTING_ABILITY, SPELLCASTING_ABILITIES } from "$lib/utils/constants";
+import {
+    DEFAULT_SPELLCASTING_ABILITY,
+    DEFAULT_SPELLCASTING_ABILITY_SCORE,
+    SPELLCASTING_ABILITIES
+} from "$lib/utils/constants";
 
 describe("createCharacter", () => {
     it("defaults spellcasting ability to Intelligence", () => {
@@ -14,5 +18,11 @@ describe("createCharacter", () => {
         const character = createCharacter();
 
         expect(SPELLCASTING_ABILITIES).toContain(character.spellcastingAbility);
+    });
+
+    it("defaults spellcasting ability score", () => {
+        const character = createCharacter();
+
+        expect(character.spellcastingAbilityScore).toBe(DEFAULT_SPELLCASTING_ABILITY_SCORE);
     });
 });

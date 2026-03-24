@@ -4,6 +4,7 @@
     import {onMount} from "svelte";
     import {
         DEFAULT_SPELLCASTING_ABILITY,
+        DEFAULT_SPELLCASTING_ABILITY_SCORE,
         DND_CLASSES,
         SPELLCASTING_ABILITIES,
         type SpellcastingAbility
@@ -49,12 +50,17 @@
         const spellcastingAbility = SPELLCASTING_ABILITIES.includes(spellcastingAbilityInput as SpellcastingAbility)
             ? (spellcastingAbilityInput as SpellcastingAbility)
             : DEFAULT_SPELLCASTING_ABILITY;
+        const spellcastingAbilityScoreInput = Number((input as any)?.spellcastingAbilityScore ?? DEFAULT_SPELLCASTING_ABILITY_SCORE);
+        const spellcastingAbilityScore = Number.isFinite(spellcastingAbilityScoreInput)
+            ? Math.max(1, Math.min(30, Math.floor(spellcastingAbilityScoreInput)))
+            : DEFAULT_SPELLCASTING_ABILITY_SCORE;
 
         return {
             id: String(input?.id ?? crypto.randomUUID()),
             name: String(input?.name ?? "John Doe"),
             class: String(input?.class ?? DND_CLASSES[0]),
             spellcastingAbility,
+            spellcastingAbilityScore,
             level: Number(input?.level ?? 1),
             spellSlots: Array.isArray(input?.spellSlots) ? input.spellSlots : [],
             spellNotes,

@@ -1,7 +1,8 @@
 <script lang="ts">
-    import {DEFAULT_SPELLCASTING_ABILITY, DND_CLASSES, SPELLCASTING_ABILITIES} from "$lib/utils/constants";
+    import {DEFAULT_SPELLCASTING_ABILITY, DEFAULT_SPELLCASTING_ABILITY_SCORE, DND_CLASSES, SPELLCASTING_ABILITIES} from "$lib/utils/constants";
     import {characters, spells} from "$lib/stores/stores";
     import {formatSpellLevel} from "$lib/utils/spell-formatter";
+    import {calculateSpellSaveDc, getAbilityModifier, getProficiencyBonusForLevel} from "$lib/utils/spell-save-dc";
     import type {Character} from "$lib/types/character";
     import Section from "$lib/components/Section.svelte";
     import {ArrowDown, ArrowUp} from "@lucide/svelte";
@@ -14,7 +15,20 @@
         if (character && !character.spellcastingAbility) {
             character.spellcastingAbility = DEFAULT_SPELLCASTING_ABILITY;
         }
+
+        if (
+            character &&
+            (!Number.isFinite(character.spellcastingAbilityScore) ||
+                character.spellcastingAbilityScore < 1 ||
+                character.spellcastingAbilityScore > 30)
+        ) {
+            character.spellcastingAbilityScore = DEFAULT_SPELLCASTING_ABILITY_SCORE;
+        }
     });
+
+    let proficiencyBonus = $derived(getProficiencyBonusForLevel(character.level));
+    let spellcastingAbilityModifier = $derived(getAbilityModifier(character.spellcastingAbilityScore));
+    let spellSaveDc = $derived(calculateSpellSaveDc({proficiencyBonus, spellcastingAbilityModifier}));
 
 </script>
 
@@ -49,6 +63,15 @@
                 <span class="label-text">Prepared Spells</span>
                 <input type="number" min={1} max={25} class="input preset-tonal" bind:value={character.preparedSpellsLimit} required/>
             </label>
+            <label class="label col-span-1">
+                <span class="label-text">Spellcasting Ability Score</span>
+                <input type="number" min={1} max={30} class="input preset-tonal" bind:value={character.spellcastingAbilityScore} required/>
+            </label>
+            <aside class="card preset-tonal p-4 col-span-2">
+                <strong class="text-base">Spell Save DC: {spellSaveDc}</strong>
+                <p class="opacity-70 text-sm">8 + proficiency bonus + spellcasting ability modifier</p>
+                <p class="opacity-70 text-sm">8 + {proficiencyBonus} + {spellcastingAbilityModifier} = {spellSaveDc}</p>
+            </aside>
         </div>
         <div class="flex justify-end">
             <a href={"/characters/" + data.characterId + "/danger"} class="hover:anchor opacity-50">Go to Danger Zone</a>

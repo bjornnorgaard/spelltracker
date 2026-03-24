@@ -1,0 +1,64 @@
+import { expect, test } from "@playwright/test";
+import { localStorageSeed, seededCharacter, testSpells } from "./fixtures/app-state";
+import { seedLocalStorage } from "./helpers";
+
+test("creates a character from home and lands on edit flow", async ({ page }) => {
+    await seedLocalStorage(page, localStorageSeed({ spells: [], characters: [] }));
+    await expect(page.getByText("No characters", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Create Character" }).click();
+
+    await expect(page).toHaveURL(/\/characters\/.+\/edit$/);
+    await expect(page.getByRole("heading", { name: "Character Info" })).toBeVisible();
+    await expect(page.getByLabel("Name")).toBeVisible();
+});
+
+test("tracks concentration and rest flow on character page", async ({ page }) => {
+    const fogCloud = {
+        id: "fog-cloud-phb",
+        name: "Fog Cloud",
+        source: "PHB",
+        page: "3",
+        level: 1,
+        castingTime: "1 action",
+        duration: "Concentration, up to 1 hour",
+        school: "Conjuration",
+        ritual: false,
+        range: "120 feet",
+        components: "V, S",
+        classes: ["Wizard"],
+        subclasses: "",
+        text: "Create fog.",
+        atHigherLevels: "",
+    };
+
+    await seedLocalStorage(
+        page,
+        localStorageSeed({
+            spells: [...testSpells, fogCloud],
+            characters: [
+                {
+                    ...seededCharacter,
+                    selectedSpellIds: [...seededCharacter.selectedSpellIds, "fog-cloud-phb"],
+                    preparedSpellIds: [...seededCharacter.preparedSpellIds, "fog-cloud-phb"],
+                },
+            ],
+        }),
+    );
+    await page.goto("/characters/char-wizard-1");
+
+    await expect(page.getByText("Spellbook")).toBeVisible();
+    await page.getByText("Detect Magic", { exact: true }).first().click();
+    await page.getByRole("button", { name: /Cast as/i }).first().click();
+
+    await expect(page.getByRole("button", { name: "Drop Concentration" })).toBeVisible();
+
+    await page.getByText("Fog Cloud", { exact: true }).first().click();
+    await page.getByRole("button", { name: /Cast as/i }).first().click();
+
+    await expect(page.getByText("Concentration Warning", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: /Break Concentration & Cast|Cast Spell/ }).click();
+    await expect(page.getByRole("button", { name: "Drop Concentration" })).toBeVisible();
+
+    await page.getByRole("button", { name: "Long Rest" }).click();
+    await expect(page.getByRole("button", { name: "Drop Concentration" })).toHaveCount(0);
+});

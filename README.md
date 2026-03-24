@@ -4,6 +4,22 @@ A simple web application to track spells for Dungeons & Dragons 5th Edition
 players and Dungeon Masters. This tool allows users to manage their spell lists,
 track spell slots, and easily reference spell details during gameplay.
 
+## Testing
+
+This project uses an E2E-first test strategy:
+- Unit tests for isolated pure logic (`src/**/*.test.ts`)
+- Integration tests for selected cross-module boundaries (`tests/integration/**/*.test.ts`)
+- End-to-end tests for real user flows (`tests/e2e/**/*.spec.ts`)
+
+### Commands
+
+- Full suite (same command used in CI): `npm test`
+- Unit only: `npm run test:unit`
+- Integration only: `npm run test:integration`
+- E2E only: `npm run test:e2e`
+- E2E headed mode: `npm run test:e2e:headed`
+- E2E UI mode: `npm run test:e2e:ui`
+
 ## Features
 
 - Fully responsive design for use on desktop and mobile devices.

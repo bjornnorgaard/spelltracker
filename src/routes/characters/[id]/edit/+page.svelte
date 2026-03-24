@@ -3,6 +3,7 @@
     import {characters, spells} from "$lib/stores/stores";
     import {formatSpellLevel} from "$lib/utils/spell-formatter";
     import {calculateSpellSaveDc, getAbilityModifier, getProficiencyBonusForLevel} from "$lib/utils/spell-save-dc";
+    import {applyClassResourcePresets} from "$lib/utils/custom-resource-presets";
     import type {Character} from "$lib/types/character";
     import Section from "$lib/components/Section.svelte";
     import {ArrowDown, ArrowUp} from "@lucide/svelte";
@@ -24,11 +25,26 @@
         ) {
             character.spellcastingAbilityScore = DEFAULT_SPELLCASTING_ABILITY_SCORE;
         }
+
+        if (character) {
+            applyClassResourcePresets(character);
+        }
     });
 
     let proficiencyBonus = $derived(getProficiencyBonusForLevel(character.level));
     let spellcastingAbilityModifier = $derived(getAbilityModifier(character.spellcastingAbilityScore));
     let spellSaveDc = $derived(calculateSpellSaveDc({proficiencyBonus, spellcastingAbilityModifier}));
+
+    function addCustomResource() {
+        character.customResources = [
+            ...(character.customResources ?? []),
+            { id: crypto.randomUUID(), name: "New Resource", current: 0, max: 0 },
+        ];
+    }
+
+    function removeCustomResource(id: string) {
+        character.customResources = (character.customResources ?? []).filter((resource) => resource.id !== id);
+    }
 
 </script>
 
@@ -41,11 +57,11 @@
             </label>
             <label class="label col-span-1">
                 <span class="label-text">Level</span>
-                <input type="number" min={1} max={20} class="input preset-tonal" bind:value={character.level} required/>
+                <input type="number" min={1} max={20} class="input preset-tonal" bind:value={character.level} onchange={() => applyClassResourcePresets(character)} required/>
             </label>
             <label class="label col-span-1">
                 <span class="label-text">Class</span>
-                <select class="select preset-tonal" bind:value={character.class} required>
+                <select class="select preset-tonal" bind:value={character.class} onchange={() => applyClassResourcePresets(character)} required>
                     {#each DND_CLASSES as cla (cla)}
                         <option value={cla}>{cla}</option>
                     {/each}
@@ -92,6 +108,37 @@
                     </button>
                 </div>
             {/each}
+        </div>
+    </Section>
+
+    <Section title="Custom Resources" subtitle="Track class-specific resources (for example sorcery points, channel divinity)">
+        <div class="space-y-3">
+            {#if !character.customResources?.length}
+                <aside class="card preset-tonal p-4">
+                    <p>No custom resources yet.</p>
+                </aside>
+            {:else}
+                {#each character.customResources as resource (resource.id)}
+                    <div class="card preset-tonal p-4 grid grid-cols-4 gap-3 items-end">
+                        <label class="label col-span-2">
+                            <span class="label-text">Name</span>
+                            <input type="text" class="input preset-tonal" bind:value={resource.name} />
+                        </label>
+                        <label class="label col-span-1">
+                            <span class="label-text">Current</span>
+                            <input type="number" min={0} class="input preset-tonal" bind:value={resource.current} />
+                        </label>
+                        <label class="label col-span-1">
+                            <span class="label-text">Max</span>
+                            <input type="number" min={0} class="input preset-tonal" bind:value={resource.max} />
+                        </label>
+                        <button class="btn preset-filled-error-500 col-span-4" onclick={() => removeCustomResource(resource.id)}>
+                            Remove Resource
+                        </button>
+                    </div>
+                {/each}
+            {/if}
+            <button class="btn w-full preset-filled-primary-500" onclick={addCustomResource}>Add Custom Resource</button>
         </div>
     </Section>
 

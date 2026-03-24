@@ -25,4 +25,10 @@ describe("createCharacter", () => {
 
         expect(character.spellcastingAbilityScore).toBe(DEFAULT_SPELLCASTING_ABILITY_SCORE);
     });
+
+    it("defaults custom resources to an empty list", () => {
+        const character = createCharacter();
+
+        expect(character.customResources).toEqual([]);
+    });
 });

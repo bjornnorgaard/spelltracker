@@ -140,3 +140,40 @@ test("free cast spell name opens referenced spell entry", async ({ page }) => {
     await expect(page.locator("#spell-item-detect-magic-phb")).toContainText("Detect Magic");
     await expect(page.getByText("School:", { exact: false })).toBeVisible();
 });
+
+test("can add and remove a custom resource in character edit", async ({ page }) => {
+    await seedLocalStorage(
+        page,
+        localStorageSeed({
+            spells: testSpells,
+            characters: [seededCharacter],
+        }),
+    );
+    await page.goto("/characters/char-wizard-1/edit");
+
+    await expect(page.getByRole("heading", { name: "Custom Resources" })).toBeVisible();
+    await page.getByRole("button", { name: "Add Custom Resource" }).click();
+    await expect(page.getByRole("textbox", { name: "Name" }).last()).toHaveValue("New Resource");
+
+    await page.getByRole("button", { name: "Remove Resource" }).click();
+    await expect(page.getByText("No custom resources yet.")).toBeVisible();
+});
+
+test("sorcerer class auto-configures sorcery points from level", async ({ page }) => {
+    await seedLocalStorage(
+        page,
+        localStorageSeed({
+            spells: testSpells,
+            characters: [seededCharacter],
+        }),
+    );
+    await page.goto("/characters/char-wizard-1/edit");
+
+    await page.getByLabel("Class").selectOption("Sorcerer");
+    await page.getByLabel("Class").blur();
+    await page.getByLabel("Level").fill("6");
+    await page.getByLabel("Level").blur();
+
+    await expect(page.getByRole("textbox", { name: "Name" }).nth(1)).toHaveValue("Sorcery Points");
+    await expect(page.getByLabel("Max").first()).toHaveValue("6");
+});

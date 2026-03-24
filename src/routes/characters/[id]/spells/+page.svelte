@@ -364,9 +364,9 @@
                                         <p>
                                             <strong>Save Hint:</strong>
                                             {#if saveAbility}
-                                                {saveAbility} save vs Spell Save DC {spellSaveDc}
+                                                {saveAbility} save vs DC {spellSaveDc}
                                             {:else}
-                                                Saving throw vs Spell Save DC {spellSaveDc}
+                                                Save vs DC {spellSaveDc}
                                             {/if}
                                         </p>
                                         <p class="text-sm opacity-70">

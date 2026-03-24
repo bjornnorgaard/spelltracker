@@ -20,6 +20,15 @@ describe("spellRequiresSavingThrow", () => {
             }),
         ).toBe(false);
     });
+
+    it("supports short save wording", () => {
+        expect(
+            spellRequiresSavingThrow({
+                text: "The target must succeed on a Wisdom save.",
+                atHigherLevels: "",
+            }),
+        ).toBe(true);
+    });
 });
 
 describe("getSavingThrowAbility", () => {
@@ -48,5 +57,14 @@ describe("getSavingThrowAbility", () => {
                 atHigherLevels: "",
             }),
         ).toBeNull();
+    });
+
+    it("extracts ability from short save wording", () => {
+        expect(
+            getSavingThrowAbility({
+                text: "The target must make a Dexterity save.",
+                atHigherLevels: "",
+            }),
+        ).toBe("Dexterity");
     });
 });

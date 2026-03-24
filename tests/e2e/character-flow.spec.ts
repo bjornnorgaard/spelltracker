@@ -177,3 +177,56 @@ test("sorcerer class auto-configures sorcery points from level", async ({ page }
     await expect(page.getByRole("textbox", { name: "Name" }).nth(1)).toHaveValue("Sorcery Points");
     await expect(page.getByLabel("Max").first()).toHaveValue("6");
 });
+
+test("other spellcaster class presets auto-configure resources", async ({ page }) => {
+    await seedLocalStorage(
+        page,
+        localStorageSeed({
+            spells: testSpells,
+            characters: [seededCharacter],
+        }),
+    );
+    await page.goto("/characters/char-wizard-1/edit");
+
+    await page.getByLabel("Class").selectOption("Bard");
+    await page.getByLabel("Class").blur();
+    await expect(page.getByRole("textbox", { name: "Name" }).nth(1)).toHaveValue("Bardic Inspiration");
+    await expect(page.getByLabel("Max").first()).toHaveValue("3");
+
+    await page.getByLabel("Class").selectOption("Cleric");
+    await page.getByLabel("Class").blur();
+    await expect(page.getByRole("textbox", { name: "Name" }).nth(1)).toHaveValue("Channel Divinity");
+    await expect(page.getByLabel("Max").first()).toHaveValue("1");
+
+    await page.getByLabel("Class").selectOption("Warlock");
+    await page.getByLabel("Class").blur();
+    await expect(page.getByRole("textbox", { name: "Name" }).nth(1)).toHaveValue("Pact Slots");
+    await expect(page.getByLabel("Max").first()).toHaveValue("2");
+});
+
+test("shows custom resources on character page between slots and free casts", async ({ page }) => {
+    const characterWithResource = {
+        ...seededCharacter,
+        customResources: [{ id: "resource-arcane-recovery", name: "Arcane Recovery", current: 0, max: 1 }],
+        freePerLongRestSpells: [{ spellId: "detect-magic-phb", total: 1, used: 0, why: "feature" }],
+    };
+
+    await seedLocalStorage(
+        page,
+        localStorageSeed({
+            spells: testSpells,
+            characters: [characterWithResource],
+        }),
+    );
+    await page.goto("/characters/char-wizard-1");
+
+    await expect(page.getByRole("heading", { name: "Custom Resources" })).toBeVisible();
+    await expect(page.getByText("Arcane Recovery")).toBeVisible();
+    await expect(page.getByText("Current 0 of 1")).toBeVisible();
+
+    await page.getByRole("button", { name: "Restore Arcane Recovery" }).click();
+    await expect(page.getByText("Current 1 of 1")).toBeVisible();
+
+    await page.getByRole("button", { name: "Use Arcane Recovery" }).click();
+    await expect(page.getByText("Current 0 of 1")).toBeVisible();
+});

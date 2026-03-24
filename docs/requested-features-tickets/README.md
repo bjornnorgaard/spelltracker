@@ -17,27 +17,27 @@ This order is optimized around dependencies in application state and shared data
 
 ### Phase 1: Establish spellcasting source-of-truth
 
-1. `06-capture-character-spellcasting-ability-input.md`
+1. ✅ `06-capture-character-spellcasting-ability-input.md`
    - Adds a required per-character state field that other spellcasting features depend on.
    - Creates the canonical input needed for accurate downstream calculations.
 
-2. `01-display-character-spell-save-dc.md`
+2. ✅ `01-display-character-spell-save-dc.md`
    - Uses the spellcasting ability input and proficiency data to compute/show spell save DC.
    - Introduces shared derived-stat logic and formula visibility.
 
-3. `02-show-relevant-character-stat-for-save-based-spells.md`
+3. ✅ `02-show-relevant-character-stat-for-save-based-spells.md`
    - Reuses the same casting-stat/DC data pipeline for contextual spell UI.
    - Keeps all save-related values consistent across components.
 
 ### Phase 2: Improve spell interaction workflow
 
-4. `03-improve-free-cast-link-navigation.md`
+4. ✅ `03-improve-free-cast-link-navigation.md`
    - Largely UI/routing behavior and can be implemented once spell rendering patterns are stable.
    - Independent from core character stat schema changes.
 
 ### Phase 3: Expand character progression/state systems
 
-5. `04-support-custom-class-abilities-resources.md`
+5. `04-support-custom-class-abilities-resources.md` (in progress - most class presets done, ranger pending)
    - Introduces broader character resource state and persistence concerns.
    - Benefits from having foundational character stat patterns established first.
 

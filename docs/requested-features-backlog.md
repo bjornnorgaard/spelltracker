@@ -32,6 +32,11 @@ This document tracks requested features that need to be prioritized and analyzed
    - Focus on lightweight inventory management specifically for spell components.
    - Track component usage by count, gold value, and any other relevant consumption method used by spells.
 
+6. **Capture character spellcasting ability input**
+   - Add a per-character input for spellcasting ability (for example: INT/WIS/CHA).
+   - Use this input as part of spell save DC calculation logic.
+   - Keep this aligned with the spell save DC display feature so both values stay consistent.
+
 ## Next Step (Planning)
 
 For each feature above, we should document:

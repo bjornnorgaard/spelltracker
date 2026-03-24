@@ -32,3 +32,37 @@ test("manages selected, prepared, and always prepared spell states", async ({ pa
     await expect(page.getByText("Always Prepared 1")).toBeVisible();
     await expect(page.getByText("Selected 2")).toBeVisible();
 });
+
+test("shows save hint with save ability on spell assignment page", async ({ page }) => {
+    const burningHands = {
+        id: "burning-hands-phb",
+        name: "Burning Hands",
+        source: "PHB",
+        page: "220",
+        level: 1,
+        castingTime: "1 action",
+        duration: "Instantaneous",
+        school: "Evocation",
+        ritual: false,
+        range: "Self",
+        components: "V, S",
+        classes: ["Wizard"],
+        subclasses: "",
+        text: "Each creature in a 15-foot cone must make a Dexterity saving throw.",
+        atHigherLevels: "",
+    };
+
+    await seedLocalStorage(
+        page,
+        localStorageSeed({
+            spells: [...testSpells, burningHands],
+            characters: [seededCharacter],
+        }),
+    );
+
+    await page.goto("/characters/char-wizard-1/spells");
+    await page.getByRole("button", { name: /Burning Hands/ }).click();
+
+    await expect(page.getByText("Save Hint: Dexterity save vs Spell Save DC 11")).toBeVisible();
+    await expect(page.getByText("Based on Intelligence (+0)")).toBeVisible();
+});

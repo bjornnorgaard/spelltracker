@@ -187,6 +187,7 @@ test("other spellcaster class presets auto-configure resources", async ({ page }
         }),
     );
     await page.goto("/characters/char-wizard-1/edit");
+    await expect(page.getByText("Presets are auto-added from class/level")).toBeVisible();
 
     await page.getByLabel("Class").selectOption("Bard");
     await page.getByLabel("Class").blur();
@@ -221,6 +222,7 @@ test("shows custom resources on character page between slots and free casts", as
     await page.goto("/characters/char-wizard-1");
 
     await expect(page.getByRole("heading", { name: "Custom Resources" })).toBeVisible();
+    await expect(page.getByText("Class-based presets are auto-managed from class/level")).toBeVisible();
     await expect(page.getByText("Arcane Recovery")).toBeVisible();
     await expect(page.getByText("Current 0 of 1")).toBeVisible();
 

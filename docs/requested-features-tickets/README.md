@@ -37,7 +37,7 @@ This order is optimized around dependencies in application state and shared data
 
 ### Phase 3: Expand character progression/state systems
 
-5. `04-support-custom-class-abilities-resources.md` (in progress - most class presets done, ranger pending)
+5. ✅ `04-support-custom-class-abilities-resources.md`
    - Introduces broader character resource state and persistence concerns.
    - Benefits from having foundational character stat patterns established first.
 

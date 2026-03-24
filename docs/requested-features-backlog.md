@@ -4,23 +4,23 @@ This document tracks requested features that need to be prioritized and analyzed
 
 ## Features to Prioritize
 
-1. **Display character spell save DC**
+1. **[DONE] Display character spell save DC**
    - Show each character's spell save difficulty class in the UI.
    - Use this value when displaying spells that require a saving throw.
    - Include an info message that explains how spell save DC is calculated so users can verify the number.
 
-2. **Show relevant character stat for save-based spells**
+2. **[DONE] Show relevant character stat for save-based spells**
    - When a spell requires a save, also display the character's relevant casting stat (for example, spellcasting ability modifier).
    - Goal: reduce friction by making required numbers visible in one place.
 
-3. **Improve free-cast link navigation**
+3. **[DONE] Improve free-cast link navigation**
    - Update free-cast references so users can click and jump directly to the referenced spell.
    - Acceptable behavior can be either:
      - in-page scroll to the spell entry, or
      - redirect/navigation to the correct spell location.
      - inline expansion of the referenced spell details so users can view it without leaving their current spot.
 
-4. **Support custom class abilities/resources**
+4. **[DONE] Support custom class abilities/resources**
    - Add support for tracking class-specific custom abilities and resource pools per character.
    - Examples:
      - Sorcerer: sorcery points (typically tied to level)

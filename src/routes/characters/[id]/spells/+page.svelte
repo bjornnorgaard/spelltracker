@@ -370,7 +370,7 @@
                                             {/if}
                                         </p>
                                         <p class="text-sm opacity-70">
-                                            Based on {character.spellcastingAbility}
+                                            Based on {character.spellcastingAbility} {spellcastingAbilityScore}
                                             ({spellcastingAbilityModifier >= 0 ? "+" : ""}{spellcastingAbilityModifier})
                                         </p>
                                     </div>

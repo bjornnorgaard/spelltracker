@@ -116,5 +116,5 @@ test("shows save hint for spells that require a saving throw", async ({ page }) 
 
     await page.getByText("Burning Hands", { exact: true }).first().click();
     await expect(page.getByText("Save Hint: Dexterity save vs Spell Save DC 11")).toBeVisible();
-    await expect(page.getByText("Based on Intelligence (+0)")).toBeVisible();
+    await expect(page.getByText("Based on Intelligence 10 (+0)")).toBeVisible();
 });

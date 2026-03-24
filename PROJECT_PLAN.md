@@ -1,562 +1,130 @@
-# D&D 5th Edition Spelltracker - Project Development Plan
+# D&D 5e Spelltracker - Delivery Status Plan
 
 **Project Start Date:** January 29, 2026  
-**Last Updated:** January 29, 2026  
-**Version:** 1.0.0
+**Last Updated:** March 24, 2026  
+**Version:** 1.1.0
+
+This plan is now split into two practical sections:
+- **Top section:** what to focus on next
+- **Lower section:** what is already completed
 
 ---
 
-## 📋 Project Overview
+## Next Focus (From Current State to Release)
 
-A responsive web application for tracking spells in Dungeons & Dragons 5th Edition. The app enables players and Dungeon Masters to manage spell lists, track spell slots, and reference spell details during gameplay.
+### 1) Testing and quality hardening (highest priority)
+- [ ] Add/expand tests for character spell workflow (selected vs prepared vs always prepared)
+- [ ] Add tests for concentration edge cases (cast, override, undo, rest reset)
+- [ ] Add tests for backup/restore round-trip and malformed JSON handling
+- [ ] Add tests for spell import merge behavior and source selection helpers
+- [ ] Run full regression pass on key routes (`/`, `/spells`, `/spells/import`, `/characters/[id]`, `/characters/[id]/edit`, `/characters/[id]/spells`, `/backup`, `/settings`)
 
-### Technology Stack
-- **Framework:** SvelteKit (v2.50.1) with Svelte 5 (v5.48.2)
-- **Styling:** Tailwind CSS (v4.1.18) + Skeleton UI (v4.11.0)
-- **Language:** TypeScript (v5.9.3)
-- **Build Tool:** Vite (v7.3.1)- **Testing:** Vitest (v4.0.18) + jsdom- **Deployment:** Vercel (adapter-vercel v6.3.1)
-- **Storage:** Browser localStorage (offline-first approach)
+### 2) UX polish and consistency
+- [ ] Improve user-facing success/error messaging consistency across import, backup, and settings
+- [ ] Improve empty-state copy and action guidance for first-time users
+- [ ] Add stronger guardrails for destructive actions (reset/delete flows)
+- [ ] Tighten accessibility pass (labels, keyboard flow, contrast checks)
 
----
+### 3) Responsive and device validation
+- [ ] Verify all major flows on mobile portrait/landscape
+- [ ] Verify tablet layout behavior for large spell lists and long forms
+- [ ] Verify touch targets and scrolling behavior in accordion-heavy views
 
-## 🎯 Core Features & Requirements
+### 4) Documentation and release readiness
+- [ ] Update README/user guide to match implemented flows (import, spell prep, free casts, concentration, backup/restore)
+- [ ] Define production release checklist (build, smoke test, rollback note)
+- [ ] Confirm deployment checklist and monitoring baseline
 
-### Must-Have Features (MVP)
-1. ✅ **Project Scaffolding** - COMPLETED
-   - SvelteKit setup with TypeScript
-   - Skeleton UI integration
-   - Tailwind CSS configuration
-   - Basic project structure
-
-2. ⏳ **Spell Data Management**
-   - CSV parser for bulk spell import
-   - Spell data model with all D&D 5e fields
-   - Local storage persistence
-   - CRUD operations for spells
-
-3. ⏳ **Character Management**
-   - Create/edit/delete characters
-   - Character data model (name, class, level)
-   - Spell slot tracking per character
-   - Character selection/switching
-
-4. ⏳ **Spellbook Management**
-   - Add/remove spells to character spellbook
-   - Filter spells by class, level, school
-   - Search functionality
-   - Sort by various criteria
-
-5. ⏳ **Spell Details View**
-   - Display full spell information
-   - Component breakdown display
-   - Class/subclass availability
-   - Higher level spell effects
-
-6. ⏳ **Spell Slot Tracking**
-   - Visual spell slot tracker (1st-9th level)
-   - Mark slots as used/available
-   - Reset all slots (long rest)
-   - Slot count based on class/level
-
-7. ⏳ **Responsive Design**
-   - Mobile-first approach
-   - Tablet optimization
-   - Desktop layout
-   - Touch-friendly controls
-
-8. ⏳ **Offline Functionality**
-   - Full offline access via localStorage
-   - No external API dependencies
-   - Service worker for PWA (future enhancement)
-
-### Nice-to-Have Features (Post-MVP)
-- [ ] Export character data (JSON/CSV)
-- [ ] Import character data
-- [ ] Spell preparation tracking (for prepared casters)
-- [ ] Concentration tracking
-- [ ] Ritual casting indicators
-- [ ] Dark/light theme toggle
-- [ ] Print-friendly view
-- [ ] Share spellbook via URL
-- [ ] Multiple theme options
-- [ ] Spell favorites/bookmarks
-- [ ] Notes/annotations on spells
-- [ ] Session history tracking
+### 5) Optional post-MVP backlog
+- [ ] JSON/CSV export enhancements beyond current backup flow
+- [ ] Theme toggle and print-friendly spell view
+- [ ] Session history / notes enhancements
+- [ ] URL-shareable spellbook snapshots
 
 ---
 
-## 📐 Technical Architecture
+## Current Progress Snapshot
 
-### Data Models
+### Estimated overall completion: **~75%**
+- ✅ Core app architecture in place
+- ✅ Core character + spell workflows implemented
+- ✅ Import + persistence + backup tooling implemented
+- ⏳ Final testing, polish, and release steps pending
 
-#### Spell Interface
-```typescript
-interface Spell {
-  id: string;
-  name: string;
-  source: string;
-  page: string;
-  level: number; // 0 = Cantrip, 1-9 = spell levels
-  castingTime: string;
-  duration: string;
-  school: string;
-  range: string;
-  components: string;
-  classes: string[];
-  optionalClasses: string[];
-  subclasses: string[];
-  text: string;
-  atHigherLevels: string;
-}
-```
-
-#### Character Interface
-```typescript
-interface Character {
-  id: string;
-  name: string;
-  class: string;
-  level: number;
-  spellSlots: {
-    [level: number]: {
-      total: number;
-      used: number;
-    }
-  };
-  knownSpells: string[]; // spell IDs
-  preparedSpells?: string[]; // for prepared casters
-}
-```
-
-#### AppState Interface
-```typescript
-interface AppState {
-  characters: Character[];
-  activeCharacterId: string | null;
-  spells: Spell[];
-  filters: {
-    level: string[];
-    school: string[];
-    class: string[];
-  };
-  searchQuery: string;
-}
-```
-
-### Component Structure
-```
-src/
-├── lib/
-│   ├── components/
-│   │   ├── spell/
-│   │   │   ├── SpellCard.svelte
-│   │   │   ├── SpellList.svelte
-│   │   │   ├── SpellDetail.svelte
-│   │   │   └── SpellFilters.svelte
-│   │   ├── character/
-│   │   │   ├── CharacterSelector.svelte
-│   │   │   ├── CharacterForm.svelte
-│   │   │   ├── CharacterCard.svelte
-│   │   │   └── SpellSlotTracker.svelte
-│   │   ├── import/
-│   │   │   ├── CSVImporter.svelte
-│   │   │   └── SpellImportPreview.svelte
-│   │   └── layout/
-│   │       ├── Header.svelte
-│   │       ├── Navigation.svelte
-│   │       └── Footer.svelte
-│   ├── stores/
-│   │   ├── characters.svelte.ts
-│   │   ├── spells.svelte.ts
-│   │   └── ui.svelte.ts
-│   ├── utils/
-│   │   ├── csv-parser.ts
-│   │   ├── storage.ts
-│   │   ├── spell-filters.ts
-│   │   └── constants.ts
-│   └── types/
-│       └── index.ts
-└── routes/
-    ├── +layout.svelte
-    ├── +page.svelte (Dashboard/Home)
-    ├── spells/
-    │   ├── +page.svelte (Spell Browser)
-    │   └── [id]/
-    │       └── +page.svelte (Spell Detail)
-    ├── characters/
-    │   ├── +page.svelte (Character List)
-    │   ├── new/
-    │   │   └── +page.svelte (Create Character)
-    │   └── [id]/
-    │       ├── +page.svelte (Character Detail)
-    │       └── edit/
-    │           └── +page.svelte (Edit Character)
-    └── import/
-        └── +page.svelte (CSV Import)
-```
-
-### Storage Strategy
-- **localStorage with reactive Svelte 5 wrapper:**
-  - `LocalStorage<T>` class provides reactive state management
-  - Automatically syncs to localStorage on changes
-  - Cross-tab synchronization support
-  - Type-safe with generics
-- **localStorage keys:**
-  - `spelltracker:characters` - Array of Character objects
-  - `spelltracker:spells` - Array of Spell objects
-  - `spelltracker:activeCharacterId` - Currently selected character ID
-
-### Utility Functions
-```typescript
-// Format spell level for display
-function formatSpellLevel(level: number): string {
-  if (level === 0) return "Cantrip";
-  const suffix = ["th", "st", "nd", "rd"];
-  const v = level % 100;
-  return level + (suffix[(v - 20) % 10] || suffix[v] || suffix[0]);
-}
-
-// Parse CSV spell level to number
-function parseSpellLevel(levelStr: string): number {
-  if (levelStr.toLowerCase().includes("cantrip")) return 0;
-  return parseInt(levelStr) || 0;
-}
-```
+### Phase Status (updated)
+- ✅ **Phase 1: Foundation & Data Layer** - Complete
+- ✅ **Phase 2: Character Management** - Complete
+- ✅ **Phase 3: Spell Management** - Complete (with extended filtering/validation support)
+- ✅ **Phase 4: Spell Slot Tracking** - Complete (including short/long rest + free casts)
+- ✅ **Phase 5: Spell Import** - Complete (repository source loading + merge/import pipeline)
+- ⏳ **Phase 6: UI/UX Polish** - In Progress
+- ⏳ **Phase 7: Responsive Validation** - In Progress
+- ⏳ **Phase 8: Testing & Bug Fixes** - In Progress
+- ⏳ **Phase 9: Deployment & Documentation** - Pending final release pass
 
 ---
 
-## 📅 Development Phases
+## Completed Work (Lower Section)
 
-### Phase 1: Foundation & Data Layer (Week 1)
-**Status:** ✅ Complete
+### A) Foundation and data layer
+- ✅ SvelteKit + Svelte 5 + TypeScript project setup complete
+- ✅ Skeleton UI + Tailwind integration in active use
+- ✅ LocalStorage-based reactive persistence implemented
+- ✅ Core spell/character type models and helpers implemented
+- ✅ Utility coverage for parsing, formatting, and import transformations
+- ✅ Unit tests exist for key utility modules (CSV parsing, spell formatting/import helpers)
 
-#### Tasks:
-- [x] 1.1 Define TypeScript interfaces and types
-- [x] 1.2 Create localStorage utilities (reactive LocalStorage class)
-- [x] 1.3 Implement CSV parser with validation
-- [x] 1.4 Create Svelte stores for state management
-  - [x] Character store (CRUD + active selection)
-  - [x] Spell store (CRUD + filtering)
-  - [x] UI store (modals, toasts, loading states)
-- [x] 1.5 Add sample spell data for testing
-- [x] 1.6 Create constants file (spell schools, classes, etc.)
-- [x] 1.7 Create utility function for spell level display (0 → "Cantrip", 1 → "1st", etc.)
-- [x] 1.8 Set up Vitest testing framework
-- [x] 1.9 Create comprehensive tests for CSV parser (16 tests)
-- [x] 1.10 Create comprehensive tests for spell formatter (18 tests)
+### B) Character management
+- ✅ Character creation flow from home/dashboard
+- ✅ Character detail, edit, and danger-zone pages implemented
+- ✅ Character spell slot configuration and persistence implemented
+- ✅ Character spell assignment flow implemented on dedicated spell management page
+- ✅ Support for selected spells, prepared spells, and always prepared spells
+- ✅ Per-spell character notes supported
 
-#### Success Criteria:
-- [x] All TypeScript types defined
-- [x] localStorage reads/writes successfully
-- [x] CSV parser handles example data
-- [x] Stores reactive and functional
-- [x] Test suite running with 34 passing tests
+### C) Spell management and browsing
+- ✅ Global spell browsing page with search/filter/sort capabilities
+- ✅ Filtering includes level/class/school/source and issue-only mode
+- ✅ Quick validation checks for imported spell data quality
+- ✅ Spell detail display includes core metadata and higher-level text
 
----
+### D) Slot usage and encounter workflow
+- ✅ Spell slot usage and restoration controls implemented
+- ✅ Long rest and short rest flows implemented
+- ✅ Free casts per long rest and short rest implemented
+- ✅ Concentration tracking implemented
+- ✅ Concentration override warning + floating alert implemented
+- ✅ Undo flows for slot/free-cast actions implemented
 
-### Phase 2: Character Management (Week 1-2)
-**Status:** ✅ Complete
+### E) Spell import pipeline
+- ✅ Import page implemented at `/spells/import`
+- ✅ Repository URL to spell index resolution implemented
+- ✅ Source list loading and selective source import implemented
+- ✅ Recommended source selection helper implemented
+- ✅ Duplicate merge/upsert behavior implemented
+- ✅ Spell class enrichment from lookup data implemented
 
-#### Tasks:
-- [x] 2.1 Create character form component
-- [x] 2.2 Implement character CRUD operations
-- [x] 2.3 Build character selector component
-- [x] 2.4 Create character card display
-- [x] 2.5 Add character deletion confirmation
-- [x] 2.6 Implement character list page
-- [x] 2.7 Build character detail page
-- [x] 2.8 Add character edit functionality
+### F) Data safety and operations
+- ✅ Backup and restore page implemented (copy, download, upload, paste, restore)
+- ✅ Settings page supports reset and direct character JSON editing
+- ✅ Legacy local storage migration/normalization handling added in layout
 
-#### Success Criteria:
-- [x] Can create characters with valid data
-- [x] Can switch between characters
-- [x] Character data persists across page reloads
-- [x] Edit/delete operations work correctly
-
----
-
-### Phase 3: Spell Management (Week 2)
-**Status:** ⏳ Pending
-
-#### Tasks:
-- [ ] 3.1 Create spell card component
-- [ ] 3.2 Build spell list with virtualization (if needed)
-- [ ] 3.3 Implement spell detail modal/page
-- [ ] 3.4 Create spell filter component
-  - [ ] Filter by level
-  - [ ] Filter by school
-  - [ ] Filter by class
-- [ ] 3.5 Add search functionality
-- [ ] 3.6 Implement sort options
-- [ ] 3.7 Create spell browser page
-- [ ] 3.8 Add "Add to Spellbook" functionality
-
-#### Success Criteria:
-- [ ] Spells display correctly with all data
-- [ ] Filters work in combination
-- [ ] Search returns relevant results
-- [ ] Can add/remove spells from character
+### G) App shell and navigation
+- ✅ Shared layout, footer navigation, and section/page primitives in use
+- ✅ Routes for home, spells, import, character detail/edit/spells, backup, settings, and debug exist and are wired
 
 ---
 
-### Phase 4: Spell Slot Tracking (Week 2-3)
-**Status:** ⏳ Pending
+## Known Gaps to Close
 
-#### Tasks:
-- [ ] 4.1 Create spell slot tracker component
-- [ ] 4.2 Implement slot usage toggling
-- [ ] 4.3 Add long rest button (reset all slots)
-- [ ] 4.4 Build slot count configuration
-- [ ] 4.5 Add visual indicators (used/available)
-- [ ] 4.6 Implement slot recommendations by class/level
-- [ ] 4.7 Add short rest recovery (for Warlocks)
-
-#### Success Criteria:
-- [ ] Slots track usage correctly
-- [ ] Reset function works
-- [ ] Visual feedback is clear
-- [ ] Data persists properly
+- [ ] Comprehensive end-to-end regression checklist not yet formalized
+- [ ] Accessibility audit results not yet documented
+- [ ] Cross-browser verification status not yet documented
+- [ ] Final deployment runbook and release sign-off checklist still needed
 
 ---
 
-### Phase 5: CSV Import Feature (Week 3)
-**Status:** ⏳ Pending
+## Version History
 
-#### Tasks:
-- [ ] 5.1 Create CSV import page
-- [ ] 5.2 Build file upload component
-- [ ] 5.3 Add CSV validation and error handling
-- [ ] 5.4 Create import preview table
-- [ ] 5.5 Implement bulk spell import
-- [ ] 5.6 Add duplicate detection
-- [ ] 5.7 Create import progress indicator
-- [ ] 5.8 Add sample CSV download
-
-#### Success Criteria:
-- [ ] Can upload and parse CSV files
-- [ ] Errors are clearly displayed
-- [ ] Preview shows correct data
-- [ ] Import adds spells to storage
-
----
-
-### Phase 6: UI/UX Polish (Week 3-4)
-**Status:** ⏳ Pending
-
-#### Tasks:
-- [ ] 6.1 Create app header with navigation
-- [ ] 6.2 Add loading states and skeletons
-- [ ] 6.3 Implement toast notifications
-- [ ] 6.4 Add modal dialogs for confirmations
-- [ ] 6.5 Create empty states (no characters, no spells)
-- [ ] 6.6 Add animations and transitions
-- [ ] 6.7 Implement error boundaries
-- [ ] 6.8 Add help/tutorial tooltips
-- [ ] 6.9 Create about/help page
-
-#### Success Criteria:
-- [ ] UI is intuitive and responsive
-- [ ] Feedback is immediate and clear
-- [ ] No confusing states
-- [ ] Smooth user experience
-
----
-
-### Phase 7: Responsive Design (Week 4)
-**Status:** ⏳ Pending
-
-#### Tasks:
-- [ ] 7.1 Mobile layout optimization (320px - 767px)
-- [ ] 7.2 Tablet layout optimization (768px - 1023px)
-- [ ] 7.3 Desktop layout optimization (1024px+)
-- [ ] 7.4 Touch gesture support
-- [ ] 7.5 Mobile navigation menu
-- [ ] 7.6 Responsive tables/grids
-- [ ] 7.7 Test on various devices
-- [ ] 7.8 Optimize for landscape/portrait
-
-#### Success Criteria:
-- [ ] Works on all screen sizes
-- [ ] Touch controls are accessible
-- [ ] No horizontal scrolling issues
-- [ ] Readable on small screens
-
----
-
-### Phase 8: Testing & Bug Fixes (Week 4-5)
-**Status:** ⏳ Pending
-
-#### Tasks:
-- [ ] 8.1 Manual testing of all features
-- [ ] 8.2 Cross-browser testing
-- [ ] 8.3 Accessibility audit
-- [ ] 8.4 Performance optimization
-- [ ] 8.5 Fix identified bugs
-- [ ] 8.6 Test localStorage edge cases
-- [ ] 8.7 Test with large datasets
-- [ ] 8.8 User acceptance testing
-
-#### Success Criteria:
-- [ ] No critical bugs
-- [ ] Works in major browsers
-- [ ] Accessible to all users
-- [ ] Performance is acceptable
-
----
-
-### Phase 9: Deployment & Documentation (Week 5)
-**Status:** ⏳ Pending
-
-#### Tasks:
-- [ ] 9.1 Configure Vercel deployment
-- [ ] 9.2 Set up environment variables
-- [ ] 9.3 Test production build
-- [ ] 9.4 Write user documentation
-- [ ] 9.5 Create deployment guide
-- [ ] 9.6 Add README instructions
-- [ ] 9.7 Deploy to production
-- [ ] 9.8 Monitor initial usage
-
-#### Success Criteria:
-- [ ] App is live and accessible
-- [ ] Documentation is complete
-- [ ] No deployment issues
-- [ ] Users can access the app
-
----
-
-## 🔍 Key Technical Decisions
-
-### Why localStorage?
-- Simple offline-first approach
-- No backend required for MVP
-- Works immediately without setup
-- Sufficient for single-user app
-- Can migrate to IndexedDB later if needed
-
-### Why Skeleton UI?
-- Pre-built D&D-friendly dark themes
-- Comprehensive component library
-- Built for Svelte 5
-- Good accessibility defaults
-- Reduces custom CSS needed
-
-### Why SvelteKit?
-- Modern, performant framework
-- Great developer experience
-- Built-in routing
-- SSG capabilities for Vercel
-- Svelte 5 runes for reactivity
-
----
-
-## 🎨 Design Considerations
-
-### Color Scheme
-- Use Skeleton's theme system
-- Consider D&D-inspired themes (crimson, skeleton, etc.)
-- Ensure high contrast for readability
-- Support dark mode preference
-
-### Typography
-- Clear hierarchy for spell information
-- Monospace for spell components (V, S, M)
-- Large touch targets on mobile
-- Readable body text (16px minimum)
-
-### Layout Patterns
-- Card-based design for spells/characters
-- Sidebar navigation on desktop
-- Bottom tab bar on mobile
-- Modal overlays for details
-- List/grid toggle views
-
----
-
-## 🐛 Known Issues & Discoveries
-
-### Issue Log
-*Document issues as they arise during development*
-
-1. **Issue #1:** [To be filled during development]
-   - **Status:** 
-   - **Description:** 
-   - **Solution:** 
-   - **Date:** 
-
----
-
-## 📝 Notes & Discoveries
-
-### Development Notes
-*Track important insights and decisions made during development*
-
-1. **Note #1:** Project scaffolding completed with SvelteKit + Skeleton UI
-   - Date: January 29, 2026
-   - Details: Basic structure in place, ready for feature development
-
----
-
-## ✅ Progress Tracking
-
-### Overall Progress: 20%
-- ✅ Project Setup (100%)
-- ✅ Data Layer (100%)
-- ✅ Testing Setup (100%)
-- ✅ Character Management (100%)
-- ⏳ Spell Management (0%)
-- ⏳ Spell Slots (0%)
-- ⏳ CSV Import (0%)
-- ⏳ UI/UX (0%)
-- ⏳ Responsive Design (0%)
-- ⏳ Testing (0%)
-- ⏳ Deployment (0%)
-
----
-
-## 📚 Resources & References
-
-### Documentation
-- [SvelteKit Docs](https://svelte.dev/docs/kit)
-- [Svelte 5 Docs](https://svelte.dev/docs/svelte)
-- [Skeleton UI Docs](https://skeleton.dev/)
-- [Tailwind CSS Docs](https://tailwindcss.com/docs)
-- [D&D 5e SRD](https://dnd.wizards.com/resources/systems-reference-document)
-
-### Useful APIs
-- localStorage API
-- File API (for CSV upload)
-- Clipboard API (for copy/paste)
-
-### Example Spell Data Source
-- Use the CSV example from README.md as template
-- Can source additional spells from D&D Beyond or SRD
-
----
-
-## 🚀 Future Enhancements
-
-### Post-MVP Feature Ideas
-1. **PWA Support** - Install app on mobile devices
-2. **Cloud Sync** - Optional Firebase/Supabase integration
-3. **Party Management** - Track multiple players' spells
-4. **Encounter Mode** - Quick access during combat
-5. **Spell Counter** - Track concentration and durations
-6. **Custom Spells** - Add homebrew content
-7. **Multi-language Support** - Internationalization
-8. **Spell Comparison** - Compare multiple spells side-by-side
-9. **Quick Reference Cards** - Printable spell cards
-10. **Voice Commands** - Accessibility feature
-
----
-
-## 📞 Contact & Collaboration
-
-**Project Lead:** [Your Name]  
-**Repository:** /Users/bjorn/Developer/Github/spelltracker  
-**Issues:** Track in this document or create GitHub issues  
-
----
-
-**Document Version History:**
 - v1.0.0 (2026-01-29): Initial project plan created
+- v1.1.0 (2026-03-24): Plan restructured into "Next Focus" and "Completed Work" based on current feature set

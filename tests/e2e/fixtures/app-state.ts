@@ -1,3 +1,5 @@
+import { DEFAULT_SPELLCASTING_ABILITY } from "../../../src/lib/utils/constants";
+
 export const testSpells = [
     {
         id: "fire-bolt-phb",
@@ -39,6 +41,7 @@ export const seededCharacter = {
     id: "char-wizard-1",
     name: "Test Wizard",
     class: "Wizard",
+    spellcastingAbility: DEFAULT_SPELLCASTING_ABILITY,
     level: 5,
     spellSlots: [
         { level: 0, total: 0, used: 0 },

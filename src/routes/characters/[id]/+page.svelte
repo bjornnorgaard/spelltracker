@@ -230,6 +230,11 @@
     function getSpellName(spellId: string) {
         return spells.current.find((spell: Spell) => spell.id === spellId)?.name ?? "Unknown spell";
     }
+
+    function spellRequiresSavingThrow(spell: Spell) {
+        const haystack = `${spell.text ?? ""} ${spell.atHigherLevels ?? ""}`;
+        return /saving throw/i.test(haystack);
+    }
 </script>
 
 <ConcentrationFloatingAlert spell={concentratingSpell} ondrop={() => dropConcentration()}/>
@@ -482,6 +487,12 @@
                                         <div>
                                             <i>{s.text}</i>
                                         </div>
+                                        {#if spellRequiresSavingThrow(s)}
+                                            <aside class="card preset-tonal p-3">
+                                                <p><strong>Save Hint:</strong> Use Spell Save DC {spellSaveDc}</p>
+                                                <p class="text-sm opacity-75">Based on {character.spellcastingAbility} ({spellcastingAbilityModifier >= 0 ? "+" : ""}{spellcastingAbilityModifier})</p>
+                                            </aside>
+                                        {/if}
                                         {#if s.atHigherLevels}
                                             <p><strong>At higher levels:</strong> {s.atHigherLevels}</p>
                                         {/if}

@@ -79,3 +79,42 @@ test("shows spellcasting summary with spell save DC breakdown", async ({ page })
     await expect(page.getByText("Spell Save DC: 11")).toBeVisible();
     await expect(page.getByText("Breakdown: 8 + 3 + 0 = 11")).toBeVisible();
 });
+
+test("shows save hint for spells that require a saving throw", async ({ page }) => {
+    const burningHands = {
+        id: "burning-hands-phb",
+        name: "Burning Hands",
+        source: "PHB",
+        page: "220",
+        level: 1,
+        castingTime: "1 action",
+        duration: "Instantaneous",
+        school: "Evocation",
+        ritual: false,
+        range: "Self",
+        components: "V, S",
+        classes: ["Wizard"],
+        subclasses: "",
+        text: "Each creature in a 15-foot cone must make a Dexterity saving throw.",
+        atHigherLevels: "",
+    };
+
+    await seedLocalStorage(
+        page,
+        localStorageSeed({
+            spells: [...testSpells, burningHands],
+            characters: [
+                {
+                    ...seededCharacter,
+                    selectedSpellIds: [...seededCharacter.selectedSpellIds, burningHands.id],
+                    preparedSpellIds: [...seededCharacter.preparedSpellIds, burningHands.id],
+                },
+            ],
+        }),
+    );
+    await page.goto("/characters/char-wizard-1");
+
+    await page.getByText("Burning Hands", { exact: true }).first().click();
+    await expect(page.getByText("Save Hint: Use Spell Save DC 11")).toBeVisible();
+    await expect(page.getByText("Based on Intelligence (+0)")).toBeVisible();
+});

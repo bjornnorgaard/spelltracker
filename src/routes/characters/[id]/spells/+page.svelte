@@ -9,7 +9,9 @@
     import type {SpellNote} from "$lib/types/spellNote";
     import type {Spell} from "$lib/types/spell";
     import Section from "$lib/components/Section.svelte";
-    import {DND_CLASSES} from "$lib/utils/constants";
+    import {DEFAULT_SPELLCASTING_ABILITY_SCORE, DND_CLASSES} from "$lib/utils/constants";
+    import {calculateSpellSaveDc, getAbilityModifier, getProficiencyBonusForLevel} from "$lib/utils/spell-save-dc";
+    import {getSavingThrowAbility, spellRequiresSavingThrow} from "$lib/utils/spell-save-parser";
 
     const {data} = $props();
     let character: Character = $derived.by(() => characters.current.find((c: any) => c.id === data.characterId));
@@ -45,6 +47,14 @@
     const selectedCount = $derived((character?.selectedSpellIds ?? []).length);
     const alwaysPreparedCount = $derived((character?.alwaysPreparedSpellIds ?? []).length);
     const preparedCount = $derived((character?.preparedSpellIds ?? []).length);
+    const proficiencyBonus = $derived(getProficiencyBonusForLevel(character?.level ?? 1));
+    const spellcastingAbilityScore = $derived(
+        Number.isFinite(character?.spellcastingAbilityScore)
+            ? character.spellcastingAbilityScore
+            : DEFAULT_SPELLCASTING_ABILITY_SCORE
+    );
+    const spellcastingAbilityModifier = $derived(getAbilityModifier(spellcastingAbilityScore));
+    const spellSaveDc = $derived(calculateSpellSaveDc({proficiencyBonus, spellcastingAbilityModifier}));
 
     function uniqueIds(values: string[]) {
         return values.filter((value, index) => values.indexOf(value) === index);
@@ -348,6 +358,23 @@
                                 <div>
                                     <i>{spell.text}</i>
                                 </div>
+                                {#if spellRequiresSavingThrow(spell)}
+                                    {@const saveAbility = getSavingThrowAbility(spell)}
+                                    <div class="card p-3 preset-tonal">
+                                        <p>
+                                            <strong>Save Hint:</strong>
+                                            {#if saveAbility}
+                                                {saveAbility} save vs Spell Save DC {spellSaveDc}
+                                            {:else}
+                                                Saving throw vs Spell Save DC {spellSaveDc}
+                                            {/if}
+                                        </p>
+                                        <p class="text-sm opacity-70">
+                                            Based on {character.spellcastingAbility}
+                                            ({spellcastingAbilityModifier >= 0 ? "+" : ""}{spellcastingAbilityModifier})
+                                        </p>
+                                    </div>
+                                {/if}
                                 {#if spell.atHigherLevels}
                                     <p><strong>At higher levels:</strong> {spell.atHigherLevels}</p>
                                 {/if}

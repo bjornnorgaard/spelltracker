@@ -1,5 +1,10 @@
 import type { Character } from "$lib/types/character";
-import { DEFAULT_SPELLCASTING_ABILITY, DND_CLASSES, SPELL_LEVELS } from "$lib/utils/constants";
+import {
+    DEFAULT_SPELLCASTING_ABILITY,
+    DEFAULT_SPELLCASTING_ABILITY_SCORE,
+    DND_CLASSES,
+    SPELL_LEVELS
+} from "$lib/utils/constants";
 
 export function createCharacter(): Character {
     const newCharacter: Character = {
@@ -7,6 +12,7 @@ export function createCharacter(): Character {
         name: randomName(),
         class: DND_CLASSES[Math.floor(Math.random() * DND_CLASSES.length)],
         spellcastingAbility: DEFAULT_SPELLCASTING_ABILITY,
+        spellcastingAbilityScore: DEFAULT_SPELLCASTING_ABILITY_SCORE,
         level: 1,
         spellSlots: [],
         spellNotes: [],

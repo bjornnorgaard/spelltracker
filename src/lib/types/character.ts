@@ -8,6 +8,7 @@ export interface Character {
     name: string;
     class: string;
     spellcastingAbility: SpellcastingAbility;
+    spellcastingAbilityScore: number;
     level: number;
     spellSlots: SpellSlot[];
     spellNotes: SpellNote[];

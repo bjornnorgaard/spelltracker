@@ -1,4 +1,7 @@
-import { DEFAULT_SPELLCASTING_ABILITY } from "../../../src/lib/utils/constants";
+import {
+    DEFAULT_SPELLCASTING_ABILITY,
+    DEFAULT_SPELLCASTING_ABILITY_SCORE
+} from "../../../src/lib/utils/constants";
 
 export const testSpells = [
     {
@@ -42,6 +45,7 @@ export const seededCharacter = {
     name: "Test Wizard",
     class: "Wizard",
     spellcastingAbility: DEFAULT_SPELLCASTING_ABILITY,
+    spellcastingAbilityScore: DEFAULT_SPELLCASTING_ABILITY_SCORE,
     level: 5,
     spellSlots: [
         { level: 0, total: 0, used: 0 },

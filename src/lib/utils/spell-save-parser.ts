@@ -14,7 +14,7 @@ export type SaveAbility = (typeof SAVE_ABILITIES)[number];
 export function getSavingThrowAbility(spell: Pick<Spell, "text" | "atHigherLevels">): SaveAbility | null {
     const haystack = `${spell.text ?? ""} ${spell.atHigherLevels ?? ""}`;
     const match = haystack.match(
-        /\b(strength|dexterity|constitution|intelligence|wisdom|charisma)\s+saving throw\b/i
+        /\b(strength|dexterity|constitution|intelligence|wisdom|charisma)\s+(?:saving throw|save)\b/i
     );
     if (!match) return null;
 
@@ -23,5 +23,6 @@ export function getSavingThrowAbility(spell: Pick<Spell, "text" | "atHigherLevel
 }
 
 export function spellRequiresSavingThrow(spell: Pick<Spell, "text" | "atHigherLevels">): boolean {
-    return /\bsaving throw\b/i.test(`${spell.text ?? ""} ${spell.atHigherLevels ?? ""}`);
+    const haystack = `${spell.text ?? ""} ${spell.atHigherLevels ?? ""}`;
+    return /\b(?:saving throw|save)\b/i.test(haystack);
 }

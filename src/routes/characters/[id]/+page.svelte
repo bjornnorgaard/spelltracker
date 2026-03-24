@@ -232,6 +232,30 @@
         return spells.current.find((spell: Spell) => spell.id === spellId)?.name ?? "Unknown spell";
     }
 
+    function jumpToSpell(spellId: string) {
+        openSpellId = [spellId];
+
+        requestAnimationFrame(() => {
+            const target = document.getElementById(`spell-item-${spellId}`);
+            if (!target) return;
+            target.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+    }
+
+    function useCustomResource(resourceId: string) {
+        const resource = character.customResources?.find((entry) => entry.id === resourceId);
+        if (!resource) return;
+        if (resource.current <= 0) return;
+        resource.current -= 1;
+    }
+
+    function restoreCustomResource(resourceId: string) {
+        const resource = character.customResources?.find((entry) => entry.id === resourceId);
+        if (!resource) return;
+        if (resource.current >= resource.max) return;
+        resource.current += 1;
+    }
+
 </script>
 
 <ConcentrationFloatingAlert spell={concentratingSpell} ondrop={() => dropConcentration()}/>
@@ -264,8 +288,7 @@
 
     <Section title="Spellcasting" subtitle="Current spellcasting stats">
         <div class="card preset-tonal p-4 space-y-2">
-            <p><strong>Spellcasting Ability:</strong> {character.spellcastingAbility}</p>
-            <p><strong>Spellcasting Ability Score:</strong> {spellcastingAbilityScore}</p>
+            <p><strong>Spellcasting Ability:</strong> {character.spellcastingAbility} ({spellcastingAbilityScore})</p>
             <p><strong>Spell Save DC:</strong> {spellSaveDc}</p>
             <p class="text-sm opacity-75">Formula: 8 + proficiency bonus + spellcasting ability modifier</p>
             <p class="text-sm opacity-75">Breakdown: 8 + {proficiencyBonus} + {spellcastingAbilityModifier} = {spellSaveDc}</p>
@@ -304,6 +327,39 @@
         {/if}
     </Section>
 
+    {#if character.customResources?.length}
+        <Section title="Custom Resources" subtitle="Class-specific resources tracked for this character">
+            <div class="space-y-1.5">
+                {#each character.customResources as resource (resource.id)}
+                    <div class="card preset-tonal px-3 py-2 flex items-center justify-between gap-3">
+                        <p class="font-semibold text-sm">{resource.name || "Unnamed Resource"}</p>
+                        <div class="flex items-center gap-2">
+                            <button
+                                class="btn-icon preset-tonal-success"
+                                onclick={() => restoreCustomResource(resource.id)}
+                                disabled={resource.current >= resource.max}
+                                aria-label={`Restore ${resource.name || "resource"}`}
+                            >
+                                <HeartPlus/>
+                            </button>
+                            <p class="text-xs sm:text-sm min-w-28 text-center font-medium">
+                                Current <strong>{resource.current}</strong> of <strong>{resource.max}</strong>
+                            </p>
+                            <button
+                                class="btn-icon preset-tonal-secondary"
+                                onclick={() => useCustomResource(resource.id)}
+                                disabled={resource.current <= 0}
+                                aria-label={`Use ${resource.name || "resource"}`}
+                            >
+                                <Zap/>
+                            </button>
+                        </div>
+                    </div>
+                {/each}
+            </div>
+        </Section>
+    {/if}
+
     {#if character.freePerLongRestSpells.length || character.freePerShortRestSpells.length}
         <Section title="Free Casts" subtitle="Spells you can cast without a slot">
             {#if character.freePerLongRestSpells.length}
@@ -312,7 +368,7 @@
                     {#each character.freePerLongRestSpells as fs (fs.spellId)}
                         {@const s = spells.current.find((spell: Spell) => spell.id === fs.spellId)}
                         <div class="flex justify-between items-center w-full card preset-tonal py-2 px-4">
-                            <span>{s.name}</span>
+                            <button class="text-left" onclick={() => jumpToSpell(fs.spellId)}>{s.name}</button>
                             <div class="flex gap-2">
                                 <div class="flex gap-1 mr-2">
                                     {#each Array(fs.total) as _, i (i)}
@@ -341,7 +397,7 @@
                     {#each character.freePerShortRestSpells as fs (fs.spellId)}
                         {@const s = spells.current.find((spell: Spell) => spell.id === fs.spellId)}
                         <div class="flex justify-between items-center w-full card preset-tonal py-2 px-4">
-                            <span>{s.name}</span>
+                            <button class="text-left" onclick={() => jumpToSpell(fs.spellId)}>{s.name}</button>
                             <div class="flex gap-2">
                                 <div class="flex gap-1 mr-2">
                                     {#each Array(fs.total) as _, i (i)}
@@ -440,7 +496,7 @@
 
             <Accordion collapsible value={openSpellId} onValueChange={(details) => (openSpellId = details.value)}>
                 {#each filteredSpells as s (s.id)}
-                    <Accordion.Item value={s.id} class="preset-tonal border-l-4 border-l-primary-500 rounded-r-2xl" style={`filter: hue-rotate(${s.level * 90}deg)`}>
+                    <Accordion.Item id={`spell-item-${s.id}`} value={s.id} class="preset-tonal border-l-4 border-l-primary-500 rounded-r-2xl" style={`filter: hue-rotate(${s.level * 90}deg)`}>
                         <Accordion.ItemTrigger class="font-bold flex justify-between">
                             <div class="flex gap-4 items-center">
                                 {formatSpellLevelLong(s.level)}

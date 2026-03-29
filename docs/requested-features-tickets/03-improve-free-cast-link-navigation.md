@@ -1,5 +1,9 @@
 # Ticket: Improve Free-Cast Link Navigation
 
+## Status
+
+Done.
+
 ## Feature Goal
 
 Allow free-cast references to be opened quickly from where the user is currently viewing. Supported behavior can include in-page scroll, route redirect to the referenced spell, and/or inline expansion of referenced spell details.

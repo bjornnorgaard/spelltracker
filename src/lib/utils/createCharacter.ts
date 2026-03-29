@@ -24,7 +24,7 @@ export function createCharacter(): Character {
         concentrationSpellId: null,
         freePerLongRestSpells: [],
         freePerShortRestSpells: [],
-        customResources: []
+        customResources: [],
     };
 
     for (const spellLevel of SPELL_LEVELS) {

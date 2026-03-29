@@ -1,5 +1,9 @@
 # Ticket: Display Character Spell Save DC
 
+## Status
+
+Done.
+
 ## Feature Goal
 
 Display each character's spell save DC in the UI and use it where save-based spells are shown. Include an informational message that explains how spell save DC is calculated.

@@ -6,7 +6,7 @@
     import {applyClassResourcePresets} from "$lib/utils/custom-resource-presets";
     import type {Character} from "$lib/types/character";
     import Section from "$lib/components/Section.svelte";
-    import {ArrowDown, ArrowUp} from "@lucide/svelte";
+    import {ArrowDown, ArrowUp, Trash2} from "@lucide/svelte";
     import {onMount} from "svelte";
 
     const {data} = $props();
@@ -119,26 +119,33 @@
                 </aside>
             {:else}
                 {#each character.customResources as resource (resource.id)}
-                    <div class="card preset-tonal p-4 grid grid-cols-4 gap-3 items-end">
-                        <label class="label col-span-2">
+                    <div
+                        class="card preset-tonal p-3 grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto] gap-x-2 gap-y-1 items-end"
+                    >
+                        <label class="label min-w-0">
                             <span class="label-text">Name</span>
                             <input type="text" class="input preset-tonal" bind:value={resource.name} />
                         </label>
-                        <label class="label col-span-1">
+                        <label class="label min-w-0">
                             <span class="label-text">Current</span>
                             <input type="number" min={0} class="input preset-tonal" bind:value={resource.current} />
                         </label>
-                        <label class="label col-span-1">
+                        <label class="label min-w-0">
                             <span class="label-text">Max</span>
                             <input type="number" min={0} class="input preset-tonal" bind:value={resource.max} />
                         </label>
-                        <button class="btn preset-filled-error-500 col-span-4" onclick={() => removeCustomResource(resource.id)}>
-                            Remove Resource
+                        <button
+                            type="button"
+                            class="btn-icon preset-tonal shrink-0 opacity-60 hover:opacity-100"
+                            aria-label="Remove Resource"
+                            onclick={() => removeCustomResource(resource.id)}
+                        >
+                            <Trash2 class="size-4"/>
                         </button>
                     </div>
                 {/each}
             {/if}
-            <button class="btn w-full preset-filled-primary-500" onclick={addCustomResource}>Add Custom Resource</button>
+            <button class="btn w-full preset-filled-primary-500" onclick={addCustomResource}>Add custom resource</button>
         </div>
     </Section>
 

@@ -153,7 +153,7 @@ test("can add and remove a custom resource in character edit", async ({ page }) 
 
     await expect(page.getByRole("heading", { name: "Custom Resources" })).toBeVisible();
     const beforeCount = await page.getByRole("textbox", { name: "Name" }).count();
-    await page.getByRole("button", { name: "Add Custom Resource" }).click();
+    await page.getByRole("button", { name: "Add custom resource" }).click();
     await expect(page.getByRole("textbox", { name: "Name" }).last()).toHaveValue("New Resource");
 
     await page.getByRole("button", { name: "Remove Resource" }).last().click();

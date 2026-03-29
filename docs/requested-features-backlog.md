@@ -27,12 +27,7 @@ This document tracks requested features that need to be prioritized and analyzed
      - Paladin/Cleric-style resource examples: channel divinity
      - Other class-specific tracked resources as needed
 
-5. **Spell component inventory quick-view**
-   - Add a way for component-using classes to quickly view what spell components they have in their bag/inventory.
-   - Focus on lightweight inventory management specifically for spell components.
-   - Track component usage by count, gold value, and any other relevant consumption method used by spells.
-
-6. **Capture character spellcasting ability input**
+5. **Capture character spellcasting ability input**
    - Add a per-character input for spellcasting ability (for example: INT/WIS/CHA).
    - Use this input as part of spell save DC calculation logic.
    - Keep this aligned with the spell save DC display feature so both values stay consistent.

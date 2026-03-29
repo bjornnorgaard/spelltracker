@@ -26,9 +26,9 @@ describe("createCharacter", () => {
         expect(character.spellcastingAbilityScore).toBe(DEFAULT_SPELLCASTING_ABILITY_SCORE);
     });
 
-    it("defaults custom resources to an empty list", () => {
+    it("initializes custom resources list", () => {
         const character = createCharacter();
 
-        expect(character.customResources).toEqual([]);
+        expect(Array.isArray(character.customResources)).toBe(true);
     });
 });

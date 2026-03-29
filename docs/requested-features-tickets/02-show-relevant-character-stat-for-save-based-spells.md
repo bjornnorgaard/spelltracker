@@ -1,5 +1,9 @@
 # Ticket: Show Relevant Character Stat for Save-Based Spells
 
+## Status
+
+Done.
+
 ## Feature Goal
 
 When a spell requires a saving throw, display the relevant character spellcasting stat context (such as the casting ability modifier) alongside that spell information.

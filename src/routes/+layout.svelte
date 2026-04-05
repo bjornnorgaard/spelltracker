@@ -1,16 +1,11 @@
 <script lang="ts">
     import "./layout.css";
+    import ChangelogNotice from "$lib/components/ChangelogNotice.svelte";
     import {characters, spells} from "$lib/stores/stores";
     import {onMount} from "svelte";
-    import {
-        DEFAULT_SPELLCASTING_ABILITY,
-        DEFAULT_SPELLCASTING_ABILITY_SCORE,
-        DND_CLASSES,
-        SPELLCASTING_ABILITIES,
-        type SpellcastingAbility
-    } from "$lib/utils/constants";
+    import {DEFAULT_SPELLCASTING_ABILITY, DEFAULT_SPELLCASTING_ABILITY_SCORE, DND_CLASSES, SPELLCASTING_ABILITIES, type SpellcastingAbility} from "$lib/utils/constants";
     import type {Character} from "$lib/types/character";
-    import { applyClassResourcePresets } from "$lib/utils/custom-resource-presets";
+    import {applyClassResourcePresets} from "$lib/utils/custom-resource-presets";
 
     let {children} = $props();
 
@@ -111,6 +106,8 @@
         </button>
     </header>
 
+    <ChangelogNotice/>
+
     <main class="mx-auto max-w-xl p-4 mb-4 flex-1 w-full">
         {@render children()}
     </main>
@@ -120,6 +117,7 @@
             <p class="uppercase text-xs tracking-widest">General</p>
             <ul class="space-y-1">
                 <li><a href="/" class="anchor">Home</a></li>
+                <li><a href="/changelog" class="anchor">Changelog</a></li>
                 <li><a href="/backup" class="anchor">Backup</a></li>
                 <li><a href="/settings" class="anchor">Settings</a></li>
                 <li><a href="/debug" class="anchor">Debug</a></li>

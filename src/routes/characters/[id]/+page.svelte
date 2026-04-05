@@ -532,9 +532,9 @@
                                         </div>
                                         {#if character.spellNotes.find((n) => n.spellId === s.id)}
                                             {@const note = character.spellNotes.find((n) => n.spellId === s.id)}
-                                            <div class="card preset-filled-primary-500 p-4">
-                                                <p class="font-bold text-lg">User note</p>
-                                                <p>{note?.text}</p>
+                                            <div class="card preset-tonal p-4 border border-surface-300-700/50">
+                                                <p class="text-xs font-semibold uppercase tracking-wide opacity-80">User note</p>
+                                                <p class="mt-2 text-sm leading-relaxed">{note?.text}</p>
                                             </div>
                                         {/if}
                                         <div>

@@ -146,7 +146,7 @@
                 <div class="flex flex-wrap gap-2">
                     <button
                         type="button"
-                        class="btn preset-tonal"
+                        class="btn preset-tonal w-full min-w-0 sm:w-auto"
                         onclick={loadSources}
                         disabled={isLoadingSources || isImportingSources}
                     >
@@ -154,7 +154,7 @@
                     </button>
                     <button
                         type="button"
-                        class="btn preset-tonal"
+                        class="btn preset-tonal w-full min-w-0 sm:w-auto"
                         onclick={() => {
                             sourceEntries = [];
                             loadError = "";

@@ -38,7 +38,7 @@
     function addCustomResource() {
         character.customResources = [
             ...(character.customResources ?? []),
-            { id: crypto.randomUUID(), name: "New Resource", current: 0, max: 0 },
+            {id: crypto.randomUUID(), name: "New Resource", current: 0, max: 0},
         ];
     }
 
@@ -126,27 +126,23 @@
                 </aside>
             {:else}
                 {#each character.customResources as resource (resource.id)}
-                    <div
-                        class="card preset-tonal p-3 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:items-end lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:gap-x-2 lg:gap-y-1"
-                    >
+                    <div class="card preset-tonal p-3 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:items-end lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:gap-x-2 lg:gap-y-1">
                         <label class="label min-w-0 sm:col-span-2 lg:col-span-1">
                             <span class="label-text">Name</span>
-                            <input type="text" class="input preset-tonal w-full min-w-0" bind:value={resource.name} />
+                            <input type="text" class="input preset-tonal w-full min-w-0" bind:value={resource.name}/>
                         </label>
                         <label class="label min-w-0">
                             <span class="label-text">Current</span>
-                            <input type="number" min={0} class="input preset-tonal w-full min-w-0" bind:value={resource.current} />
+                            <input type="number" min={0} class="input preset-tonal w-full min-w-0" bind:value={resource.current}/>
                         </label>
                         <label class="label min-w-0">
                             <span class="label-text">Max</span>
-                            <input type="number" min={0} class="input preset-tonal w-full min-w-0" bind:value={resource.max} />
+                            <input type="number" min={0} class="input preset-tonal w-full min-w-0" bind:value={resource.max}/>
                         </label>
-                        <button
-                            type="button"
-                            class="btn-icon preset-tonal shrink-0 justify-self-end opacity-60 hover:opacity-100 sm:col-span-2 lg:col-span-1 lg:justify-self-auto"
-                            aria-label="Remove Resource"
-                            onclick={() => removeCustomResource(resource.id)}
-                        >
+                        <button type="button"
+                                class="btn-icon preset-tonal shrink-0 justify-self-end opacity-60 hover:opacity-100 sm:col-span-2 lg:col-span-1 lg:justify-self-auto"
+                                aria-label="Remove Resource"
+                                onclick={() => removeCustomResource(resource.id)}>
                             <Trash2 class="size-4"/>
                         </button>
                     </div>

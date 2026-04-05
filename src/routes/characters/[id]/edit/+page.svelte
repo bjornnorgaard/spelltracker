@@ -51,14 +51,17 @@
 <div class="space-y-8">
     <Section title="Character Info" subtitle="Edit basic character information">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
             <label class="label col-span-full min-w-0">
                 <span class="label-text">Name</span>
                 <input type="text" class="input preset-tonal w-full min-w-0" autocomplete="off" bind:value={character.name} required/>
             </label>
+
             <label class="label min-w-0">
                 <span class="label-text">Level</span>
                 <input type="number" min={1} max={20} class="input preset-tonal w-full min-w-0" bind:value={character.level} onchange={() => applyClassResourcePresets(character)} required/>
             </label>
+
             <label class="label min-w-0">
                 <span class="label-text">Class</span>
                 <select class="select preset-tonal w-full min-w-0" bind:value={character.class} onchange={() => applyClassResourcePresets(character)} required>
@@ -67,6 +70,7 @@
                     {/each}
                 </select>
             </label>
+
             <label class="label min-w-0 sm:col-span-2 lg:col-span-1">
                 <span class="label-text">Spellcasting Ability</span>
                 <select class="select preset-tonal w-full min-w-0" bind:value={character.spellcastingAbility} required>
@@ -75,14 +79,17 @@
                     {/each}
                 </select>
             </label>
+
             <label class="label min-w-0">
                 <span class="label-text">Prepared Spells</span>
                 <input type="number" min={1} max={25} class="input preset-tonal w-full min-w-0" bind:value={character.preparedSpellsLimit} required/>
             </label>
+
             <label class="label min-w-0">
                 <span class="label-text">Spellcasting Ability Score</span>
                 <input type="number" min={1} max={30} class="input preset-tonal w-full min-w-0" bind:value={character.spellcastingAbilityScore} required/>
             </label>
+
             <aside class="card preset-tonal p-4 col-span-full sm:col-span-2 lg:col-span-2 min-w-0">
                 <strong class="text-base">Spell Save DC: {spellSaveDc}</strong>
                 <p class="opacity-70 text-sm">8 + proficiency bonus + spellcasting ability modifier</p>

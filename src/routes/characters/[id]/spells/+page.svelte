@@ -15,6 +15,7 @@
         spellsSuggestSubclassReimport,
         splitSpellSubclassLabels,
         subclassLabelClassPrefix,
+        subclassLabelStripClassPrefix,
     } from "$lib/utils/spell-import";
     import {calculateSpellSaveDc, getAbilityModifier, getProficiencyBonusForLevel} from "$lib/utils/spell-save-dc";
     import {getSavingThrowAbility, spellRequiresSavingThrow} from "$lib/utils/spell-save-parser";
@@ -377,15 +378,17 @@
                 {/each}
             </div>
             {#if selectedClassFilter != null && availableSubclasses.length > 0}
+                {@const classKey = selectedClassFilter}
                 <p class="uppercase tracking-wide opacity-70">Filter by subclass</p>
                 <div class="flex flex-wrap gap-2">
                     {#each availableSubclasses as label (label)}
+                        {@const displayLabel = subclassLabelStripClassPrefix(label, classKey)}
                         <button class="btn btn-sm grow"
                                 class:preset-filled-tertiary-500={subclassFilters.includes(label)}
                                 class:preset-tonal={!subclassFilters.includes(label)}
                                 onclick={() => toggleSubclassFilter(label)}
                                 title={label}>
-                            {label}
+                            {displayLabel}
                         </button>
                     {/each}
                 </div>

@@ -277,6 +277,21 @@ export function subclassLabelClassPrefix(label: string): string | null {
 }
 
 /**
+ * For "ClassName: Subclass …" labels, returns the subclass part when the prefix matches `forClass` (e.g. for UI when only one class is selected).
+ */
+export function subclassLabelStripClassPrefix(label: string, forClass: string): string {
+    const trimmed = String(label ?? "").trim();
+    const prefix = subclassLabelClassPrefix(trimmed);
+    if (prefix == null) return trimmed;
+
+    if (normalizeClassName(prefix) !== normalizeClassName(forClass)) return trimmed;
+
+    const idx = trimmed.indexOf(":");
+    const rest = trimmed.slice(idx + 1).trim();
+    return rest.length > 0 ? rest : trimmed;
+}
+
+/**
  * True if any spell has at least one "ClassName: Subclass …" label (lookup-enriched subclass text).
  */
 export function spellListHasLookupSubclassLabels(spellList: Spell[]): boolean {

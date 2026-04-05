@@ -16,6 +16,7 @@ import {
     spellMatchesSubclassFilters,
     splitSpellSubclassLabels,
     subclassLabelClassPrefix,
+    subclassLabelStripClassPrefix,
     spellListHasLookupSubclassLabels,
     spellsSuggestSubclassReimport,
     type SourceEntry,
@@ -422,6 +423,11 @@ describe("splitSpellSubclassLabels and spellMatchesSubclassFilters", () => {
     it("subclassLabelClassPrefix reads class name before colon", () => {
         expect(subclassLabelClassPrefix("Bard: College of Lore")).toBe("Bard");
         expect(subclassLabelClassPrefix("Arcane Trickster Rogue")).toBe(null);
+    });
+
+    it("subclassLabelStripClassPrefix drops the class when it matches forClass", () => {
+        expect(subclassLabelStripClassPrefix("Paladin: Oath of Conquest", "Paladin")).toBe("Oath of Conquest");
+        expect(subclassLabelStripClassPrefix("Paladin: Oath of Conquest", "Bard")).toBe("Paladin: Oath of Conquest");
     });
 
     it("spellListHasLookupSubclassLabels and spellsSuggestSubclassReimport detect enriched data", () => {

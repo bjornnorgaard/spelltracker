@@ -280,7 +280,7 @@
 
 <div class="space-y-8">
     <Section title="Overview" subtitle="Select spells for this character, then configure prepared/always prepared/free casts">
-        <div class="flex gap-4">
+        <div class="flex flex-wrap gap-4">
             <span class="badge grow preset-filled-surface-500">Selected {selectedCount}</span>
             <span class="badge grow preset-filled-surface-500">Prepared {preparedCount}/{character.preparedSpellsLimit}</span>
             <span class="badge grow preset-filled-surface-500">Always Prepared {alwaysPreparedCount}</span>

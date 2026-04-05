@@ -50,9 +50,9 @@
 
 <div class="space-y-8">
     <Section title="Character Info" subtitle="Edit basic character information">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="grid grid-cols-2 gap-4">
 
-            <label class="label col-span-full min-w-0">
+            <label class="label min-w-0 col-span-full">
                 <span class="label-text">Name</span>
                 <input type="text" class="input preset-tonal w-full min-w-0" autocomplete="off" bind:value={character.name} required/>
             </label>
@@ -71,7 +71,7 @@
                 </select>
             </label>
 
-            <label class="label min-w-0 sm:col-span-2 lg:col-span-1">
+            <label class="label min-w-0">
                 <span class="label-text">Spellcasting Ability</span>
                 <select class="select preset-tonal w-full min-w-0" bind:value={character.spellcastingAbility} required>
                     {#each SPELLCASTING_ABILITIES as ability (ability)}
@@ -81,19 +81,19 @@
             </label>
 
             <label class="label min-w-0">
+                <span class="label-text">Spellcasting Modifier</span>
+                <input type="number" min={1} max={30} class="input preset-tonal w-full min-w-0" bind:value={character.spellcastingAbilityScore} required/>
+            </label>
+
+            <label class="label min-w-0">
                 <span class="label-text">Prepared Spells</span>
                 <input type="number" min={1} max={25} class="input preset-tonal w-full min-w-0" bind:value={character.preparedSpellsLimit} required/>
             </label>
 
-            <label class="label min-w-0">
-                <span class="label-text">Spellcasting Ability Score</span>
-                <input type="number" min={1} max={30} class="input preset-tonal w-full min-w-0" bind:value={character.spellcastingAbilityScore} required/>
-            </label>
-
-            <aside class="card preset-tonal p-4 col-span-full sm:col-span-2 lg:col-span-2 min-w-0">
+            <aside class="card preset-tonal p-4 min-w-0 col-span-full">
                 <strong class="text-base">Spell Save DC: {spellSaveDc}</strong>
-                <p class="opacity-70 text-sm">8 + proficiency bonus + spellcasting ability modifier</p>
-                <p class="opacity-70 text-sm">8 + {proficiencyBonus} + {spellcastingAbilityModifier} = {spellSaveDc}</p>
+                <p class="opacity-70 text-sm">8 + proficiency bonus + spellcasting modifier</p>
+                <p class="opacity-70 text-sm">8 + {proficiencyBonus} + {spellcastingAbilityModifier} = <span class="font-bold underline">{spellSaveDc}</span></p>
             </aside>
         </div>
         <div class="flex justify-end">

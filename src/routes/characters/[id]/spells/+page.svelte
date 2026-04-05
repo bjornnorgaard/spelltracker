@@ -419,29 +419,68 @@
                                     {/if}
                                 </div>
 
-                                <p class="preset-typo-headline tracking-wide">Free Casts</p>
-                                <div class="flex justify-evenly">
-                                    <div class="flex flex-col gap-2">
-                                        <button class="btn" onclick={() => stepCount("long", spell.id, 1)}>
-                                            <CirclePlus/>
-                                        </button>
-                                        <span class="badge uppercase tracking-wide opacity-70">
-                                            {getCount(character.freePerLongRestSpells, spell.id)} per long rest
-                                        </span>
-                                        <button class="btn" onclick={() => stepCount("long", spell.id, -1)}>
-                                            <CircleMinus/>
-                                        </button>
+                                <div class="space-y-3 border-t border-surface-300-700/40 pt-4">
+                                    <div>
+                                        <p class="preset-typo-headline tracking-wide">Free casts</p>
+                                        <p class="mt-1 text-sm opacity-80">
+                                            Bonus uses that do not spend spell slots (items, features, Metamagic, etc.). Set how many refresh on each rest.
+                                        </p>
                                     </div>
-                                    <div class="flex flex-col gap-2">
-                                        <button class="btn" onclick={() => stepCount("short", spell.id, 1)}>
-                                            <CirclePlus/>
-                                        </button>
-                                        <span class="badge uppercase tracking-wide opacity-70">
-                                            {getCount(character.freePerShortRestSpells, spell.id)} per short rest
-                                        </span>
-                                        <button class="btn" onclick={() => stepCount("short", spell.id, -1)}>
-                                            <CircleMinus/>
-                                        </button>
+                                    <div class="grid gap-3 sm:grid-cols-2">
+                                        <div class="card preset-tonal p-3 space-y-3">
+                                            <div>
+                                                <p class="font-semibold">Per long rest</p>
+                                                <p class="text-xs opacity-70">Resets after a long rest</p>
+                                            </div>
+                                            <div class="flex items-center justify-center gap-3">
+                                                <button
+                                                    type="button"
+                                                    class="btn preset-tonal shrink-0"
+                                                    aria-label="Decrease free casts per long rest"
+                                                    onclick={() => stepCount("long", spell.id, -1)}
+                                                >
+                                                    <CircleMinus size={20}/>
+                                                </button>
+                                                <span class="min-w-[2.5ch] text-center text-2xl font-bold tabular-nums">
+                                                    {getCount(character.freePerLongRestSpells, spell.id)}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    class="btn preset-filled-primary-500 shrink-0"
+                                                    aria-label="Increase free casts per long rest"
+                                                    onclick={() => stepCount("long", spell.id, 1)}
+                                                >
+                                                    <CirclePlus size={20}/>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="card preset-tonal p-3 space-y-3">
+                                            <div>
+                                                <p class="font-semibold">Per short rest</p>
+                                                <p class="text-xs opacity-70">Resets after a short rest</p>
+                                            </div>
+                                            <div class="flex items-center justify-center gap-3">
+                                                <button
+                                                    type="button"
+                                                    class="btn preset-tonal shrink-0"
+                                                    aria-label="Decrease free casts per short rest"
+                                                    onclick={() => stepCount("short", spell.id, -1)}
+                                                >
+                                                    <CircleMinus size={20}/>
+                                                </button>
+                                                <span class="min-w-[2.5ch] text-center text-2xl font-bold tabular-nums">
+                                                    {getCount(character.freePerShortRestSpells, spell.id)}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    class="btn preset-filled-primary-500 shrink-0"
+                                                    aria-label="Increase free casts per short rest"
+                                                    onclick={() => stepCount("short", spell.id, 1)}
+                                                >
+                                                    <CirclePlus size={20}/>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

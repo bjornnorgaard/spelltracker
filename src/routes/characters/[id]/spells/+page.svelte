@@ -19,6 +19,7 @@
     let search = $state("");
     let levelFilters = $state<number[]>([]);
     let classFilters = $state<string[]>([]);
+    let selectedSpellsOnly = $state(false);
     let openSpellId = $state<string[]>([]);
 
     const spellLevels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -33,8 +34,10 @@
 
         const allSpells = spells.current;
         const term = search.trim().toLowerCase();
+        const selectedIdSet = new Set(character.selectedSpellIds ?? []);
 
         const filtered = allSpells.filter((spell: Spell) => {
+            if (selectedSpellsOnly && !selectedIdSet.has(spell.id)) return false;
             const matchesSearch = term ? spell.name.toLowerCase().includes(term) : true;
             const matchesLevel = levelFilters.length > 0 ? levelFilters.includes(spell.level) : true;
             const matchesClass = classFilters.length > 0 ? classFilters.some((className) => (spell.classes ?? []).includes(className)) : true;
@@ -84,6 +87,7 @@
     function clearFilters() {
         levelFilters = [];
         classFilters = [];
+        selectedSpellsOnly = false;
     }
 
     function isSelected(spellId: string) {
@@ -312,6 +316,11 @@
                     </button>
                 {/each}
             </div>
+            <p class="uppercase tracking-wide opacity-70">Selection</p>
+            <label class="flex items-center gap-2">
+                <input class="checkbox" type="checkbox" bind:checked={selectedSpellsOnly}/>
+                <span>Only show spells selected for this character</span>
+            </label>
             <p class="uppercase tracking-wide opacity-70">Actions</p>
             <button class="btn w-full preset-tonal-primary" onclick={clearFilters}>Clear filters</button>
         </div>

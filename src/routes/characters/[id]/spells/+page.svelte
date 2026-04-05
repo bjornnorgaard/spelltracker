@@ -396,7 +396,7 @@
                                               oninput={(event) => handleNoteInput(spell.id, event)}>{getNote(character.spellNotes, spell.id)}</textarea>
                                 </label>
 
-                                <p class="preset-typo-headline tracking-wide">Preparation</p>
+                                <p class="preset-typo-caption font-semibold uppercase tracking-wider">Preparation</p>
 
                                 <div class="flex flex-col gap-2">
                                     {#if getSelectionMode(spell.id) === "none"}
@@ -421,7 +421,7 @@
 
                                 <div class="space-y-3 border-t border-surface-300-700/40 pt-4">
                                     <div>
-                                        <p class="preset-typo-headline tracking-wide">Free casts</p>
+                                        <p class="preset-typo-caption font-semibold uppercase tracking-wider">Free casts</p>
                                         <p class="mt-1 text-sm opacity-80">
                                             Bonus uses that do not spend spell slots (items, features, Metamagic, etc.). Set how many refresh on each rest.
                                         </p>

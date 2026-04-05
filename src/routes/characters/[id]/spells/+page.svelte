@@ -10,13 +10,7 @@
     import type {Spell} from "$lib/types/spell";
     import Section from "$lib/components/Section.svelte";
     import {DEFAULT_SPELLCASTING_ABILITY_SCORE, DND_CLASSES} from "$lib/utils/constants";
-    import {
-        spellMatchesSubclassFilters,
-        spellsSuggestSubclassReimport,
-        splitSpellSubclassLabels,
-        subclassLabelClassPrefix,
-        subclassLabelStripClassPrefix,
-    } from "$lib/utils/spell-import";
+    import {spellMatchesSubclassFilters, spellsSuggestSubclassReimport, splitSpellSubclassLabels, subclassLabelClassPrefix, subclassLabelStripClassPrefix,} from "$lib/utils/spell-import";
     import {calculateSpellSaveDc, getAbilityModifier, getProficiencyBonusForLevel} from "$lib/utils/spell-save-dc";
     import {getSavingThrowAbility, spellRequiresSavingThrow} from "$lib/utils/spell-save-parser";
 
@@ -73,8 +67,8 @@
                 subclassFilters.length === 0
                     ? onClassSpellList
                     : selectedClassFilter != null
-                      ? onClassSpellList || spellMatchesSubclassFilters(spell.subclasses, subclassFilters)
-                      : spellMatchesSubclassFilters(spell.subclasses, subclassFilters);
+                        ? onClassSpellList || spellMatchesSubclassFilters(spell.subclasses, subclassFilters)
+                        : spellMatchesSubclassFilters(spell.subclasses, subclassFilters);
 
             return matchesSearch && matchesLevel && matchesClassAndSubclassAvailability;
         });
@@ -511,10 +505,10 @@
                                             </div>
                                             <div class="flex items-center justify-center gap-3">
                                                 <button
-                                                    type="button"
-                                                    class="btn preset-tonal shrink-0"
-                                                    aria-label="Decrease free casts per long rest"
-                                                    onclick={() => stepCount("long", spell.id, -1)}
+                                                        type="button"
+                                                        class="btn preset-tonal shrink-0"
+                                                        aria-label="Decrease free casts per long rest"
+                                                        onclick={() => stepCount("long", spell.id, -1)}
                                                 >
                                                     <CircleMinus size={20}/>
                                                 </button>
@@ -522,10 +516,10 @@
                                                     {getCount(character.freePerLongRestSpells, spell.id)}
                                                 </span>
                                                 <button
-                                                    type="button"
-                                                    class="btn preset-filled-primary-500 shrink-0"
-                                                    aria-label="Increase free casts per long rest"
-                                                    onclick={() => stepCount("long", spell.id, 1)}
+                                                        type="button"
+                                                        class="btn preset-filled-primary-500 shrink-0"
+                                                        aria-label="Increase free casts per long rest"
+                                                        onclick={() => stepCount("long", spell.id, 1)}
                                                 >
                                                     <CirclePlus size={20}/>
                                                 </button>
@@ -538,10 +532,10 @@
                                             </div>
                                             <div class="flex items-center justify-center gap-3">
                                                 <button
-                                                    type="button"
-                                                    class="btn preset-tonal shrink-0"
-                                                    aria-label="Decrease free casts per short rest"
-                                                    onclick={() => stepCount("short", spell.id, -1)}
+                                                        type="button"
+                                                        class="btn preset-tonal shrink-0"
+                                                        aria-label="Decrease free casts per short rest"
+                                                        onclick={() => stepCount("short", spell.id, -1)}
                                                 >
                                                     <CircleMinus size={20}/>
                                                 </button>
@@ -549,10 +543,10 @@
                                                     {getCount(character.freePerShortRestSpells, spell.id)}
                                                 </span>
                                                 <button
-                                                    type="button"
-                                                    class="btn preset-filled-primary-500 shrink-0"
-                                                    aria-label="Increase free casts per short rest"
-                                                    onclick={() => stepCount("short", spell.id, 1)}
+                                                        type="button"
+                                                        class="btn preset-filled-primary-500 shrink-0"
+                                                        aria-label="Increase free casts per short rest"
+                                                        onclick={() => stepCount("short", spell.id, 1)}
                                                 >
                                                     <CirclePlus size={20}/>
                                                 </button>

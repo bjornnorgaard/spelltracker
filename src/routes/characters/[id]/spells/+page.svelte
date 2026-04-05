@@ -346,7 +346,7 @@
                 <p class="text-sm opacity-95">
                     Spelltracker has been updated to add subclass information from your spell import lookup. Your saved spells do not include that data yet. Re-import spells to enable subclass filters and subclass labels on spells.
                 </p>
-                <a href="/spells/import" class="btn preset-tonal w-full sm:w-auto">Re-import spells</a>
+                <a href="/spells/import" class="btn preset-filled w-full sm:w-auto">Re-import spells</a>
             </aside>
         {/if}
         <div class="card p-4 preset-tonal space-y-4">

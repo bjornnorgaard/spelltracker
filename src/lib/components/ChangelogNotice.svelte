@@ -35,7 +35,7 @@
         <p class="preset-typo-body-2 opacity-95">{teaser}</p>
         <div class="flex justify-between">
             <a href={resolve("/changelog")} class="hover:underline text-success-500 text-sm font-medium">View full changelog</a>
-            <button onclick={acknowledge} class="text-sm font-medium">Mark as read</button>
+            <button onclick={acknowledge} class="text-sm font-medium">Mark all as read</button>
         </div>
     </div>
 {/if}

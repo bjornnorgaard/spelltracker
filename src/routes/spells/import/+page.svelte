@@ -1,12 +1,23 @@
 <script lang="ts">
-    import {spells} from "$lib/stores/stores";
+    import {untrack} from "svelte";
+    import {resolve} from "$app/paths";
+    import {getSpellImportRepositoryUrl, spells, spellImportSettings} from "$lib/stores/stores";
     import type {Spell} from "$lib/types/spell";
     import {convertSpellCsvRows} from "$lib/types/spell";
     import {buildSpellFromCsvRow, createSourceEntries, enrichSpellsWithLookupClasses, getSpellIndexUrlFromRepositoryUrl, getSpellSourceLookupUrl, selectAllSources, selectRecommendedSources, type SourceEntry, type SpellSourceLookup, upsertSpellsByNameSource,} from "$lib/utils/spell-import";
     import Section from "$lib/components/Section.svelte";
 
-    let repositoryUrl = $state<string>("");
+    let repositoryUrl = $state<string>(getSpellImportRepositoryUrl());
     let indexUrl = $state<string>("");
+
+    $effect(() => {
+        const url = repositoryUrl;
+        untrack(() => {
+            if (getSpellImportRepositoryUrl() !== url) {
+                spellImportSettings.current = {repositoryUrl: url};
+            }
+        });
+    });
     let sourceEntries = $state<SourceEntry[]>([]);
     let isLoadingSources = $state(false);
     let isImportingSources = $state(false);
@@ -28,7 +39,6 @@
         loadError = "";
         importError = "";
         importSummary = "";
-        sourceEntries = [];
 
         if (!repositoryUrl.trim()) {
             loadError = "Please enter a valid repository URL first.";
@@ -133,6 +143,27 @@
         <Section title="Source Selection" subtitle="Choose which sources to import">
             <div class="card p-4 preset-tonal space-y-4">
                 <p class="text-sm opacity-80">{sourceEntries.length} sources found, {selectedCount} selected.</p>
+                <div class="flex flex-wrap gap-2">
+                    <button
+                        type="button"
+                        class="btn preset-tonal"
+                        onclick={loadSources}
+                        disabled={isLoadingSources || isImportingSources}
+                    >
+                        {isLoadingSources ? "Reloading…" : "Reload source list"}
+                    </button>
+                    <button
+                        type="button"
+                        class="btn preset-tonal"
+                        onclick={() => {
+                            sourceEntries = [];
+                            loadError = "";
+                        }}
+                        disabled={isLoadingSources || isImportingSources}
+                    >
+                        Change repository
+                    </button>
+                </div>
                 <div class="flex items-center justify-between gap-3">
                     <div class="flex gap-2 flex-wrap">
                         <button class="btn grow preset-tonal" onclick={() => setAllSelected(true)}>Select all</button>
@@ -163,7 +194,7 @@
 
                 {#if importSummary}
                     <p class="text-success-500">{importSummary}</p>
-                    <a href="/" class="w-full btn preset-filled-primary-500">Go Back Home</a>
+                    <a href={resolve("/")} class="w-full btn preset-filled-primary-500">Go Back Home</a>
                 {/if}
             </div>
         </Section>

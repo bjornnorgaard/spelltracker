@@ -13,6 +13,9 @@ import {
     selectRecommendedSources,
     sourceFileToUrl,
     splitCommaValues,
+    spellMatchesSubclassFilters,
+    splitSpellSubclassLabels,
+    subclassLabelClassPrefix,
     type SourceEntry,
     upsertSpellsByNameSource,
 } from "$lib/utils/spell-import";
@@ -356,6 +359,74 @@ describe("lookup class enrichment", () => {
         const result = enrichSpellsWithLookupClasses([baseSpell], lookupPayload);
 
         expect(result[0].classes).toEqual(["Sorcerer", "Wizard"]);
+    });
+
+    it("enriches subclasses from lookup subclass tree (5etools-style)", () => {
+        const lookupPayload = {
+            phb: {
+                "jim's magic missile": {
+                    class: {
+                        PHB: {Wizard: true},
+                    },
+                    subclass: {
+                        XPHB: {
+                            Bard: {
+                                XPHB: {
+                                    Lore: {name: "College of Lore"},
+                                },
+                            },
+                            Wizard: {
+                                XPHB: {
+                                    Evoker: {name: "Evoker"},
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        };
+
+        const baseSpell: Spell = {
+            id: "jims-magic-missile-phb",
+            name: "Jim's Magic Missile",
+            source: "PHB",
+            page: "1",
+            level: 1,
+            castingTime: "1 action",
+            duration: "Instantaneous",
+            school: "Evocation",
+            ritual: false,
+            range: "120 feet",
+            components: "V, S",
+            classes: ["Wizard"],
+            subclasses: "",
+            text: "…",
+            atHigherLevels: "",
+        };
+
+        const result = enrichSpellsWithLookupClasses([baseSpell], lookupPayload);
+
+        expect(result[0].subclasses).toContain("Bard: College of Lore");
+        expect(result[0].subclasses).toContain("Wizard: Evoker");
+    });
+});
+
+describe("splitSpellSubclassLabels and spellMatchesSubclassFilters", () => {
+    it("splits subclass strings on commas and semicolons", () => {
+        expect(splitSpellSubclassLabels("Bard: Lore; Wizard: Evoker")).toEqual(["Bard: Lore", "Wizard: Evoker"]);
+        expect(splitSpellSubclassLabels("Foo, Bar")).toEqual(["Foo", "Bar"]);
+    });
+
+    it("subclassLabelClassPrefix reads class name before colon", () => {
+        expect(subclassLabelClassPrefix("Bard: College of Lore")).toBe("Bard");
+        expect(subclassLabelClassPrefix("Arcane Trickster Rogue")).toBe(null);
+    });
+
+    it("matches subclass filter tokens against spell text", () => {
+        expect(spellMatchesSubclassFilters("Bard: College of Lore; Fighter: Eldritch Knight", [])).toBe(true);
+        expect(spellMatchesSubclassFilters("Bard: College of Lore", ["Bard: College of Lore"])).toBe(true);
+        expect(spellMatchesSubclassFilters("Bard: College of Lore", ["Wizard: Evoker"])).toBe(false);
+        expect(spellMatchesSubclassFilters("", ["Bard: College of Lore"])).toBe(false);
     });
 });
 

@@ -250,6 +250,107 @@ export function buildSpellFromCsvRow(row: SpellCsvRow): Spell {
     };
 }
 
+/**
+ * Splits subclass lines from CSV / merged import strings. Supports comma or semicolon separators.
+ */
+export function splitSpellSubclassLabels(value: string): string[] {
+    if (typeof value !== "string" || !value.trim()) {
+        return [];
+    }
+
+    return value
+        .split(/[;,]/)
+        .map((part) => part.trim())
+        .filter((part) => part.length > 0);
+}
+
+/**
+ * For "ClassName: Subclass …" labels (e.g. from lookup enrichment), returns the class name, or null if not in that form.
+ */
+export function subclassLabelClassPrefix(label: string): string | null {
+    const trimmed = String(label ?? "").trim();
+    const idx = trimmed.indexOf(":");
+    if (idx === -1) return null;
+
+    const prefix = normalizeClassName(trimmed.slice(0, idx));
+    return prefix.length > 0 ? prefix : null;
+}
+
+function mergeUniqueSubclassLabels(existing: string, incoming: string[]): string {
+    const seen = new Set<string>();
+    const out: string[] = [];
+
+    for (const label of splitSpellSubclassLabels(existing)) {
+        const key = label.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push(label);
+    }
+
+    for (const label of incoming) {
+        const trimmed = label.trim();
+        if (!trimmed) continue;
+        const key = trimmed.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push(trimmed);
+    }
+
+    return out.join("; ");
+}
+
+function collectSubclassLabelsFromTree(subclassRoot: Record<string, unknown>): string[] {
+    const labels = new Set<string>();
+
+    for (const outer of Object.values(subclassRoot)) {
+        if (!outer || typeof outer !== "object") continue;
+
+        for (const [className, classNode] of Object.entries(outer as Record<string, unknown>)) {
+            if (!classNode || typeof classNode !== "object") continue;
+
+            for (const inner of Object.values(classNode as Record<string, unknown>)) {
+                if (!inner || typeof inner !== "object") continue;
+
+                for (const subVal of Object.values(inner as Record<string, unknown>)) {
+                    if (!subVal || typeof subVal !== "object") continue;
+
+                    const name = (subVal as { name?: unknown }).name;
+                    if (typeof name !== "string" || !name.trim()) continue;
+
+                    const normalizedClass = normalizeClassName(className);
+                    if (!normalizedClass) continue;
+
+                    labels.add(`${normalizedClass}: ${name.trim()}`);
+                }
+            }
+        }
+    }
+
+    return [...labels];
+}
+
+function getSubclassesFromLookup(lookup: SpellSourceLookup, spellSource: string, spellName: string): string[] {
+    const sourceKey = spellSource.toLowerCase();
+    const spellKey = spellName.toLowerCase();
+
+    const sourceLookup = lookup[sourceKey];
+    if (!sourceLookup || typeof sourceLookup !== "object") {
+        return [];
+    }
+
+    const lookupEntry = sourceLookup[spellKey] as Record<string, unknown> | undefined;
+    if (!lookupEntry || typeof lookupEntry !== "object") {
+        return [];
+    }
+
+    const subclassRoot = lookupEntry.subclass as Record<string, unknown> | undefined;
+    if (!subclassRoot || typeof subclassRoot !== "object") {
+        return [];
+    }
+
+    return collectSubclassLabelsFromTree(subclassRoot);
+}
+
 function getClassesFromLookup(lookup: SpellSourceLookup, spellSource: string, spellName: string): string[] {
     const sourceKey = spellSource.toLowerCase();
     const spellKey = spellName.toLowerCase();
@@ -290,14 +391,43 @@ function getClassesFromLookup(lookup: SpellSourceLookup, spellSource: string, sp
 
 export function enrichSpellWithLookupClasses(spell: Spell, lookup: SpellSourceLookup): Spell {
     const lookupClasses = getClassesFromLookup(lookup, spell.source, spell.name);
-    if (!lookupClasses.length) {
+    const lookupSubclasses = getSubclassesFromLookup(lookup, spell.source, spell.name);
+
+    if (!lookupClasses.length && !lookupSubclasses.length) {
         return spell;
     }
 
-    return {
-        ...spell,
-        classes: [...new Set([...lookupClasses, ...(spell.classes ?? [])].map(normalizeClassName).filter(Boolean))],
-    };
+    const next: Spell = {...spell};
+
+    if (lookupClasses.length) {
+        next.classes = [...new Set([...lookupClasses, ...(spell.classes ?? [])].map(normalizeClassName).filter(Boolean))];
+    }
+
+    if (lookupSubclasses.length) {
+        next.subclasses = mergeUniqueSubclassLabels(spell.subclasses ?? "", lookupSubclasses);
+    }
+
+    return next;
+}
+
+/**
+ * Returns whether a spell's subclass text matches at least one filter token (used for UI filtering).
+ */
+export function spellMatchesSubclassFilters(spellSubclasses: string | undefined, filters: string[]): boolean {
+    if (!filters.length) return true;
+
+    const raw = String(spellSubclasses ?? "").trim();
+    if (!raw) return false;
+
+    const haystack = raw.toLowerCase();
+    const segments = new Set(splitSpellSubclassLabels(raw).map((s) => s.toLowerCase()));
+
+    return filters.some((token) => {
+        const t = token.trim().toLowerCase();
+        if (!t) return true;
+        if (segments.has(t)) return true;
+        return haystack.includes(t);
+    });
 }
 
 export function enrichSpellsWithLookupClasses(spellList: Spell[], lookup: SpellSourceLookup): Spell[] {

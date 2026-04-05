@@ -24,7 +24,8 @@
 
     let search = $state("");
     let levelFilters = $state<number[]>([]);
-    let classFilters = $state<string[]>([]);
+    /** At most one class; `null` means no class filter. */
+    let selectedClassFilter = $state<string | null>(null);
     let subclassFilters = $state<string[]>([]);
     let selectedSpellsOnly = $state(false);
     let openSpellId = $state<string[]>([]);
@@ -37,14 +38,13 @@
     });
 
     let availableSubclasses: string[] = $derived.by(() => {
-        if (classFilters.length === 0) return [];
+        if (selectedClassFilter == null) return [];
 
-        const selectedClasses = new Set(classFilters);
         const byKey: Record<string, string> = {};
         for (const spell of spells.current) {
             for (const label of splitSpellSubclassLabels(spell.subclasses ?? "")) {
                 const prefix = subclassLabelClassPrefix(label);
-                if (prefix == null || !selectedClasses.has(prefix)) continue;
+                if (prefix == null || prefix !== selectedClassFilter) continue;
                 const key = label.toLowerCase();
                 if (!(key in byKey)) byKey[key] = label;
             }
@@ -63,7 +63,8 @@
             if (selectedSpellsOnly && !selectedIdSet.has(spell.id)) return false;
             const matchesSearch = term ? spell.name.toLowerCase().includes(term) : true;
             const matchesLevel = levelFilters.length > 0 ? levelFilters.includes(spell.level) : true;
-            const matchesClass = classFilters.length > 0 ? classFilters.some((className) => (spell.classes ?? []).includes(className)) : true;
+            const matchesClass =
+                selectedClassFilter != null ? (spell.classes ?? []).includes(selectedClassFilter) : true;
             const matchesSubclass = spellMatchesSubclassFilters(spell.subclasses, subclassFilters);
             return matchesSearch && matchesLevel && matchesClass && matchesSubclass;
         });
@@ -103,16 +104,17 @@
     }
 
     function toggleClassFilter(className: string) {
-        if (classFilters.includes(className)) {
-            const next = classFilters.filter((current) => current !== className).sort((a, b) => a.localeCompare(b));
-            classFilters = next;
-            subclassFilters = subclassFilters.filter((label) => {
-                const prefix = subclassLabelClassPrefix(label);
-                return prefix != null && next.includes(prefix);
-            });
-        } else {
-            classFilters = [...classFilters, className].sort((a, b) => a.localeCompare(b));
+        if (selectedClassFilter === className) {
+            selectedClassFilter = null;
+            subclassFilters = [];
+            return;
         }
+
+        selectedClassFilter = className;
+        subclassFilters = subclassFilters.filter((label) => {
+            const prefix = subclassLabelClassPrefix(label);
+            return prefix != null && prefix === className;
+        });
     }
 
     function toggleSubclassFilter(label: string) {
@@ -125,7 +127,7 @@
 
     function clearFilters() {
         levelFilters = [];
-        classFilters = [];
+        selectedClassFilter = null;
         subclassFilters = [];
         selectedSpellsOnly = false;
     }
@@ -358,14 +360,14 @@
             <div class="flex flex-wrap gap-2">
                 {#each DND_CLASSES as className (className)}
                     <button class="btn btn-sm grow"
-                            class:preset-filled-secondary-500={classFilters.includes(className)}
-                            class:preset-tonal={!classFilters.includes(className)}
+                            class:preset-filled-secondary-500={selectedClassFilter === className}
+                            class:preset-tonal={selectedClassFilter !== className}
                             onclick={() => toggleClassFilter(className)}>
                         {className}
                     </button>
                 {/each}
             </div>
-            {#if classFilters.length > 0 && availableSubclasses.length > 0}
+            {#if selectedClassFilter != null && availableSubclasses.length > 0}
                 <p class="uppercase tracking-wide opacity-70">Filter by subclass</p>
                 <div class="flex flex-wrap gap-2">
                     {#each availableSubclasses as label (label)}

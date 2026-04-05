@@ -63,10 +63,19 @@
             if (selectedSpellsOnly && !selectedIdSet.has(spell.id)) return false;
             const matchesSearch = term ? spell.name.toLowerCase().includes(term) : true;
             const matchesLevel = levelFilters.length > 0 ? levelFilters.includes(spell.level) : true;
-            const matchesClass =
-                selectedClassFilter != null ? (spell.classes ?? []).includes(selectedClassFilter) : true;
-            const matchesSubclass = spellMatchesSubclassFilters(spell.subclasses, subclassFilters);
-            return matchesSearch && matchesLevel && matchesClass && matchesSubclass;
+
+            // Class + subclass: subclass spells are extra options, not a narrowing filter — show the
+            // full class list plus any spell tagged for the selected subclass(es).
+            const onClassSpellList =
+                selectedClassFilter == null || (spell.classes ?? []).includes(selectedClassFilter);
+            const matchesClassAndSubclassAvailability =
+                subclassFilters.length === 0
+                    ? onClassSpellList
+                    : selectedClassFilter != null
+                      ? onClassSpellList || spellMatchesSubclassFilters(spell.subclasses, subclassFilters)
+                      : spellMatchesSubclassFilters(spell.subclasses, subclassFilters);
+
+            return matchesSearch && matchesLevel && matchesClassAndSubclassAvailability;
         });
 
         return filtered.sort((a: Spell, b: Spell) => a.level - b.level || a.name.localeCompare(b.name)).slice(0, 100);

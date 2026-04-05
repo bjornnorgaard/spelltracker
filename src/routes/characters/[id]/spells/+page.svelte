@@ -10,6 +10,7 @@
     import type {Spell} from "$lib/types/spell";
     import Section from "$lib/components/Section.svelte";
     import {DEFAULT_SPELLCASTING_ABILITY_SCORE, DND_CLASSES} from "$lib/utils/constants";
+    import {spellMatchesSubclassFilters, splitSpellSubclassLabels, subclassLabelClassPrefix} from "$lib/utils/spell-import";
     import {calculateSpellSaveDc, getAbilityModifier, getProficiencyBonusForLevel} from "$lib/utils/spell-save-dc";
     import {getSavingThrowAbility, spellRequiresSavingThrow} from "$lib/utils/spell-save-parser";
 
@@ -19,6 +20,7 @@
     let search = $state("");
     let levelFilters = $state<number[]>([]);
     let classFilters = $state<string[]>([]);
+    let subclassFilters = $state<string[]>([]);
     let selectedSpellsOnly = $state(false);
     let openSpellId = $state<string[]>([]);
 
@@ -27,6 +29,22 @@
     let availableClasses: string[] = $derived.by(() => {
         const classes: string[] = spells.current.flatMap((spell: Spell) => spell.classes ?? []);
         return [...new Set<string>(classes)].sort((a: string, b: string) => a.localeCompare(b));
+    });
+
+    let availableSubclasses: string[] = $derived.by(() => {
+        if (classFilters.length === 0) return [];
+
+        const selectedClasses = new Set(classFilters);
+        const byKey: Record<string, string> = {};
+        for (const spell of spells.current) {
+            for (const label of splitSpellSubclassLabels(spell.subclasses ?? "")) {
+                const prefix = subclassLabelClassPrefix(label);
+                if (prefix == null || !selectedClasses.has(prefix)) continue;
+                const key = label.toLowerCase();
+                if (!(key in byKey)) byKey[key] = label;
+            }
+        }
+        return Object.values(byKey).sort((a, b) => a.localeCompare(b));
     });
 
     let filteredSpells = $derived.by(() => {
@@ -41,7 +59,8 @@
             const matchesSearch = term ? spell.name.toLowerCase().includes(term) : true;
             const matchesLevel = levelFilters.length > 0 ? levelFilters.includes(spell.level) : true;
             const matchesClass = classFilters.length > 0 ? classFilters.some((className) => (spell.classes ?? []).includes(className)) : true;
-            return matchesSearch && matchesLevel && matchesClass;
+            const matchesSubclass = spellMatchesSubclassFilters(spell.subclasses, subclassFilters);
+            return matchesSearch && matchesLevel && matchesClass && matchesSubclass;
         });
 
         return filtered.sort((a: Spell, b: Spell) => a.level - b.level || a.name.localeCompare(b.name)).slice(0, 100);
@@ -78,15 +97,29 @@
 
     function toggleClassFilter(className: string) {
         if (classFilters.includes(className)) {
-            classFilters = classFilters.filter((current) => current !== className);
+            const next = classFilters.filter((current) => current !== className).sort((a, b) => a.localeCompare(b));
+            classFilters = next;
+            subclassFilters = subclassFilters.filter((label) => {
+                const prefix = subclassLabelClassPrefix(label);
+                return prefix != null && next.includes(prefix);
+            });
         } else {
             classFilters = [...classFilters, className].sort((a, b) => a.localeCompare(b));
+        }
+    }
+
+    function toggleSubclassFilter(label: string) {
+        if (subclassFilters.includes(label)) {
+            subclassFilters = subclassFilters.filter((current) => current !== label);
+        } else {
+            subclassFilters = [...subclassFilters, label].sort((a, b) => a.localeCompare(b));
         }
     }
 
     function clearFilters() {
         levelFilters = [];
         classFilters = [];
+        subclassFilters = [];
         selectedSpellsOnly = false;
     }
 
@@ -316,6 +349,20 @@
                     </button>
                 {/each}
             </div>
+            {#if classFilters.length > 0 && availableSubclasses.length > 0}
+                <p class="uppercase tracking-wide opacity-70">Filter by subclass</p>
+                <div class="flex flex-wrap gap-2">
+                    {#each availableSubclasses as label (label)}
+                        <button class="btn btn-sm grow"
+                                class:preset-filled-tertiary-500={subclassFilters.includes(label)}
+                                class:preset-tonal={!subclassFilters.includes(label)}
+                                onclick={() => toggleSubclassFilter(label)}
+                                title={label}>
+                            {label}
+                        </button>
+                    {/each}
+                </div>
+            {/if}
             <p class="uppercase tracking-wide opacity-70">Selection</p>
             <label class="flex items-center gap-2">
                 <input class="checkbox" type="checkbox" bind:checked={selectedSpellsOnly}/>

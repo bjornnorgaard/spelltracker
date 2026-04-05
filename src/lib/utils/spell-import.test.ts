@@ -16,6 +16,8 @@ import {
     spellMatchesSubclassFilters,
     splitSpellSubclassLabels,
     subclassLabelClassPrefix,
+    spellListHasLookupSubclassLabels,
+    spellsSuggestSubclassReimport,
     type SourceEntry,
     upsertSpellsByNameSource,
 } from "$lib/utils/spell-import";
@@ -420,6 +422,43 @@ describe("splitSpellSubclassLabels and spellMatchesSubclassFilters", () => {
     it("subclassLabelClassPrefix reads class name before colon", () => {
         expect(subclassLabelClassPrefix("Bard: College of Lore")).toBe("Bard");
         expect(subclassLabelClassPrefix("Arcane Trickster Rogue")).toBe(null);
+    });
+
+    it("spellListHasLookupSubclassLabels and spellsSuggestSubclassReimport detect enriched data", () => {
+        const empty: Spell[] = [];
+        expect(spellListHasLookupSubclassLabels(empty)).toBe(false);
+        expect(spellsSuggestSubclassReimport(empty)).toBe(false);
+
+        const legacyOnly: Spell[] = [
+            {
+                id: "a",
+                name: "A",
+                source: "PHB",
+                page: "1",
+                level: 0,
+                castingTime: "1",
+                duration: "1",
+                school: "Evocation",
+                ritual: false,
+                range: "60",
+                components: "V",
+                classes: ["Wizard"],
+                subclasses: "Some legacy text without colon class form",
+                text: "t",
+                atHigherLevels: "",
+            },
+        ];
+        expect(spellListHasLookupSubclassLabels(legacyOnly)).toBe(false);
+        expect(spellsSuggestSubclassReimport(legacyOnly)).toBe(true);
+
+        const withLookup: Spell[] = [
+            {
+                ...legacyOnly[0],
+                subclasses: "Wizard: Evoker",
+            },
+        ];
+        expect(spellListHasLookupSubclassLabels(withLookup)).toBe(true);
+        expect(spellsSuggestSubclassReimport(withLookup)).toBe(false);
     });
 
     it("matches subclass filter tokens against spell text", () => {

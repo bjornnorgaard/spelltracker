@@ -10,7 +10,12 @@
     import type {Spell} from "$lib/types/spell";
     import Section from "$lib/components/Section.svelte";
     import {DEFAULT_SPELLCASTING_ABILITY_SCORE, DND_CLASSES} from "$lib/utils/constants";
-    import {spellMatchesSubclassFilters, splitSpellSubclassLabels, subclassLabelClassPrefix} from "$lib/utils/spell-import";
+    import {
+        spellMatchesSubclassFilters,
+        spellsSuggestSubclassReimport,
+        splitSpellSubclassLabels,
+        subclassLabelClassPrefix,
+    } from "$lib/utils/spell-import";
     import {calculateSpellSaveDc, getAbilityModifier, getProficiencyBonusForLevel} from "$lib/utils/spell-save-dc";
     import {getSavingThrowAbility, spellRequiresSavingThrow} from "$lib/utils/spell-save-parser";
 
@@ -77,6 +82,8 @@
     );
     const spellcastingAbilityModifier = $derived(getAbilityModifier(spellcastingAbilityScore));
     const spellSaveDc = $derived(calculateSpellSaveDc({proficiencyBonus, spellcastingAbilityModifier}));
+
+    const showSubclassReimportHint = $derived(spellsSuggestSubclassReimport(spells.current as Spell[]));
 
     function uniqueIds(values: string[]) {
         return values.filter((value, index) => values.indexOf(value) === index);
@@ -321,6 +328,15 @@
     </Section>
 
     <Section title="Filters" subtitle="Find spells and verify key fields quickly">
+        {#if showSubclassReimportHint}
+            <aside class="card preset-filled-warning-500 p-4 space-y-2 mb-4">
+                <p class="font-semibold">Spell data update</p>
+                <p class="text-sm opacity-95">
+                    Spelltracker has been updated to add subclass information from your spell import lookup. Your saved spells do not include that data yet. Re-import spells to enable subclass filters and subclass labels on spells.
+                </p>
+                <a href="/spells/import" class="btn preset-tonal w-full sm:w-auto">Re-import spells</a>
+            </aside>
+        {/if}
         <div class="card p-4 preset-tonal space-y-4">
             <p class="uppercase tracking-wide opacity-70">Filter by Name</p>
             <label class="label">

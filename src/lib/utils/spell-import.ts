@@ -276,6 +276,28 @@ export function subclassLabelClassPrefix(label: string): string | null {
     return prefix.length > 0 ? prefix : null;
 }
 
+/**
+ * True if any spell has at least one "ClassName: Subclass …" label (lookup-enriched subclass text).
+ */
+export function spellListHasLookupSubclassLabels(spellList: Spell[]): boolean {
+    if (!Array.isArray(spellList)) return false;
+
+    for (const spell of spellList) {
+        for (const label of splitSpellSubclassLabels(spell.subclasses ?? "")) {
+            if (subclassLabelClassPrefix(label) != null) return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * True when the user has spells saved locally but none include lookup subclass labels (re-import recommended).
+ */
+export function spellsSuggestSubclassReimport(spellList: Spell[]): boolean {
+    return Array.isArray(spellList) && spellList.length > 0 && !spellListHasLookupSubclassLabels(spellList);
+}
+
 function mergeUniqueSubclassLabels(existing: string, incoming: string[]): string {
     const seen = new Set<string>();
     const out: string[] = [];

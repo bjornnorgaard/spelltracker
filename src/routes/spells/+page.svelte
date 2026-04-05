@@ -5,7 +5,7 @@
     import type { Spell } from "$lib/types/spell";
     import { DND_CLASSES, SPELL_LEVELS, SPELL_SCHOOLS } from "$lib/utils/constants";
     import { formatSpellLevelLong } from "$lib/utils/spell-formatter";
-    import { makeSpellId } from "$lib/utils/spell-import";
+    import { makeSpellId, spellsSuggestSubclassReimport } from "$lib/utils/spell-import";
 
     let search = $state("");
     let selectedLevel = $state<string>("all");
@@ -73,6 +73,8 @@
 
     let spellsWithIssues = $derived.by(() => allSpells.filter((spell) => getSpellIssues(spell).length > 0));
 
+    const showSubclassReimportHint = $derived(spellsSuggestSubclassReimport(allSpells));
+
     function resetFilters() {
         search = "";
         selectedLevel = "all";
@@ -86,6 +88,15 @@
 <PageHeader title="Spells" subtitle="Search, filter, and validate imported spell data" />
 
 <div class="space-y-4">
+    {#if showSubclassReimportHint}
+        <aside class="card preset-filled-warning-500 p-4 space-y-2">
+            <p class="font-semibold">Spell data update</p>
+            <p class="text-sm opacity-95">
+                Spelltracker has been updated to add subclass information from your spell import lookup. Your saved spells do not include that data yet. Re-import spells to enable subclass filters on character spell lists and subclass labels here.
+            </p>
+            <a href="/spells/import" class="btn preset-tonal w-full sm:w-auto">Re-import spells</a>
+        </aside>
+    {/if}
     <div class="card preset-tonal p-4 space-y-3">
         <SectionHeader title="Quick Validation" subtitle="Smoke-test your imported spells" />
         <div class="grid gap-2 sm:grid-cols-3">

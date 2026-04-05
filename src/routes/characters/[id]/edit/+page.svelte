@@ -102,14 +102,14 @@
     </Section>
 
     <Section title="Spell Slots" subtitle="Configure how many spells slots of each level your character has">
-        <div class="flex flex-wrap justify-center gap-4 sm:justify-between">
+        <div class="flex justify-center">
             {#each character.spellSlots.filter(ss => ss.level > 0) as slot (slot.level)}
-                <div class="flex min-w-18 flex-1 flex-col items-center gap-2 sm:min-w-0 sm:flex-none" style={`filter: hue-rotate(${slot.level * 12}deg)`}>
+                <div class="flex flex-1 flex-col items-center" style={`filter: hue-rotate(${slot.level * 12}deg)`}>
                     <span>{formatSpellLevel(slot.level)}</span>
                     <button class="preset-tonal" onclick={() => slot.total++}>
                         <ArrowUp/>
                     </button>
-                    <span class="badge preset-filled-primary-500">{slot.total}</span>
+                    <span class="badge preset-filled-primary-500 px-2 font-bold text-lg">{slot.total}</span>
                     <button class="preset-tonal" onclick={() => slot.total--}>
                         <ArrowDown/>
                     </button>

@@ -2,8 +2,8 @@ import type {ChangelogEntry} from "$lib/utils/changelog";
 
 /**
  * In-app release notes. Keep entries sorted by `id` ascending (ISO date `YYYY-MM-DD`,
- * or `YYYY-MM-DD.2` for a second release the same day). Only the latest id is stored
- * client-side after the user acknowledges — not the full text history.
+ * or `YYYY-MM-DD.2` for a second release the same day). Read state is stored as a list of
+ * entry ids in localStorage (ids not in this list are pruned on load).
  */
 export const CHANGELOG_ENTRIES: readonly ChangelogEntry[] = [
     {

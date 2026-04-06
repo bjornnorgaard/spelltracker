@@ -81,7 +81,7 @@
             </label>
 
             <label class="label min-w-0">
-                <span class="label-text">Spellcasting Modifier</span>
+                <span class="label-text">Spellcasting Score</span>
                 <input type="number" min={1} max={30} class="input preset-tonal w-full min-w-0" bind:value={character.spellcastingAbilityScore} required/>
             </label>
 

@@ -1,14 +1,12 @@
 import {LocalStorage} from "$lib/utils/storage.svelte";
 import {CHANGELOG_ENTRIES} from "$lib/data/changelog";
+import {normalizeChangelogAckState, type ChangelogAckState} from "$lib/utils/changelog-ack";
 import type {Spell} from "$lib/types/spell";
 import type {Character} from "$lib/types/character";
 
 const prefix = "spelltracker";
 
-export type ChangelogAckState = {
-    /** Entry ids the user has marked as read (only ids still present in the shipped changelog are kept). */
-    readEntryIds: string[];
-};
+export type {ChangelogAckState};
 
 const CHANGELOG_ACK_KEY = `${prefix}:changelog-ack`;
 
@@ -16,35 +14,8 @@ const DEFAULT_CHANGELOG_ACK: ChangelogAckState = {
     readEntryIds: [],
 };
 
-function legacyWaterlineToReadIds(lastAcknowledgedId: string): string[] {
-    return CHANGELOG_ENTRIES.filter(
-        (e) => e.id.localeCompare(lastAcknowledgedId, undefined, {numeric: true}) <= 0,
-    ).map((e) => e.id);
-}
-
 function normalizeChangelogAck(parsed: unknown): ChangelogAckState {
-    const empty: ChangelogAckState = {readEntryIds: []};
-    if (parsed == null || typeof parsed !== "object" || Array.isArray(parsed)) {
-        return empty;
-    }
-    const o = parsed as Record<string, unknown>;
-    const shipped = new Set(CHANGELOG_ENTRIES.map((e) => e.id));
-
-    if (Array.isArray(o.readEntryIds)) {
-        const ids = [
-            ...new Set(
-                o.readEntryIds.filter((x): x is string => typeof x === "string" && x.length > 0),
-            ),
-        ];
-        return {readEntryIds: ids.filter((id) => shipped.has(id))};
-    }
-
-    const last = o.lastAcknowledgedId;
-    if (typeof last === "string" && last.length > 0) {
-        return {readEntryIds: legacyWaterlineToReadIds(last)};
-    }
-
-    return empty;
+    return normalizeChangelogAckState(parsed, CHANGELOG_ENTRIES);
 }
 
 function migrateChangelogAckLocalStorageKey() {

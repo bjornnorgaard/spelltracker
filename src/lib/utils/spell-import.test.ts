@@ -473,6 +473,26 @@ describe("splitSpellSubclassLabels and spellMatchesSubclassFilters", () => {
         expect(spellMatchesSubclassFilters("Bard: College of Lore", ["Wizard: Evoker"])).toBe(false);
         expect(spellMatchesSubclassFilters("", ["Bard: College of Lore"])).toBe(false);
     });
+
+    it("matches substring and case-insensitive tokens in subclass haystack", () => {
+        expect(spellMatchesSubclassFilters("Bard: College of Lore", ["lore"])).toBe(true);
+        expect(spellMatchesSubclassFilters("Bard: College of Lore", ["LORE"])).toBe(true);
+        expect(spellMatchesSubclassFilters("Wizard: Evoker", ["evoker"])).toBe(true);
+    });
+
+    it("matches any segment exactly when split by comma or semicolon", () => {
+        expect(spellMatchesSubclassFilters("Foo; Bar", ["bar"])).toBe(true);
+        expect(spellMatchesSubclassFilters("Foo, Bar", ["foo"])).toBe(true);
+    });
+
+    it("returns true when a filter token is whitespace-only (treated as pass)", () => {
+        expect(spellMatchesSubclassFilters("Bard: Lore", ["  "])).toBe(true);
+    });
+
+    it("matches if any of several filters hits (OR)", () => {
+        expect(spellMatchesSubclassFilters("Bard: X", ["nope", "bard: x"])).toBe(true);
+        expect(spellMatchesSubclassFilters("Bard: X", ["wizard", "sorcerer"])).toBe(false);
+    });
 });
 
 describe("source selection helpers", () => {

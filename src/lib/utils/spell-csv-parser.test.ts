@@ -20,6 +20,7 @@ describe('spell-csv-parser', () => {
             expect(spells[0].components).toBe('V, S');
             expect(spells[0].classes).toContain('Artificer (EFA)');
             expect(spells[0].classes).toContain('Sorcerer (PHB\'24)');
+            expect(spells[0].subclasses).toContain('Arcane Trickster');
             expect(spells[0].text).toContain('You hurl a mote of fire');
             expect(spells[0].atHigherLevels).toContain('Cantrip Upgrade');
         });

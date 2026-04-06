@@ -13,15 +13,34 @@ export function sortChangelogEntriesById(entries: readonly ChangelogEntry[]): Ch
     return [...entries].sort((a, b) => a.id.localeCompare(b.id, undefined, {numeric: true}));
 }
 
+/** All shipped entry ids in sort order (for persisting “read” state). */
+export function getShippedEntryIds(entries: readonly ChangelogEntry[]): string[] {
+    return sortChangelogEntriesById(entries).map((e) => e.id);
+}
+
 export function getPendingChangelogEntries(
     entries: readonly ChangelogEntry[],
-    lastAcknowledgedId: string | null,
+    readEntryIds: readonly string[],
 ): ChangelogEntry[] {
-    const sorted = sortChangelogEntriesById(entries);
-    if (lastAcknowledgedId === null || lastAcknowledgedId === "") {
-        return sorted;
-    }
-    return sorted.filter((e) => e.id.localeCompare(lastAcknowledgedId, undefined, {numeric: true}) > 0);
+    const read = new Set(readEntryIds);
+    return sortChangelogEntriesById(entries).filter((e) => !read.has(e.id));
+}
+
+/** Unread if this id is not in the user’s read list. */
+export function isChangelogEntryUnread(entryId: string, readEntryIds: readonly string[]): boolean {
+    return !readEntryIds.includes(entryId);
+}
+
+/** Mark one id read; returns a new array (deduped). */
+export function withEntryMarkedRead(readEntryIds: readonly string[], entryId: string): string[] {
+    if (readEntryIds.includes(entryId)) return [...readEntryIds];
+    return [...readEntryIds, entryId];
+}
+
+/** Remove id from the read list (show as unread again). */
+export function withEntryMarkedUnread(readEntryIds: readonly string[], entryId: string): string[] {
+    if (!readEntryIds.includes(entryId)) return [...readEntryIds];
+    return readEntryIds.filter((id) => id !== entryId);
 }
 
 /** Latest id in the shipped list — used when the user acknowledges all pending notes. */

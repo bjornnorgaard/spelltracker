@@ -350,7 +350,7 @@
                        placeholder="Find a spell by name..." autocomplete="off"/>
             </label>
 
-            <p class="uppercase tracking-wide opacity-70">Filter by level</p>
+            <p class="uppercase tracking-wide opacity-70">Filter by spell-level</p>
             <div class="flex flex-wrap gap-2">
                 {#each character.spellSlots as slot (slot.level)}
                     <button class="btn btn-sm grow" onclick={() => toggleLevelFilter(slot.level)}

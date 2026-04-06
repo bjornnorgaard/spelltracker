@@ -11,7 +11,7 @@
     import type {FreeCastSpell} from "$lib/types/freeCastSpell";
     import ConcentrationWarningDialog from "$lib/components/ConcentrationWarningDialog.svelte";
     import ConcentrationFloatingAlert from "$lib/components/ConcentrationFloatingAlert.svelte";
-    import {Brain, BookOpenText, HeartPlus, ListTodo, RotateCcw, Sun, UserRoundPen, X, Zap} from "@lucide/svelte";
+    import {BookOpenText, Brain, HeartPlus, ListTodo, RotateCcw, Sun, UserRoundPen, X, Zap} from "@lucide/svelte";
     import type {Character} from "$lib/types/character";
     import Section from "$lib/components/Section.svelte";
 
@@ -290,8 +290,8 @@
         <div class="card preset-tonal p-4 space-y-2">
             <p><strong>Spellcasting Ability:</strong> {character.spellcastingAbility} ({spellcastingAbilityScore})</p>
             <p><strong>Spell Save DC:</strong> {spellSaveDc}</p>
-            <p class="text-sm opacity-75">Formula: 8 + proficiency bonus + spellcasting ability modifier</p>
-            <p class="text-sm opacity-75">Breakdown: 8 + {proficiencyBonus} + {spellcastingAbilityModifier} = {spellSaveDc}</p>
+            <p class="text-sm opacity-75">8 + proficiency bonus + spellcasting modifier</p>
+            <p class="text-sm opacity-75">8 + {proficiencyBonus} + {spellcastingAbilityModifier} = {spellSaveDc}</p>
         </div>
     </Section>
 

@@ -156,7 +156,7 @@
         </div>
     </Section>
 
-    <Section title="Spellbook" subtitle="Select character spells, prepared spells, always prepared, and free casts.">
+    <Section title="Spellbook" subtitle="Select character spells, prepared spells, always prepared spells, and free casts of spells.">
         {#if !spells.current?.length}
             <aside class="card preset-filled-warning-500 p-4">
                 <strong class="text-xl">No Imported Spells</strong>

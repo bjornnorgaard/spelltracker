@@ -1,6 +1,7 @@
 import {LocalStorage} from "$lib/utils/storage.svelte";
 import {CHANGELOG_ENTRIES} from "$lib/data/changelog";
 import {normalizeChangelogAckState, type ChangelogAckState} from "$lib/utils/changelog-ack";
+import {seedFirstVisitAndChangelogAck} from "$lib/utils/first-visit";
 import type {Spell} from "$lib/types/spell";
 import type {Character} from "$lib/types/character";
 
@@ -9,10 +10,30 @@ const prefix = "spelltracker";
 export type {ChangelogAckState};
 
 const CHANGELOG_ACK_KEY = `${prefix}:changelog-ack`;
+const FIRST_VISIT_KEY = `${prefix}:first-visit`;
 
 const DEFAULT_CHANGELOG_ACK: ChangelogAckState = {
     readEntryIds: [],
 };
+
+/**
+ * New user experience: avoid showing the entire historical changelog as unread.
+ * If `changelog-ack` has never been written, we seed it by marking all shipped entries
+ * older than the user's first-visit cutoff as read.
+ *
+ * Important: this only runs when the ack key is missing, so it won't override existing users'
+ * explicit read/unread choices.
+ */
+function ensureFirstVisitAndSeedChangelogAck() {
+    if (typeof localStorage === "undefined") return;
+    seedFirstVisitAndChangelogAck({
+        storage: localStorage,
+        firstVisitKey: FIRST_VISIT_KEY,
+        changelogAckKey: CHANGELOG_ACK_KEY,
+        nowIso: new Date().toISOString(),
+        shippedEntries: CHANGELOG_ENTRIES,
+    });
+}
 
 function normalizeChangelogAck(parsed: unknown): ChangelogAckState {
     return normalizeChangelogAckState(parsed, CHANGELOG_ENTRIES);
@@ -36,6 +57,7 @@ function migrateChangelogAckLocalStorageKey() {
 }
 
 migrateChangelogAckLocalStorageKey();
+ensureFirstVisitAndSeedChangelogAck();
 
 export type SpellImportSettings = {
     repositoryUrl: string;

@@ -1,6 +1,6 @@
-import { expect, test } from "@playwright/test";
-import { localStorageSeed, seededCharacter, testSpells } from "./fixtures/app-state";
-import { seedLocalStorage } from "./helpers";
+import {expect, test} from "@playwright/test";
+import {localStorageSeed, seededCharacter, testSpells} from "./fixtures/app-state";
+import {seedLocalStorage} from "./helpers";
 
 test("creates a character from home and lands on edit flow", async ({ page }) => {
     await seedLocalStorage(page, localStorageSeed({ spells: [], characters: [] }));
@@ -77,7 +77,7 @@ test("shows spellcasting summary with spell save DC breakdown", async ({ page })
     await expect(page.getByRole("heading", { name: "Spellcasting" })).toBeVisible();
     await expect(page.getByText("Spellcasting Ability: Intelligence (10)")).toBeVisible();
     await expect(page.getByText("Spell Save DC: 11")).toBeVisible();
-    await expect(page.getByText("Breakdown: 8 + 3 + 0 = 11")).toBeVisible();
+    await expect(page.getByText("8 + 3 + 0 = 11")).toBeVisible();
 });
 
 test("shows save hint for spells that require a saving throw", async ({ page }) => {

@@ -15,6 +15,7 @@ describe('parseSpellCSV', () => {
         expect(result.spells[0].school).toBe('Evocation');
         expect(result.spells[0].classes).toContain('Sorcerer (PHB\'24)');
         expect(result.spells[0].classes).toContain('Wizard (PHB\'24)');
+        expect(result.spells[0].subclasses).toContain('Arcane Trickster');
     });
 
     it('should handle multiple spells', () => {

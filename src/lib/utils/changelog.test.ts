@@ -36,6 +36,23 @@ describe("getPendingChangelogEntries", () => {
         expect(getPendingChangelogEntries(sample, getShippedEntryIds(sample))).toHaveLength(0);
     });
 
+    it("tracks mark read / mark unread against pending list", () => {
+        let read: string[] = [];
+        expect(getPendingChangelogEntries(sample, read).map((e) => e.id)).toEqual([
+            "2026-04-01",
+            "2026-04-03",
+            "2026-04-05",
+        ]);
+        read = withEntryMarkedRead(read, "2026-04-05");
+        expect(getPendingChangelogEntries(sample, read).map((e) => e.id)).toEqual(["2026-04-01", "2026-04-03"]);
+        read = withEntryMarkedUnread(read, "2026-04-05");
+        expect(getPendingChangelogEntries(sample, read).map((e) => e.id)).toEqual([
+            "2026-04-01",
+            "2026-04-03",
+            "2026-04-05",
+        ]);
+    });
+
     it("sorts unsorted input by id", () => {
         const shuffled: ChangelogEntry[] = [
             {id: "2026-04-05", title: "C", summary: "c"},
